@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>We Need A Goalie — DC Metro Hockey Goalie Finder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ice:#F0F8FF;--navy:#0A1628;--red:#CC2200;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;
+      --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
+      --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--gold)}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none}
+    .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
+    .nav-link.red{background:var(--red);border-color:var(--red)}
+
+    .hero{background:var(--navy);padding:0;overflow:hidden;position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .rink-lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.03) 60px)}
+    .center-circle{position:absolute;width:280px;height:280px;border:2px solid rgba(255,255,255,0.06);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
+    .red-line{position:absolute;height:3px;width:100%;background:rgba(204,34,0,0.35);top:50%}
+    .blue-line-left{position:absolute;height:3px;width:100%;background:rgba(21,101,192,0.35);top:30%}
+    .blue-line-right{position:absolute;height:3px;width:100%;background:rgba(21,101,192,0.35);top:70%}
+    .hero-content{position:relative;z-index:2;text-align:center;padding:3rem 1.5rem 2rem}
+    .site-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:#fff;letter-spacing:3px;line-height:1}
+    .dot-com{color:var(--gold)}
+    .tagline{font-size:clamp(15px,2.5vw,19px);color:rgba(255,255,255,0.7);margin-top:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+    .cta-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:2.5rem}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;border:none;transition:transform 0.15s;text-decoration:none}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.5)}
+    .btn-big{padding:20px 40px;font-size:19px}
+
+    .how{background:var(--navy);padding:3rem 1.5rem}
+    .how-inner{max-width:900px;margin:0 auto}
+    .how-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,40px);letter-spacing:2px;color:#fff;margin-bottom:0.25rem}
+    .how-sub{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:2rem;font-weight:600}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    .step{background:rgba(255,255,255,0.06);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.1);padding:1.5rem;text-align:center}
+    .step-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--gold);line-height:1;margin-bottom:8px}
+    .step h4{font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+    .step p{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.5}
+
+    .section{padding:3rem 1.5rem;max-width:900px;margin:0 auto}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,40px);letter-spacing:2px;color:var(--text);margin-bottom:0.25rem}
+    .section-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;font-weight:600}
+    .two-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+    .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:1.75rem;transition:border-color 0.2s}
+    .card:hover{border-color:var(--blue)}
+    .card-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:26px}
+    .icon-red{background:var(--red-light)}
+    .icon-blue{background:var(--blue-light)}
+    .card h3{font-size:20px;font-weight:800;margin-bottom:8px}
+    .card p{font-size:15px;color:var(--muted);line-height:1.6}
+    .card-btn{display:inline-flex;align-items:center;padding:12px 24px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;margin-top:1.25rem;text-decoration:none}
+    .card-btn-red{background:var(--red);color:#fff}
+    .card-btn-red:hover{background:#A01A00}
+    .card-btn-blue{background:var(--blue);color:#fff}
+    .card-btn-blue:hover{background:#0D47A1}
+
+    .levels-card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:2rem}
+    .levels-card h3{font-size:18px;font-weight:800;margin-bottom:1rem}
+    .level-row{display:flex;flex-wrap:wrap;gap:10px}
+    .level-badge{display:inline-flex;align-items:center;padding:10px 18px;border-radius:40px;font-size:15px;font-weight:700;border:2px solid transparent}
+    .lvl-a{background:#FFF3E0;color:#BF360C;border-color:#FFCC80}
+    .lvl-b{background:#E8EAF6;color:#283593;border-color:#9FA8DA}
+    .lvl-c{background:#E8F5E9;color:#1B5E20;border-color:#A5D6A7}
+    .lvl-d{background:#E3F2FD;color:#0D47A1;border-color:#90CAF9}
+    .lvl-r{background:#F3E5F5;color:#4A148C;border-color:#CE93D8}
+
+    .cta-bottom{background:var(--navy);padding:3rem 1.5rem;text-align:center}
+    .cta-bottom h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,52px);color:#fff;letter-spacing:2px;margin-bottom:0.5rem}
+    .cta-bottom p{color:rgba(255,255,255,0.6);font-size:16px;margin-bottom:2rem}
+
+    footer{background:#060E1A;padding:1.5rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    footer .fl{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:2px}
+    footer .fl span{color:var(--gold)}
+    footer p{font-size:13px;color:rgba(255,255,255,0.35)}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+  <div class="nav-links">
+    <a href="find-goalie.html" class="nav-link red">Need a Goalie</a>
+    <a href="goalie-signup.html" class="nav-link">I Am a Goalie</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="rink-lines"></div>
+  <div class="center-circle"></div>
+  <div class="red-line"></div>
+  <div class="blue-line-left"></div>
+  <div class="blue-line-right"></div>
+  <div class="hero-content">
+    <div class="site-name">We Need A Goalie<span class="dot-com">.</span>com</div>
+    <div class="tagline">Connecting DC-Area Hockey Teams With Available Goalies — Fast</div>
+    <div class="cta-row">
+      <a href="find-goalie.html" class="btn btn-red btn-big">🏒 My Team Needs a Goalie</a>
+      <a href="goalie-signup.html" class="btn btn-outline btn-big">I Am a Goalie →</a>
+    </div>
+  </div>
+</div>
+
+<div class="how">
+  <div class="how-inner">
+    <div class="how-title">How it works</div>
+    <div class="how-sub">Three steps, zero hassle</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><h4>Team posts a need</h4><p>Enter your zip, pick your rink, choose a date, time, and skill level</p></div>
+      <div class="step"><div class="step-num">02</div><h4>We match goalies</h4><p>Goalies signed up for that rink and level get an instant email notification</p></div>
+      <div class="step"><div class="step-num">03</div><h4>Goalie confirms</h4><p>The goalie reaches out to your contact — you're set to play</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="section-title">Pick your side</div>
+  <div class="section-sub">Whether you're scrambling for a net-minder or ready to suit up</div>
+  <div class="two-col">
+    <div class="card">
+      <div class="card-icon icon-red">🏒</div>
+      <h3>I need a goalie</h3>
+      <p>Post your game details — rink, time, level — and we'll reach out to available goalies near you automatically. No account required.</p>
+      <a href="find-goalie.html" class="card-btn card-btn-red">Post a game need →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon icon-blue">🥅</div>
+      <h3>I am a goalie</h3>
+      <p>Enter your zip code, pick rinks you'll play at, set your skill level and email — then wait for teams to find you.</p>
+      <a href="goalie-signup.html" class="card-btn card-btn-blue">Sign up as a goalie →</a>
+    </div>
+  </div>
+
+  <div class="levels-card" style="margin-top:2rem">
+    <h3>Skill levels supported</h3>
+    <div class="level-row">
+      <span class="level-badge lvl-a">A — Advanced</span>
+      <span class="level-badge lvl-b">B+ — Upper B</span>
+      <span class="level-badge lvl-b">B — Lower B</span>
+      <span class="level-badge lvl-c">C+ — Upper C</span>
+      <span class="level-badge lvl-c">C — Lower C</span>
+      <span class="level-badge lvl-d">D+ — Upper D</span>
+      <span class="level-badge lvl-d">D — Beginner</span>
+      <span class="level-badge lvl-r">Rec / Pickup</span>
+    </div>
+  </div>
+</div>
+
+<div class="cta-bottom">
+  <h2>Ready to fill that net?</h2>
+  <p>It takes about 60 seconds to post a need or sign up as a goalie</p>
+  <div class="cta-row">
+    <a href="find-goalie.html" class="btn btn-red btn-big">Post a game need</a>
+    <a href="goalie-signup.html" class="btn btn-outline">Sign up as a goalie</a>
+  </div>
+</div>
+
+<footer>
+  <div class="fl">WENeedAGoalie<span>.</span>com</div>
+  <p>DC Metro Area Hockey · Free to use</p>
+</footer>
+</body>
+</html>

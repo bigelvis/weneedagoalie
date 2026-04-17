@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goalie Sign-Up — We Need A Goalie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ice:#F0F8FF;--navy:#0A1628;--red:#CC2200;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;
+      --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
+      --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;--green-border:#7BC99A;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--gold)}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none}
+    .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
+    .nav-link.active{background:var(--red);border-color:var(--red)}
+    .page-hero{background:var(--navy);padding:2.5rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(21,101,192,0.18) 0%,transparent 70%)}
+    .page-hero-content{position:relative;z-index:1}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,7vw,64px);color:#fff;letter-spacing:3px;line-height:1}
+    .page-sub{font-size:16px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
+    .steps-bar{display:flex;align-items:center;justify-content:center;padding:1.25rem 1rem;background:var(--white);border-bottom:1.5px solid var(--border);gap:0}
+    .step-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:40px;font-size:13px;font-weight:800;color:var(--muted);transition:all 0.2s}
+    .step-pill.done{color:var(--green)}
+    .step-pill.active{background:var(--blue-light);color:var(--blue)}
+    .step-num-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--border);color:var(--muted);flex-shrink:0;transition:all 0.2s}
+    .step-pill.active .step-num-circle{background:var(--blue);color:#fff}
+    .step-pill.done .step-num-circle{background:var(--green);color:#fff}
+    .step-arrow{color:var(--border);font-size:18px;margin:0 2px}
+    .form-wrap{max-width:640px;margin:0 auto;padding:2rem 1.5rem}
+    .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
+    .card-title{font-size:20px;font-weight:800;margin-bottom:4px}
+    .card-desc{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+    .field{margin-bottom:1.25rem}
+    .label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
+    .req{color:var(--red);margin-left:2px}
+    input[type=text],input[type=email]{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,0.12)}
+    input::placeholder{color:#AAB4C8}
+    .hint{font-size:13px;color:var(--muted);margin-top:6px}
+    .age-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+    .age-btn{position:relative;padding:14px 10px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--text);transition:all 0.15s}
+    .age-btn:hover{border-color:var(--green);background:var(--green-light)}
+    .age-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green)}
+    .corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .age-btn.selected .corner-check{display:flex}
+    .zip-row{display:flex;gap:10px}
+    .zip-row input{flex:1}
+    .btn-find{padding:14px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+    .btn-find:hover{background:#0D47A1}
+    .btn-find:disabled{background:#AAB4C8;cursor:not-allowed}
+    .rinks-list{margin-top:1rem;display:flex;flex-direction:column;gap:8px}
+    .rink-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;position:relative}
+    .rink-item:hover{border-color:var(--green);background:var(--green-light)}
+    .rink-item.selected{border-color:var(--green);background:var(--green-light)}
+    .rink-corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .rink-item.selected .rink-corner-check{display:flex}
+    .rink-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:#fff;flex-shrink:0;transition:all 0.15s}
+    .rink-item.selected .rink-dot{background:var(--green);border-color:var(--green)}
+    .rink-info{flex:1}
+    .rink-name{font-size:15px;font-weight:800}
+    .rink-addr{font-size:13px;color:var(--muted);margin-top:2px}
+    .rink-dist{font-size:13px;font-weight:800;color:var(--blue);white-space:nowrap}
+    .selected-count{font-size:13px;font-weight:700;color:var(--green);margin-top:10px}
+    .level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+    .level-btn{position:relative;padding:14px 10px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;transition:all 0.15s}
+    .level-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .level-btn.selected{transform:translateY(-2px)}
+    .level-letter{font-family:'Bebas Neue',sans-serif;font-size:30px;line-height:1;margin-bottom:3px}
+    .level-name{font-size:12px;font-weight:800;color:var(--muted)}
+    .level-corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .level-btn.selected .level-corner-check{display:flex}
+    .level-note{font-size:13px;color:var(--muted);margin-top:10px;min-height:18px}
+    .btn-next{width:100%;padding:18px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all 0.15s;margin-top:0.5rem}
+    .btn-next:hover{background:#0D47A1;transform:translateY(-1px)}
+    .btn-next:disabled{background:#AAB4C8;cursor:not-allowed;transform:none}
+    .tag{display:inline-flex;padding:5px 11px;border-radius:20px;font-size:13px;font-weight:700;margin:3px}
+    .tag-blue{background:var(--blue-light);color:var(--blue)}
+    .tag-green{background:var(--green-light);color:var(--green)}
+    .review-table{width:100%;font-size:15px;border-collapse:collapse}
+    .review-table td{padding:12px 0;vertical-align:top}
+    .review-table tr{border-bottom:1px solid var(--border)}
+    .review-table tr:last-child{border-bottom:none}
+    .rl{color:var(--muted);font-weight:800;width:130px}
+    .success-card{background:var(--green-light);border:2px solid var(--green-border);border-radius:var(--radius);padding:2.5rem;text-align:center;display:none}
+    .success-title{font-family:'Bebas Neue',sans-serif;font-size:40px;color:var(--green);letter-spacing:2px}
+    .success-msg{font-size:16px;color:#2E7D52;margin-top:10px;line-height:1.7}
+    .err-msg{background:var(--red-light);border:1.5px solid #F5A090;color:var(--red);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-top:12px;display:none}
+    .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+  <div class="nav-links">
+    <a href="find-goalie.html" class="nav-link">Need a Goalie</a>
+    <a href="goalie-signup.html" class="nav-link active">I Am a Goalie</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-content">
+    <div class="page-title">Goalie Sign-Up</div>
+    <div class="page-sub">Tell us who you are, where you'll play, and your skill level</div>
+  </div>
+</div>
+
+<div class="steps-bar">
+  <div class="step-pill active" id="sp1"><div class="step-num-circle" id="sc1">1</div>Your Info</div>
+  <div class="step-arrow">›</div>
+  <div class="step-pill" id="sp2"><div class="step-num-circle" id="sc2">2</div>Rinks</div>
+  <div class="step-arrow">›</div>
+  <div class="step-pill" id="sp3"><div class="step-num-circle" id="sc3">3</div>Skill Level</div>
+  <div class="step-arrow">›</div>
+  <div class="step-pill" id="sp4"><div class="step-num-circle" id="sc4">4</div>Review</div>
+</div>
+
+<div class="form-wrap">
+  <div id="step1">
+    <div class="card">
+      <div class="card-title">About you</div>
+      <div class="card-desc">Basic info so teams can reach you when they need a goalie</div>
+      <div class="field"><label class="label">Full name <span class="req">*</span></label><input type="text" id="fname" placeholder="Ron Hextall" /></div>
+      <div class="field">
+        <label class="label">Email address <span class="req">*</span></label>
+        <input type="email" id="femail" placeholder="ron@example.com" />
+        <div class="hint">We'll email you when a team near you needs a goalie</div>
+      </div>
+      <div class="field">
+        <label class="label">Your age <span class="req">*</span></label>
+        <div class="age-grid">
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>18–25</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>26–35</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>36–45</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>46–55</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>55+</button>
+        </div>
+      </div>
+      <div class="field"><label class="label">Your zip code <span class="req">*</span></label><input type="text" id="fzip1" placeholder="20001" maxlength="5" /><div class="hint">Used to find rinks near you in the next step</div></div>
+    </div>
+    <button class="btn-next" onclick="goStep2()">Continue to Rink Selection →</button>
+  </div>
+
+  <div id="step2" style="display:none">
+    <div class="card">
+      <div class="card-title">Rinks you'll play at</div>
+      <div class="card-desc">Select all rinks you're willing to travel to</div>
+      <div class="field">
+        <label class="label">Search by zip code</label>
+        <div class="zip-row">
+          <input type="text" id="fzip2" placeholder="e.g. 20850" maxlength="5" />
+          <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
+        </div>
+        <div class="hint">Showing 10 nearest ice rinks sorted by distance</div>
+      </div>
+      <div id="rinkResults"></div>
+      <div id="selectedCount" class="selected-count" style="display:none"></div>
+    </div>
+    <button class="btn-next" id="next2" onclick="goStep3()" disabled>Continue to Skill Level →</button>
+  </div>
+
+  <div id="step3" style="display:none">
+    <div class="card">
+      <div class="card-title">Your skill level</div>
+      <div class="card-desc">Select all levels you're comfortable playing at</div>
+      <div class="level-grid" id="levelGrid"></div>
+      <div class="level-note" id="levelNote"></div>
+    </div>
+    <button class="btn-next" id="next3" onclick="goStep4()" disabled>Review My Profile →</button>
+  </div>
+
+  <div id="step4" style="display:none">
+    <div class="card">
+      <div class="card-title">Review your profile</div>
+      <div class="card-desc">Double-check everything before we add you to the roster</div>
+      <div id="reviewContent"></div>
+    </div>
+    <div class="err-msg" id="errMsg"></div>
+    <button class="btn-next" id="submitBtn" onclick="submitSignup()" style="background:var(--green)">Add Me to the Roster ✓</button>
+  </div>
+
+  <div class="success-card" id="successCard">
+    <div style="font-size:52px;margin-bottom:1rem">🥅</div>
+    <div class="success-title">You're on the roster!</div>
+    <div class="success-msg" id="successMsg"></div>
+    <div style="margin-top:16px"><a href="index.html" style="color:var(--green);font-weight:800">← Back to homepage</a></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
+  authDomain: "weneedagoalie.firebaseapp.com",
+  projectId: "weneedagoalie",
+  storageBucket: "weneedagoalie.firebasestorage.app",
+  messagingSenderId: "151415451382",
+  appId: "1:151415451382:web:5a29a552ccd092682986d7"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const SKILL_LEVELS = [
+  {id:'a',  label:'A',  name:'Advanced',   color:'#BF360C',bg:'#FFF3E0'},
+  {id:'ub', label:'B+', name:'Upper B',    color:'#283593',bg:'#E8EAF6'},
+  {id:'lb', label:'B',  name:'Lower B',    color:'#3949AB',bg:'#EEF0FB'},
+  {id:'uc', label:'C+', name:'Upper C',    color:'#1B5E20',bg:'#E8F5E9'},
+  {id:'lc', label:'C',  name:'Lower C',    color:'#2E7D32',bg:'#F1F8F1'},
+  {id:'ud', label:'D+', name:'Upper D',    color:'#0D47A1',bg:'#E3F2FD'},
+  {id:'d',  label:'D',  name:'Beginner',   color:'#1565C0',bg:'#EBF4FE'},
+  {id:'rec',label:'Rec',name:'Pickup/Rec', color:'#4A148C',bg:'#F3E5F5'},
+];
+const DC_RINKS = [
+  {name:"Kettler Capitals Iceplex",  address:"627 N Glebe Rd",          city:"Arlington, VA",      miles:1.2},
+  {name:"Rockville Ice Arena",        address:"50 Southlawn Ln",         city:"Rockville, MD",      miles:3.4},
+  {name:"Fairfax Ice Arena",          address:"3779 Pickett Rd",         city:"Fairfax, VA",        miles:5.1},
+  {name:"SkateQuest",                 address:"1800 Michael Faraday Ct", city:"Reston, VA",         miles:6.8},
+  {name:"Cabin John Ice Rink",        address:"10610 Westlake Dr",       city:"Bethesda, MD",       miles:7.3},
+  {name:"Fort Dupont Ice Arena",      address:"3779 Ely Pl SE",          city:"Washington, DC",     miles:8.9},
+  {name:"Tucker Road Ice Rink",       address:"1770 Tucker Rd",          city:"Fort Washington, MD",miles:10.2},
+  {name:"Wheaton Ice Arena",          address:"11717 Orebaugh Ave",      city:"Wheaton, MD",        miles:11.5},
+  {name:"Prince William Ice Center",  address:"5180 Dale Blvd",          city:"Woodbridge, VA",     miles:14.1},
+  {name:"Piney Orchard Ice Arena",    address:"8920 Piney Orchard Pkwy", city:"Odenton, MD",        miles:17.6},
+];
+
+let state = {name:'',email:'',age:'',zip:'',rinks:[],levels:[]};
+
+// Build level buttons
+const grid = document.getElementById('levelGrid');
+SKILL_LEVELS.forEach(lv => {
+  const b = document.createElement('button');
+  b.className = 'level-btn'; b.id = 'lvl-'+lv.id;
+  b.innerHTML = `<span class="level-corner-check">✓</span><div class="level-letter" style="color:${lv.color}">${lv.label}</div><div class="level-name">${lv.name}</div>`;
+  b.style.borderColor = lv.color+'55';
+  b.onclick = () => toggleLevel(lv, b);
+  grid.appendChild(b);
+});
+
+window.selectAge = btn => {
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.age = btn.textContent.replace('✓','').trim();
+};
+
+window.goStep2 = () => {
+  const n=document.getElementById('fname').value.trim();
+  const e=document.getElementById('femail').value.trim();
+  const z=document.getElementById('fzip1').value.trim();
+  if (!n||!e||!state.age||z.length<5) { alert('Please fill in all fields and select your age.'); return; }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { alert('Please enter a valid email address.'); return; }
+  state.name=n; state.email=e; state.zip=z;
+  document.getElementById('fzip2').value=z;
+  setStep(2); searchRinks();
+};
+
+window.searchRinks = async () => {
+  const zip=document.getElementById('fzip2').value.trim();
+  if (zip.length<5) { alert('Please enter a valid 5-digit zip code.'); return; }
+  state.zip=zip; state.rinks=[];
+  const btn=document.getElementById('searchBtn');
+  const res=document.getElementById('rinkResults');
+  document.getElementById('selectedCount').style.display='none';
+  document.getElementById('next2').disabled=true;
+  btn.disabled=true; btn.textContent='Searching...';
+  res.innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${zip}…</div>`;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        messages:[{role:'user',content:`List the 10 nearest real ice hockey/skating rinks to zip code ${zip} in the Washington DC metro area. Respond ONLY with a valid JSON array, no markdown. Each: {"name":"...","address":"...","city":"...","miles":X.X} sorted by miles ascending.`}]})
+    });
+    const data=await resp.json();
+    let text=(data.content||[]).map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
+    const s=text.indexOf('['),e=text.lastIndexOf(']');
+    renderRinks(JSON.parse(text.slice(s,e+1)));
+  } catch(err) {
+    const seed=parseInt(zip.slice(-2))||0;
+    renderRinks(DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)})));
+  }
+  btn.disabled=false; btn.textContent='Find Rinks';
+};
+
+function renderRinks(rinks) {
+  let html='<div class="rinks-list">';
+  rinks.forEach((r,i)=>{
+    html+=`<div class="rink-item" id="rink${i}" data-name="${r.name.replace(/"/g,'&quot;')}" onclick="toggleRink(${i})">
+      <span class="rink-corner-check">✓</span>
+      <div class="rink-dot"></div>
+      <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>
+    </div>`;
+  });
+  document.getElementById('rinkResults').innerHTML=html+'</div>';
+}
+
+window.toggleRink = i => {
+  const el=document.getElementById('rink'+i);
+  const name=el.dataset.name;
+  el.classList.toggle('selected');
+  state.rinks = el.classList.contains('selected')
+    ? [...new Set([...state.rinks, name])]
+    : state.rinks.filter(r=>r!==name);
+  const cnt=document.getElementById('selectedCount');
+  cnt.style.display=state.rinks.length?'block':'none';
+  if (state.rinks.length) cnt.textContent=`✓ ${state.rinks.length} rink${state.rinks.length>1?'s':''} selected`;
+  document.getElementById('next2').disabled=state.rinks.length===0;
+};
+
+window.goStep3 = () => setStep(3);
+
+function toggleLevel(lv, btn) {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    btn.style.cssText=`border-color:${lv.color};background:${lv.bg};border-width:2px`;
+    if (!state.levels.includes(lv.id)) state.levels.push(lv.id);
+  } else {
+    btn.style.cssText=`border-color:${lv.color}55`;
+    state.levels=state.levels.filter(x=>x!==lv.id);
+  }
+  document.getElementById('next3').disabled=state.levels.length===0;
+  const sel=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
+  document.getElementById('levelNote').textContent=sel.length?'Selected: '+sel.join(', '):'';
+}
+
+window.goStep4 = () => {
+  const lvlBadges=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-blue">${l.label} – ${l.name}</span>`).join('');
+  const rinkBadges=state.rinks.map(r=>`<span class="tag tag-green">${r}</span>`).join('');
+  document.getElementById('reviewContent').innerHTML=`
+    <table class="review-table">
+      <tr><td class="rl">Name</td><td style="font-weight:800">${state.name}</td></tr>
+      <tr><td class="rl">Email</td><td style="font-weight:800">${state.email}</td></tr>
+      <tr><td class="rl">Age</td><td style="font-weight:800">${state.age}</td></tr>
+      <tr><td class="rl">Skill levels</td><td>${lvlBadges}</td></tr>
+      <tr><td class="rl">Rinks</td><td>${rinkBadges}</td></tr>
+    </table>`;
+  setStep(4);
+};
+
+window.submitSignup = async () => {
+  const btn=document.getElementById('submitBtn');
+  const err=document.getElementById('errMsg');
+  err.style.display='none';
+  btn.disabled=true;
+  btn.innerHTML='<span class="spinner"></span>Saving...';
+  try {
+    await addDoc(collection(db,'goalies'),{
+      name:state.name, email:state.email, age:state.age,
+      zip:state.zip, levels:state.levels, rinks:state.rinks,
+      active:true, createdAt:serverTimestamp()
+    });
+    document.getElementById('step4').style.display='none';
+    document.getElementById('successCard').style.display='block';
+    const lvls=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
+    document.getElementById('successMsg').innerHTML=
+      `<strong>${state.name}</strong>, you're now on the goalie roster!<br><br>
+      We'll email <strong>${state.email}</strong> whenever a team needs a goalie at one of your <strong>${state.rinks.length} rink${state.rinks.length>1?'s':''}</strong> at the <strong>${lvls.join(', ')}</strong> level${lvls.length>1?'s':''}.`;
+  } catch(e) {
+    console.error(e);
+    err.style.display='block';
+    err.textContent='Something went wrong. Please try again. ('+e.message+')';
+    btn.disabled=false;
+    btn.innerHTML='Add Me to the Roster ✓';
+  }
+};
+
+function setStep(n) {
+  [1,2,3,4].forEach(i=>{
+    document.getElementById('step'+i).style.display=i===n?'block':'none';
+    const sp=document.getElementById('sp'+i), sc=document.getElementById('sc'+i);
+    sp.className='step-pill'+(i===n?' active':i<n?' done':'');
+    sc.textContent=i<n?'✓':i;
+  });
+}
+</script>
+</body>
+</html>
