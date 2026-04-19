@@ -1,29 +1,32 @@
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
   };
 
-  if (event.httpMethod === 'OPTIONS') {
-    return { statusCode: 200, headers, body: '' };
-  }
-
   const { zip } = event.queryStringParameters || {};
-
-  if (!zip || !/^\d{5}$/.test(zip)) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid 5-digit zip code required' }) };
-  }
-
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
 
   try {
     const geocodeRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=${apiKey}`);
     const geocodeData = await geocodeRes.json();
-    const { lat, lng } = geocodeData.results[0].geometry.location;
 
+    // Return full Google response so we can debug
+    if (!geocodeData.results || geocodeData.results.length === 0) {
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ debug: geocodeData }),
+      };
+    }
+
+    const { lat, lng } = geocodeData.results[0].geometry.location;
     const placesRes = await fetch(`https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lng}&rankby=distance&keyword=ice+rink+hockey+skating&key=${apiKey}`);
     const placesData = await placesRes.json();
+
+    if (!placesData.results || placesData.results.length === 0) {
+      return { statusCode: 200, headers, body: JSON.stringify({ debug: placesData }) };
+    }
 
     function distanceMiles(lat1, lng1, lat2, lng2) {
       const R = 3958.8;
@@ -50,6 +53,7 @@ exports.handler = async (event) => {
     }).sort((a, b) => a.miles - b.miles);
 
     return { statusCode: 200, headers, body: JSON.stringify({ rinks }) };
+
   } catch (err) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
