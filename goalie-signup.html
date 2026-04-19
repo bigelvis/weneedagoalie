@@ -275,15 +275,10 @@ window.searchRinks = async () => {
   btn.disabled=true; btn.textContent='Searching...';
   res.innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${zip}…</div>`;
   try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
-        messages:[{role:'user',content:`List the 10 nearest real ice hockey/skating rinks to zip code ${zip} in the Washington DC metro area. Respond ONLY with a valid JSON array, no markdown. Each: {"name":"...","address":"...","city":"...","miles":X.X} sorted by miles ascending.`}]})
-    });
-    const data=await resp.json();
-    let text=(data.content||[]).map(c=>c.text||'').join('').replace(/```json|```/g,'').trim();
-    const s=text.indexOf('['),e=text.lastIndexOf(']');
-    renderRinks(JSON.parse(text.slice(s,e+1)));
+    const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    renderRinks(data.rinks);
   } catch(err) {
     const seed=parseInt(zip.slice(-2))||0;
     renderRinks(DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)})));
