@@ -9,8 +9,8 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
-      --ice:#F0F8FF;--navy:#0A1628;--red:#CC2200;--red-light:#FFE8E4;
-      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;
+      --ice:#F0F8FF;--navy:#0A1628;--red:#C8102E;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;--hero-blue:#2a5298;
       --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
       --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;
     }
@@ -23,20 +23,22 @@
     .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
     .nav-link.red{background:var(--red);border-color:var(--red)}
 
-    .hero{background:var(--navy);padding:0;overflow:hidden;position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-    .rink-lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent,transparent 59px,rgba(255,255,255,0.03) 60px)}
-    .center-circle{position:absolute;width:280px;height:280px;border:2px solid rgba(255,255,255,0.06);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%)}
-    .red-line{position:absolute;height:3px;width:100%;background:rgba(204,34,0,0.35);top:50%}
-    .blue-line-left{position:absolute;height:3px;width:100%;background:rgba(21,101,192,0.35);top:30%}
-    .blue-line-right{position:absolute;height:3px;width:100%;background:rgba(21,101,192,0.35);top:70%}
+    .hero{background:#c8dff0;padding:0;overflow:hidden;position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .rink-bg{position:absolute;inset:0;width:100%;height:100%;opacity:0.5}
+    .rink-lines{display:none}
+    .center-circle{display:none}
+    .red-line{display:none}
+    .blue-line-left{display:none}
+    .blue-line-right{display:none}
     .hero-content{position:relative;z-index:2;text-align:center;padding:3rem 1.5rem 2rem}
-    .site-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:#fff;letter-spacing:3px;line-height:1}
-    .dot-com{color:var(--gold)}
-    .tagline{font-size:clamp(15px,2.5vw,19px);color:rgba(255,255,255,0.7);margin-top:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+    .site-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:#0d2e5e;letter-spacing:3px;line-height:1}
+    .dot-com{color:var(--red)}
+    .tagline{font-size:clamp(15px,2.5vw,19px);color:#2a5298;margin-top:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
     .cta-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:2.5rem}
     .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;border:none;transition:transform 0.15s;text-decoration:none}
     .btn:hover{transform:translateY(-2px)}
     .btn-red{background:var(--red);color:#fff}
+    .btn-blue-hero{background:#2a5298;color:#fff;border:none}
     .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.5)}
     .btn-big{padding:20px 40px;font-size:19px}
 
@@ -97,6 +99,36 @@
 </nav>
 
 <div class="hero">
+  <svg class="rink-bg" viewBox="0 0 680 480" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="680" height="480" fill="#e8f4fd"/>
+    <rect x="30" y="20" width="620" height="440" rx="60" ry="60" fill="#f0f8ff" stroke="#b8d4ee" stroke-width="3"/>
+    <rect x="33" y="23" width="614" height="434" rx="58" ry="58" fill="none" stroke="#daeefa" stroke-width="1.5"/>
+    <line x1="340" y1="20" x2="340" y2="460" stroke="#c8102e" stroke-width="3"/>
+    <line x1="215" y1="20" x2="215" y2="460" stroke="#1a4a8a" stroke-width="3"/>
+    <line x1="465" y1="20" x2="465" y2="460" stroke="#1a4a8a" stroke-width="3"/>
+    <circle cx="340" cy="240" r="60" fill="none" stroke="#c8102e" stroke-width="2.5"/>
+    <circle cx="340" cy="240" r="5" fill="#c8102e"/>
+    <circle cx="145" cy="160" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="145" cy="320" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="145" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="145" cy="320" r="4" fill="#c8102e"/>
+    <circle cx="535" cy="160" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="535" cy="320" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="535" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="535" cy="320" r="4" fill="#c8102e"/>
+    <path d="M55 210 Q100 210 100 240 Q100 270 55 270" fill="rgba(100,160,220,0.15)" stroke="#1a4a8a" stroke-width="1.5"/>
+    <path d="M625 210 Q580 210 580 240 Q580 270 625 270" fill="rgba(100,160,220,0.15)" stroke="#1a4a8a" stroke-width="1.5"/>
+    <line x1="68" y1="190" x2="68" y2="290" stroke="#c8102e" stroke-width="2"/>
+    <line x1="612" y1="190" x2="612" y2="290" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="275" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="275" cy="320" r="4" fill="#c8102e"/>
+    <circle cx="405" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="405" cy="320" r="4" fill="#c8102e"/>
+    <line x1="30" y1="90" x2="650" y2="90" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="150" x2="650" y2="150" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="340" x2="650" y2="340" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="400" x2="650" y2="400" stroke="#cde7f7" stroke-width="0.5"/>
+  </svg>
   <div class="rink-lines"></div>
   <div class="center-circle"></div>
   <div class="red-line"></div>
@@ -104,10 +136,10 @@
   <div class="blue-line-right"></div>
   <div class="hero-content">
     <div class="site-name">We Need A Goalie<span class="dot-com">.</span>com</div>
-    <div class="tagline">Connecting DC-Area Hockey Teams With Available Goalies — Fast</div>
+    <div class="tagline">Matching Teams And Goalies</div>
     <div class="cta-row">
       <a href="find-goalie.html" class="btn btn-red btn-big">🏒 My Team Needs a Goalie</a>
-      <a href="goalie-signup.html" class="btn btn-outline btn-big">I Am a Goalie →</a>
+      <a href="goalie-signup.html" class="btn btn-blue-hero btn-big">I Am a Goalie →</a>
     </div>
   </div>
 </div>
