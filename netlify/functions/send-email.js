@@ -85,7 +85,7 @@ exports.handler = async (event) => {
         ${request.cphone ? `<div style="font-size:14px;color:#5a6480;margin-top:4px;">${request.cphone}</div>` : ''}
       </div>
 
-      <p style="font-size:13px;color:#5a6480;margin:0;">You're receiving this because you signed up as a goalie at <strong>${request.rink}</strong> on weneedagoalie.com.</p>
+      <p style="font-size:13px;color:#5a6480;margin:0;">You're receiving this because you signed up as a goalie at <strong>${request.rink}</strong> on weneedagoalie.com. <a href="https://weneedagoalie.com/unsubscribe.html?email=${encodeURIComponent(goalie.email)}" style="color:#2a5298;">Unsubscribe</a></p>
     </div>
 
     <!-- Footer -->

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Unsubscribe — We Need A Goalie</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{--navy:#0A1628;--navy2:#0d2e5e;--red:#C8102E;--ice:#e8f4fd;--border:#D0D8E8;--text:#1A2340;--muted:#5A6480;--green:#1A7A3E;--green-light:#E6F4EC;--radius:14px}
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--red)}
+    .wrap{max-width:480px;margin:60px auto;padding:0 24px;text-align:center;flex:1}
+    .icon{font-size:56px;margin-bottom:16px}
+    h1{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:var(--navy2);margin-bottom:8px}
+    .sub{font-size:15px;color:var(--muted);line-height:1.6;margin-bottom:32px}
+    .card{background:#fff;border-radius:var(--radius);border:1.5px solid var(--border);padding:28px;margin-bottom:16px;text-align:left}
+    .email-display{font-size:16px;font-weight:800;color:var(--navy2);margin-bottom:20px;word-break:break-all}
+    .btn{width:100%;padding:16px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;margin-bottom:10px}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-red:hover{background:#a00f24}
+    .btn-outline{background:transparent;color:var(--navy2);border:1.5px solid var(--border)}
+    .btn-outline:hover{background:var(--ice)}
+    .success-card{background:var(--green-light);border:2px solid #7BC99A;border-radius:var(--radius);padding:28px;display:none;text-align:center}
+    .success-title{font-family:'Bebas Neue',sans-serif;font-size:32px;color:var(--green);letter-spacing:2px;margin-bottom:8px}
+    .success-msg{font-size:14px;color:#2E7D52;line-height:1.6}
+    .error-card{background:#FFE8E4;border:2px solid #F5A090;border-radius:var(--radius);padding:20px;display:none;color:var(--red);font-weight:700;font-size:14px}
+    .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+</nav>
+
+<div class="wrap">
+  <div id="mainView">
+    <div class="icon">🥅</div>
+    <h1>Unsubscribe</h1>
+    <p class="sub">We're sorry to see you go. Unsubscribing will remove you from our goalie roster — you won't receive any more game requests.</p>
+
+    <div class="card" id="emailCard">
+      <div style="font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:8px">Removing goalie account for</div>
+      <div class="email-display" id="emailDisplay">Loading...</div>
+      <button class="btn btn-red" id="unsubBtn" onclick="doUnsubscribe()">Yes, Remove Me From The Roster</button>
+      <a href="index.html"><button class="btn btn-outline">No, Keep Me On The Roster</button></a>
+    </div>
+  </div>
+
+  <div class="success-card" id="successCard">
+    <div style="font-size:48px;margin-bottom:12px">👋</div>
+    <div class="success-title">You're unsubscribed</div>
+    <p class="success-msg">You've been removed from the goalie roster. You won't receive any more game requests.<br><br>Changed your mind? You can always <a href="goalie-signup.html" style="color:var(--green);font-weight:800">sign up again</a>.</p>
+  </div>
+
+  <div class="error-card" id="errorCard"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, getDocs, query, where, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
+  authDomain: "weneedagoalie.firebaseapp.com",
+  projectId: "weneedagoalie",
+  storageBucket: "weneedagoalie.firebasestorage.app",
+  messagingSenderId: "151415451382",
+  appId: "1:151415451382:web:5a29a552ccd092682986d7"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// Get email from URL param
+const params = new URLSearchParams(window.location.search);
+const email = params.get('email');
+
+if (!email) {
+  document.getElementById('emailDisplay').textContent = 'No email address found.';
+  document.getElementById('unsubBtn').disabled = true;
+} else {
+  document.getElementById('emailDisplay').textContent = decodeURIComponent(email);
+}
+
+window.doUnsubscribe = async () => {
+  const btn = document.getElementById('unsubBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Removing...';
+
+  try {
+    const emailDecoded = decodeURIComponent(email);
+    const snap = await getDocs(query(collection(db, 'goalies'), where('email', '==', emailDecoded)));
+    if (snap.empty) {
+      throw new Error('No goalie account found for this email address.');
+    }
+    // Delete all matching docs (should only be one)
+    for (const d of snap.docs) {
+      await deleteDoc(doc(db, 'goalies', d.id));
+    }
+    document.getElementById('mainView').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+  } catch(e) {
+    const err = document.getElementById('errorCard');
+    err.textContent = e.message;
+    err.style.display = 'block';
+    btn.disabled = false;
+    btn.textContent = 'Yes, Remove Me From The Roster';
+  }
+};
+</script>
+</body>
+</html>
