@@ -268,39 +268,62 @@ function checkStep1() {
   );
 }
 
+let allRinks = [];
+let rinksShown = 0;
+let nextPageToken = null;
+let currentZip = '';
+const RINKS_PER_PAGE = 5;
+
 window.findRinks = async () => {
-  const zip=document.getElementById('fzip').value.trim();
-  if (zip.length<5) { alert('Please enter a valid 5-digit zip code.'); return; }
-  state.zip=zip; state.rink='';
-  const btn=document.getElementById('findBtn');
-  btn.disabled=true; btn.textContent='Searching...';
-  document.getElementById('rinkSection').style.display='none';
-  document.getElementById('gameTimeSection').style.display='none';
+  const zip = document.getElementById('fzip').value.trim();
+  if (zip.length < 5) { alert('Please enter a valid 5-digit zip code.'); return; }
+  currentZip = zip;
+  state.zip = zip; state.rink = '';
+  allRinks = []; rinksShown = 0; nextPageToken = null;
+  const btn = document.getElementById('findBtn');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  document.getElementById('rinkSection').style.display = 'none';
+  document.getElementById('gameTimeSection').style.display = 'none';
   checkStep1();
   try {
     const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    renderRinks(data.rinks);
+    allRinks = data.rinks;
+    nextPageToken = data.next_page_token || null;
+    initRinkList();
   } catch(e) {
-    const seed=parseInt(zip.slice(-2))||0;
-    renderRinks(DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.04).toFixed(1)})).sort((a,b)=>a.miles-b.miles));
+    const seed = parseInt(zip.slice(-2)) || 0;
+    allRinks = DC_RINKS.map(r => ({...r, miles: +(r.miles + seed * 0.04).toFixed(1)})).sort((a,b) => a.miles - b.miles);
+    nextPageToken = null;
+    initRinkList();
   }
-  btn.disabled=false; btn.textContent='Find Rinks';
+  btn.disabled = false; btn.textContent = 'Find Rinks';
 };
 
-let allRinks = [];
-let rinksShown = 0;
-const RINKS_PER_PAGE = 5;
-
-function renderRinks(rinks) {
-  allRinks = rinks;
+function initRinkList() {
   rinksShown = 0;
   document.getElementById('rinkResults').innerHTML = '<div class="rinks-list" id="rinksList"></div><div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>';
   showMoreRinks();
 }
 
-window.showMoreRinks = function() {
+window.showMoreRinks = async function() {
+  // If we've shown all loaded rinks but there's another page, fetch it first
+  if (rinksShown >= allRinks.length && nextPageToken) {
+    const paginationRow = document.getElementById('rinkPaginationRow');
+    paginationRow.innerHTML = `<button disabled style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--muted);cursor:not-allowed;">Loading more rinks...</button>`;
+    // Google requires ~2s before page token is valid
+    await new Promise(r => setTimeout(r, 2000));
+    try {
+      const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&pagetoken=${encodeURIComponent(nextPageToken)}`);
+      const data = await resp.json();
+      allRinks = allRinks.concat(data.rinks || []);
+      nextPageToken = data.next_page_token || null;
+    } catch(e) {
+      nextPageToken = null;
+    }
+  }
+
   const list = document.getElementById('rinksList');
   const nextBatch = allRinks.slice(rinksShown, rinksShown + RINKS_PER_PAGE);
   nextBatch.forEach((r, offset) => {
@@ -317,11 +340,11 @@ window.showMoreRinks = function() {
     list.appendChild(div);
   });
   rinksShown += nextBatch.length;
+
   const paginationRow = document.getElementById('rinkPaginationRow');
-  if (rinksShown < allRinks.length) {
-    const remaining = allRinks.length - rinksShown;
-    const showCount = Math.min(RINKS_PER_PAGE, remaining);
-    paginationRow.innerHTML = `<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show ${showCount} more rinks (${remaining} remaining) ↓</button>`;
+  if (rinksShown < allRinks.length || nextPageToken) {
+    const remaining = (allRinks.length - rinksShown) + (nextPageToken ? 1 : 0);
+    paginationRow.innerHTML = `<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show more rinks ↓</button>`;
   } else {
     paginationRow.innerHTML = '';
   }
