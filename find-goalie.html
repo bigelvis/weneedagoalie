@@ -148,7 +148,7 @@
           <input type="text" id="fzip" placeholder="20850" maxlength="5" />
           <button class="btn-find" id="findBtn" onclick="findRinks()">Find Rinks</button>
         </div>
-        <div class="hint">We'll show the 10 nearest ice rinks sorted by distance</div>
+        <div class="hint">We'll show the nearest rinks sorted by distance — 5 at a time</div>
       </div>
       <div id="rinkSection" style="display:none">
         <div class="field"><label class="label">Select your rink <span class="req">*</span></label><div id="rinkResults"></div></div>
@@ -289,18 +289,43 @@ window.findRinks = async () => {
   btn.disabled=false; btn.textContent='Find Rinks';
 };
 
+let allRinks = [];
+let rinksShown = 0;
+const RINKS_PER_PAGE = 5;
+
 function renderRinks(rinks) {
-  let html='<div class="rinks-list">';
-  rinks.forEach((r,i)=>{
-    html+=`<div class="rink-item" id="rink${i}" data-name="${r.name.replace(/"/g,'&quot;')}" onclick="selectRink(${i},'${r.name.replace(/'/g,"\\'")}')">
-      <span class="rink-corner-check">✓</span>
+  allRinks = rinks;
+  rinksShown = 0;
+  document.getElementById('rinkResults').innerHTML = '<div class="rinks-list" id="rinksList"></div><div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>';
+  showMoreRinks();
+}
+
+window.showMoreRinks = function() {
+  const list = document.getElementById('rinksList');
+  const nextBatch = allRinks.slice(rinksShown, rinksShown + RINKS_PER_PAGE);
+  nextBatch.forEach((r, offset) => {
+    const i = rinksShown + offset;
+    const div = document.createElement('div');
+    div.className = 'rink-item';
+    div.id = 'rink' + i;
+    div.setAttribute('data-name', r.name);
+    div.onclick = () => selectRink(i, r.name);
+    div.innerHTML = `<span class="rink-corner-check">✓</span>
       <div class="rink-dot"></div>
       <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
-      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>
-    </div>`;
+      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
+    list.appendChild(div);
   });
-  document.getElementById('rinkResults').innerHTML=html+'</div>';
-  document.getElementById('rinkSection').style.display='block';
+  rinksShown += nextBatch.length;
+  const paginationRow = document.getElementById('rinkPaginationRow');
+  if (rinksShown < allRinks.length) {
+    const remaining = allRinks.length - rinksShown;
+    const showCount = Math.min(RINKS_PER_PAGE, remaining);
+    paginationRow.innerHTML = `<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show ${showCount} more rinks (${remaining} remaining) ↓</button>`;
+  } else {
+    paginationRow.innerHTML = '';
+  }
+  document.getElementById('rinkSection').style.display = 'block';
 }
 
 window.selectRink = (i, name) => {
