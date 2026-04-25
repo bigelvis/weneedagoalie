@@ -1,4 +1,10 @@
 [[redirects]]
+  from = "https://weneedagoalie.netlify.app/*"
+  to = "https://weneedagoalie.com/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
