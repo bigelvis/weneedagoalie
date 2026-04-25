@@ -429,6 +429,29 @@ window.submitRequest = async () => {
       if (rinkMatch && levelMatch) matched.push(g);
     });
 
+    // Send emails to matched goalies
+    if (matched.length > 0) {
+      const emailableGoalies = matched.filter(g => g.email);
+      if (emailableGoalies.length > 0) {
+        try {
+          await fetch('/.netlify/functions/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              goalies: emailableGoalies.map(g => ({ name: g.name, email: g.email, levels: g.levels })),
+              request: {
+                team: state.team, contact: state.contact, cemail: state.cemail,
+                cphone: state.cphone, rink: state.rink, date: state.date,
+                time: state.time, notes: state.notes, levels: state.levels,
+              }
+            })
+          });
+        } catch(emailErr) {
+          console.warn('Email send failed (non-fatal):', emailErr);
+        }
+      }
+    }
+
     document.getElementById('step3').style.display='none';
     const dt=new Date(state.date+'T'+state.time);
     const fmtDate=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
