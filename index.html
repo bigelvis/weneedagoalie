@@ -171,9 +171,23 @@
 
 
 
-<footer>
-  <div class="fl">WENeedAGoalie<span>.</span>com</div>
-  <p></p>
+<footer style="background:#060E1A;padding:1.2rem 24px;text-align:center;">
+  <button onclick="document.getElementById('privacyModal').style.display='flex'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Privacy — What Happens When I Sign Up?</button>
 </footer>
+
+<!-- Privacy Modal -->
+<div id="privacyModal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0d2e5e;border:1.5px solid rgba(255,255,255,0.15);border-radius:16px;padding:36px;max-width:480px;width:100%;position:relative;">
+    <button onclick="document.getElementById('privacyModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;">✕</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:16px;">What Happens When I Sign Up?</div>
+    <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0;">
+      We Need A Goalie is run by a hockey player, for hockey players.<br><br>
+      Your information — name, email, rinks, and skill level — is <strong style="color:#fff;">only used to match you with teams looking for a goalie.</strong> We don't sell your data, share it with third parties, or use it for anything else.<br><br>
+      We may occasionally send a site update if something significant changes. That's it.<br><br>
+      <span style="color:rgba(255,255,255,0.5);font-size:13px;">You can unsubscribe at any time from any email we send. 🏒</span>
+    </p>
+  </div>
+</div>
+
 </body>
 </html>
