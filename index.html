@@ -23,14 +23,14 @@
     .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
     .nav-link.red{background:var(--red);border-color:var(--red)}
 
-    .hero{background:#c8dff0;padding:0;overflow:hidden;position:relative;min-height:480px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .hero{background:#c8dff0;padding:0;overflow:hidden;position:relative;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
     .rink-bg{position:absolute;inset:0;width:100%;height:100%;opacity:0.5}
     .rink-lines{display:none}
     .center-circle{display:none}
     .red-line{display:none}
     .blue-line-left{display:none}
     .blue-line-right{display:none}
-    .hero-content{position:relative;z-index:2;text-align:center;padding:3rem 1.5rem 2rem}
+    .hero-content{position:relative;z-index:2;text-align:center;padding:0.5rem 1.5rem 0.5rem}
     .site-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:#0d2e5e;letter-spacing:3px;line-height:1}
     .dot-com{color:var(--red)}
     .tagline{font-size:clamp(15px,2.5vw,19px);color:#2a5298;margin-top:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
@@ -135,7 +135,12 @@
   <div class="blue-line-left"></div>
   <div class="blue-line-right"></div>
   <div class="hero-content">
-    <div class="site-name">We Need A Goalie<span class="dot-com">.</span>com</div>
+    <div class="site-name">We Need A Goalie<span class="dot-com"><svg style="display:inline-block;vertical-align:middle;margin:0 3px -4px 3px" width="0.3em" height="0.3em" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="30" r="29" fill="#1a1a1a"/>
+  <circle cx="30" cy="30" r="29" fill="none" stroke="#444" stroke-width="2"/>
+  <circle cx="30" cy="26" r="20" fill="#2a2a2a"/>
+  <circle cx="30" cy="30" r="29" fill="none" stroke="#333" stroke-width="4" stroke-dasharray="7 5"/>
+</svg></span>com</div>
     <div class="tagline">Matching Teams And Goalies</div>
 
   </div>
@@ -143,42 +148,32 @@
 
 
 
-<div class="section" style="margin-top:-180px;position:relative;z-index:10;">
+<div class="section" style="margin-top:-120px;position:relative;z-index:10;">
   <div class="two-col">
     <div class="card">
-      <div class="card-icon icon-red">🏒</div>
+      <div class="card-icon" style="background:none;border:none;width:72px;height:72px;font-size:56px;display:flex;align-items:center;justify-content:center;">🥅</div>
       <h3>I need a goalie</h3>
       <p>Post your game details — rink, time, level — and we'll reach out to available goalies near you automatically. No account required.</p>
       <a href="find-goalie.html" class="card-btn card-btn-red">Post a game need →</a>
     </div>
     <div class="card">
-      <div class="card-icon icon-blue">🥅</div>
+      <div class="card-icon icon-blue" style="background:#fff;border:none;width:72px;height:72px;padding:0;overflow:hidden;">
+        <img src="goalie-mask.png" alt="Goalie mask" style="width:100%;height:100%;object-fit:contain;border-radius:0;"/>
+      </div>
       <h3>I am a goalie</h3>
       <p>Enter your zip code, pick rinks you'll play at, set your skill level and email — then wait for teams to find you.</p>
       <a href="goalie-signup.html" class="card-btn card-btn-blue">Sign up as a goalie →</a>
     </div>
   </div>
 
-  <div class="levels-card" style="margin-top:2rem">
-    <h3>Skill levels supported</h3>
-    <div class="level-row">
-      <span class="level-badge lvl-a">A — Advanced</span>
-      <span class="level-badge lvl-b">B+ — Upper B</span>
-      <span class="level-badge lvl-b">B — Lower B</span>
-      <span class="level-badge lvl-c">C+ — Upper C</span>
-      <span class="level-badge lvl-c">C — Lower C</span>
-      <span class="level-badge lvl-d">D+ — Upper D</span>
-      <span class="level-badge lvl-d">D — Beginner</span>
-      <span class="level-badge lvl-r">Rec / Pickup</span>
-    </div>
-  </div>
+
 </div>
 
 
 
 <footer>
   <div class="fl">WENeedAGoalie<span>.</span>com</div>
-  <p>DC Metro Area Hockey · Free to use</p>
+  <p></p>
 </footer>
 </body>
 </html>
