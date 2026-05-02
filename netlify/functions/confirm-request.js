@@ -132,6 +132,7 @@ exports.handler = async (event) => {
 
   try {
     const accessToken = await getAccessToken();
+    console.log('✓ Got access token');
 
     // Find request by confirmToken
     const rows = await queryWhere(accessToken, 'requests', 'confirmToken', token);
@@ -140,6 +141,7 @@ exports.handler = async (event) => {
 
     const docId = hit.document.name.split('/').pop();
     const req = parseDoc(hit.document.fields);
+    console.log('✓ Found request:', req.team, req.rink, 'status:', req.status);
 
     if (req.status === 'confirmed') {
       return { statusCode: 200, headers: HTML, body: page('Already Sent','✅','Already Confirmed!',`Goalies were already notified for <strong>${req.team}</strong>'s game at <strong>${req.rink}</strong>.`) };
@@ -147,14 +149,17 @@ exports.handler = async (event) => {
 
     // Get matching active goalies
     const goalieRows = await queryWhere(accessToken, 'goalies', 'active', true, true);
+    console.log('✓ Total active goalies found:', (goalieRows || []).filter(r => r.document).length);
     const matched = [];
     for (const row of goalieRows || []) {
       if (!row.document) continue;
       const g = parseDoc(row.document.fields);
       const rinkOk = Array.isArray(g.rinks) && g.rinks.includes(req.rink);
       const levelOk = Array.isArray(g.levels) && Array.isArray(req.levels) && g.levels.some(l => req.levels.includes(l));
+      console.log(`  Goalie ${g.name}: rinks=${JSON.stringify(g.rinks)}, rinkOk=${rinkOk}, levelOk=${levelOk}`);
       if (rinkOk && levelOk && g.email) matched.push(g);
     }
+    console.log('✓ Matched goalies:', matched.map(g => g.name));
 
     // Format date/time
     const dt = new Date(req.date + 'T' + req.time);
@@ -207,6 +212,9 @@ exports.handler = async (event) => {
             subject: `🏒 Game request: ${req.team} needs a goalie at ${req.rink}`,
             html,
           }),
+        }).then(async r => {
+          const d = await r.json();
+          console.log(`Resend → ${goalie.email}: status=${r.status}`, JSON.stringify(d));
         });
       }));
     }
