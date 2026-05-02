@@ -167,9 +167,9 @@ exports.handler = async (event) => {
     const fmtTime = dt.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
     const levelNames = (req.levels || []).map(l => SKILL_LEVELS[l] || l).join(', ');
 
-    // Send goalie emails
+    // Send goalie emails sequentially to avoid Resend rate limits
     if (matched.length > 0) {
-      await Promise.all(matched.map(goalie => {
+      for (const goalie of matched) {
         const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="font-family:'Helvetica Neue',Arial,sans-serif;background:#f0f8ff;margin:0;padding:24px;">
 <div style="max-width:560px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;border:1.5px solid #d0d8e8;">
@@ -203,7 +203,7 @@ exports.handler = async (event) => {
   </div>
 </div></body></html>`;
 
-        return fetch('https://api.resend.com/emails', {
+        const r = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -212,11 +212,12 @@ exports.handler = async (event) => {
             subject: `🏒 Game request: ${req.team} needs a goalie at ${req.rink}`,
             html,
           }),
-        }).then(async r => {
-          const d = await r.json();
-          console.log(`Resend → ${goalie.email}: status=${r.status}`, JSON.stringify(d));
         });
-      }));
+        const d = await r.json();
+        console.log(`Resend → ${goalie.email}: status=${r.status}`, JSON.stringify(d));
+        // Small delay between emails to respect rate limits
+        await new Promise(resolve => setTimeout(resolve, 300));
+      }
     }
 
     // Mark confirmed
