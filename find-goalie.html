@@ -202,7 +202,7 @@
     <div class="confirm-title">Request sent!</div>
     <div class="confirm-msg" id="confirmMsg"></div>
   </div>
-  <div class="matches-card" id="matchesCard">
+  <div class="matches-card" id="matchesCard" style="display:none">
     <div class="matches-title">Goalies notified</div>
     <div class="matches-sub" id="matchesSub"></div>
     <div id="goalieList"></div>
@@ -212,7 +212,7 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
@@ -463,46 +463,34 @@ window.submitRequest = async () => {
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Sending...';
 
   try {
-    // Save request to Firestore
+    // Generate a unique confirm token
+    const confirmToken = crypto.randomUUID();
+
+    // Save request to Firestore with pending status + token
     await addDoc(collection(db,'requests'),{
       team:state.team, contact:state.contact, cemail:state.cemail, cphone:state.cphone,
       zip:state.zip, rink:state.rink, date:state.date, time:state.time,
-      levels:state.levels, notes:state.notes, sentAt:serverTimestamp()
+      levels:state.levels, notes:state.notes,
+      status:'pending', confirmToken,
+      sentAt:serverTimestamp()
     });
 
-    // Find matching goalies from Firestore
-    const snap = await getDocs(query(collection(db,'goalies'),where('active','==',true)));
-    const matched = [];
-    snap.forEach(doc => {
-      const g = doc.data();
-      const rinkMatch = g.rinks && g.rinks.includes(state.rink);
-      const levelMatch = g.levels && g.levels.some(l => state.levels.includes(l));
-      if (rinkMatch && levelMatch) matched.push(g);
-    });
-
-    // Send emails to matched goalies
-    if (matched.length > 0) {
-      const emailableGoalies = matched.filter(g => g.email);
-      if (emailableGoalies.length > 0) {
-        try {
-          await fetch('/.netlify/functions/send-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              goalies: emailableGoalies.map(g => ({ name: g.name, email: g.email, levels: g.levels })),
-              request: {
-                team: state.team, contact: state.contact, cemail: state.cemail,
-                cphone: state.cphone, rink: state.rink, date: state.date,
-                time: state.time, notes: state.notes, levels: state.levels,
-              }
-            })
-          });
-        } catch(emailErr) {
-          console.warn('Email send failed (non-fatal):', emailErr);
+    // Send confirmation email to the TEAM (not goalies yet)
+    await fetch('/.netlify/functions/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        mode: 'confirm_team',
+        confirmToken,
+        request: {
+          team:state.team, contact:state.contact, cemail:state.cemail,
+          cphone:state.cphone, rink:state.rink, date:state.date,
+          time:state.time, notes:state.notes, levels:state.levels,
         }
-      }
-    }
+      })
+    });
 
+    // Show confirmation screen
     document.getElementById('step3').style.display='none';
     const dt=new Date(state.date+'T'+state.time);
     const fmtDate=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
@@ -510,25 +498,10 @@ window.submitRequest = async () => {
 
     document.getElementById('confirmCard').style.display='block';
     document.getElementById('confirmMsg').innerHTML=
-      `Your request for <strong>${state.team}</strong> on <strong>${fmtDate} at ${fmtTime}</strong> at <strong>${state.rink}</strong> has been submitted.<br><br>
-      <strong>${matched.length} goalie${matched.length!==1?'s':''}</strong> matched your rink and skill level${matched.length>0?' — they\'ve each been emailed your contact info':''}.`;
+      `We sent a confirmation email to <strong>${state.cemail}</strong>.<br><br>
+      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${fmtDate} at ${fmtTime}</strong> at <strong>${state.rink}</strong>.<br><br>
+      <span style="font-size:14px;color:#5A6480;">Check your spam folder if you don't see it in a minute.</span>`;
 
-    document.getElementById('matchesCard').style.display='block';
-    document.getElementById('matchesSub').textContent = matched.length
-      ? `${matched.length} goalie${matched.length!==1?'s':''} at ${state.rink} matched your levels:`
-      : 'No goalies are currently registered at this rink for those levels. Check back soon!';
-
-    document.getElementById('goalieList').innerHTML = matched.length
-      ? matched.map(g=>{
-          const initials=g.name.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-          const ml=SKILL_LEVELS.filter(l=>g.levels.includes(l.id)&&state.levels.includes(l.id)).map(l=>l.label).join(', ');
-          return `<div class="goalie-row">
-            <div class="goalie-avatar">${initials}</div>
-            <div style="flex:1"><div class="goalie-name">${g.name}</div><div class="goalie-details">Age ${g.age} · Plays: ${ml}</div></div>
-            <span class="emailed-badge">✓ Notified</span>
-          </div>`;
-        }).join('')
-      : '';
   } catch(e) {
     console.error(e);
     err.style.display='block';
