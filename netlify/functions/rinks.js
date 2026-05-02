@@ -9,7 +9,7 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const { zip, pagetoken } = event.queryStringParameters || {};
+  const { zip, pagetoken, query } = event.queryStringParameters || {};
 
   if (!zip || !/^\d{5}$/.test(zip)) {
     return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid 5-digit zip code required' }) };
@@ -35,9 +35,8 @@ exports.handler = async (event) => {
 
   function isLikelyHockeyRink(place) {
     const name = (place.name || '').toLowerCase();
-    const types = place.types || [];
     if (EXCLUDE_KEYWORDS.some(kw => name.includes(kw))) return false;
-    const positiveTerms = ['ice', 'rink', 'arena', 'hockey', 'skating', 'iceplex', 'iceport', 'icehouse', 'blade', 'freeze', 'frost', 'glacial', 'polar'];
+    const positiveTerms = ['ice', 'rink', 'arena', 'hockey', 'skating', 'iceplex', 'iceport', 'icehouse', 'blade', 'freeze', 'frost', 'glacial', 'polar', 'skate', 'quest'];
     return positiveTerms.some(t => name.includes(t));
   }
 
@@ -52,10 +51,17 @@ exports.handler = async (event) => {
 
     const { lat, lng } = geocodeData.results[0].geometry.location;
 
-    // Text search for "ice hockey rink" — much more precise than nearby keyword search
+    // Build the search URL
+    // If a custom query is provided, use it directly and skip the name filter
+    // If paginating, use the page token
+    const isCustomSearch = query && query.trim().length > 0;
     let url;
+
     if (pagetoken) {
       url = `https://maps.googleapis.com/maps/api/place/textsearch/json?pagetoken=${encodeURIComponent(pagetoken)}&key=${apiKey}`;
+    } else if (isCustomSearch) {
+      const encodedQuery = encodeURIComponent(query.trim());
+      url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodedQuery}&location=${lat},${lng}&radius=80000&key=${apiKey}`;
     } else {
       url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=ice+hockey+rink&location=${lat},${lng}&radius=50000&key=${apiKey}`;
     }
@@ -64,7 +70,8 @@ exports.handler = async (event) => {
     const placesData = await placesRes.json();
 
     const rinks = (placesData.results || [])
-      .filter(isLikelyHockeyRink)
+      // For custom searches, skip the name filter — trust the user knows what they're looking for
+      .filter(place => isCustomSearch ? !EXCLUDE_KEYWORDS.some(kw => (place.name || '').toLowerCase().includes(kw)) : isLikelyHockeyRink(place))
       .map(place => {
         const pLat = place.geometry.location.lat;
         const pLng = place.geometry.location.lng;
