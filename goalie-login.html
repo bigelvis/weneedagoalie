@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goalie Login — We Need A Goalie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ice:#F0F8FF;--navy:#0A1628;--red:#CC2200;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;
+      --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
+      --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;--green-border:#7BC99A;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--gold)}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none}
+    .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
+    .nav-link.active{background:var(--red);border-color:var(--red)}
+    .page-hero{background:var(--navy);padding:2.5rem 1.5rem 2rem;text-align:center;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(21,101,192,0.18) 0%,transparent 70%)}
+    .page-hero-content{position:relative;z-index:1}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,7vw,64px);color:#fff;letter-spacing:3px;line-height:1}
+    .page-sub{font-size:16px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
+    .form-wrap{max-width:480px;margin:0 auto;padding:2rem 1.5rem}
+    .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
+    .card-title{font-size:20px;font-weight:800;margin-bottom:4px}
+    .card-desc{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+    .field{margin-bottom:1.25rem}
+    .field:last-child{margin-bottom:0}
+    .label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
+    .req{color:var(--red);margin-left:2px}
+    input[type=text],input[type=email],input[type=password]{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,0.12)}
+    input::placeholder{color:#AAB4C8}
+    .hint{font-size:13px;color:var(--muted);margin-top:6px}
+    .btn-primary{width:100%;padding:16px;background:var(--blue);color:#fff;border:none;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;transition:all 0.15s;margin-top:0.25rem}
+    .btn-primary:hover{background:#0D47A1;transform:translateY(-1px)}
+    .btn-primary:disabled{background:#AAB4C8;cursor:not-allowed;transform:none}
+    .divider{display:flex;align-items:center;gap:12px;margin:1.5rem 0}
+    .divider-line{flex:1;height:1px;background:var(--border)}
+    .divider-text{font-size:13px;font-weight:800;color:var(--muted)}
+    .btn-secondary{width:100%;padding:14px;background:transparent;color:var(--blue);border:2px solid var(--blue);border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .btn-secondary:hover{background:var(--blue-light)}
+    .err-msg{background:var(--red-light);border:1.5px solid #F5A090;color:var(--red);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-top:12px;display:none}
+    .success-msg-box{background:var(--green-light);border:1.5px solid var(--green-border);color:var(--green);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-top:12px;display:none}
+    .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .bottom-link{text-align:center;font-size:14px;color:var(--muted);margin-top:1rem}
+    .bottom-link a{color:var(--blue);font-weight:800;text-decoration:none}
+    .bottom-link a:hover{text-decoration:underline}
+    /* First-time setup panel */
+    #firstTimePanel{display:none}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+  <div class="nav-links">
+    <a href="find-goalie.html" class="nav-link">Need a Goalie</a>
+    <a href="goalie-signup.html" class="nav-link">I Am a Goalie</a>
+    <a href="goalie-login.html" class="nav-link active">Goalie Login</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-content">
+    <div class="page-title">Goalie Login</div>
+    <div class="page-sub">Manage your profile, rinks, and availability</div>
+  </div>
+</div>
+
+<div class="form-wrap">
+
+  <!-- Normal login panel -->
+  <div id="loginPanel">
+    <div class="card">
+      <div class="card-title">Welcome back 🥅</div>
+      <div class="card-desc">Sign in to update your profile and availability</div>
+      <div class="field">
+        <label class="label">Email <span class="req">*</span></label>
+        <input type="email" id="loginEmail" placeholder="ron@example.com" />
+      </div>
+      <div class="field">
+        <label class="label">Password <span class="req">*</span></label>
+        <input type="password" id="loginPassword" placeholder="Your password" />
+      </div>
+      <div class="err-msg" id="loginErr"></div>
+      <button class="btn-primary" id="loginBtn" onclick="doLogin()" style="margin-top:1.25rem">Sign In →</button>
+    </div>
+    <div class="divider"><div class="divider-line"></div><div class="divider-text">NEW TO THE SITE?</div><div class="divider-line"></div></div>
+    <button class="btn-secondary" onclick="showFirstTime()">First time? Set up your account →</button>
+    <div class="bottom-link" style="margin-top:1rem">Not a goalie yet? <a href="goalie-signup.html">Sign up here</a></div>
+  </div>
+
+  <!-- First-time / migration panel -->
+  <div id="firstTimePanel">
+    <div class="card">
+      <div class="card-title">Set up your account 🏒</div>
+      <div class="card-desc">Already signed up as a goalie? Enter your email and choose a password to activate your account.</div>
+      <div class="field">
+        <label class="label">Email <span class="req">*</span></label>
+        <input type="email" id="migrateEmail" placeholder="The email you signed up with" />
+      </div>
+      <div class="field">
+        <label class="label">Choose a password <span class="req">*</span></label>
+        <input type="password" id="migratePassword" placeholder="Min 6 characters" />
+        <div class="hint">You'll use this every time you log in</div>
+      </div>
+      <div class="err-msg" id="migrateErr"></div>
+      <div class="success-msg-box" id="migrateSuccess"></div>
+      <button class="btn-primary" id="migrateBtn" onclick="doMigrate()" style="margin-top:1.25rem">Activate My Account →</button>
+    </div>
+    <div class="bottom-link"><a href="#" onclick="showLogin()">← Back to login</a></div>
+  </div>
+
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
+  authDomain: "weneedagoalie.firebaseapp.com",
+  projectId: "weneedagoalie",
+  storageBucket: "weneedagoalie.firebasestorage.app",
+  messagingSenderId: "151415451382",
+  appId: "1:151415451382:web:5a29a552ccd092682986d7"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+window.showFirstTime = () => {
+  document.getElementById('loginPanel').style.display='none';
+  document.getElementById('firstTimePanel').style.display='block';
+};
+
+window.showLogin = (e) => {
+  if(e) e.preventDefault();
+  document.getElementById('firstTimePanel').style.display='none';
+  document.getElementById('loginPanel').style.display='block';
+};
+
+window.doLogin = async () => {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const err = document.getElementById('loginErr');
+  const btn = document.getElementById('loginBtn');
+  err.style.display='none';
+  if (!email||!password) { err.style.display='block'; err.textContent='Please enter your email and password.'; return; }
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Signing in...';
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    window.location.href = 'goalie-profile.html';
+  } catch(e) {
+    let msg = 'Sign in failed. Please check your email and password.';
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') msg = 'No account found. Try "Set up your account" below if you signed up before we added logins.';
+    if (e.code === 'auth/wrong-password') msg = 'Incorrect password. Please try again.';
+    if (e.code === 'auth/too-many-requests') msg = 'Too many attempts. Please wait a moment and try again.';
+    err.style.display='block'; err.textContent=msg;
+    btn.disabled=false; btn.innerHTML='Sign In →';
+  }
+};
+
+window.doMigrate = async () => {
+  const email = document.getElementById('migrateEmail').value.trim();
+  const password = document.getElementById('migratePassword').value;
+  const err = document.getElementById('migrateErr');
+  const success = document.getElementById('migrateSuccess');
+  const btn = document.getElementById('migrateBtn');
+  err.style.display='none'; success.style.display='none';
+  if (!email||!password) { err.style.display='block'; err.textContent='Please fill in both fields.'; return; }
+  if (password.length < 6) { err.style.display='block'; err.textContent='Password must be at least 6 characters.'; return; }
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Setting up...';
+
+  try {
+    // Look for existing goalie record by email with no uid
+    const q = query(collection(db,'goalies'), where('email','==',email));
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      // No existing record — suggest signup instead
+      err.style.display='block';
+      err.innerHTML='No goalie profile found for that email. <a href="goalie-signup.html" style="color:var(--red);font-weight:800">Sign up here</a> to join the roster.';
+      btn.disabled=false; btn.innerHTML='Activate My Account →';
+      return;
+    }
+
+    const existingDoc = snap.docs[0];
+    const existingData = existingDoc.data();
+
+    if (existingData.uid) {
+      // Already has an auth account — send them to login
+      err.style.display='block';
+      err.innerHTML='This account is already set up. <a href="#" onclick="showLogin()" style="color:var(--red);font-weight:800">Sign in here</a>.';
+      btn.disabled=false; btn.innerHTML='Activate My Account →';
+      return;
+    }
+
+    // Create the Firebase Auth account
+    const userCred = await createUserWithEmailAndPassword(auth, email, password);
+    const uid = userCred.user.uid;
+
+    // Link the uid to the existing Firestore doc
+    await updateDoc(doc(db,'goalies',existingDoc.id), { uid });
+
+    success.style.display='block';
+    success.innerHTML=`✓ Account activated for <strong>${existingData.name}</strong>! Redirecting to your profile...`;
+    setTimeout(() => { window.location.href = 'goalie-profile.html'; }, 1500);
+
+  } catch(e) {
+    let msg = 'Something went wrong. Please try again.';
+    if (e.code === 'auth/email-already-in-use') msg = 'An account already exists for that email. Try signing in instead.';
+    if (e.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
+    err.style.display='block'; err.textContent=msg;
+    btn.disabled=false; btn.innerHTML='Activate My Account →';
+  }
+};
+
+// Enter key support
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  const active = document.activeElement.id;
+  if (['loginEmail','loginPassword'].includes(active)) doLogin();
+  if (['migrateEmail','migratePassword'].includes(active)) doMigrate();
+});
+</script>
+</body>
+</html>

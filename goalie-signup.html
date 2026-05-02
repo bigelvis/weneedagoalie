@@ -42,7 +42,7 @@
     .field{margin-bottom:1.25rem}
     .label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
     .req{color:var(--red);margin-left:2px}
-    input[type=text],input[type=email]{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
+    input[type=text],input[type=email],input[type=password]{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
     input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,0.12)}
     input::placeholder{color:#AAB4C8}
     .hint{font-size:13px;color:var(--muted);margin-top:6px}
@@ -104,6 +104,7 @@
   <div class="nav-links">
     <a href="find-goalie.html" class="nav-link">Need a Goalie</a>
     <a href="goalie-signup.html" class="nav-link active">I Am a Goalie</a>
+    <a href="goalie-login.html" class="nav-link">Goalie Login</a>
   </div>
 </nav>
 
@@ -146,6 +147,11 @@
         </div>
       </div>
       <div class="field"><label class="label">Your zip code <span class="req">*</span></label><input type="text" id="fzip1" placeholder="20001" maxlength="5" /><div class="hint">Used to find rinks near you in the next step</div></div>
+      <div class="field">
+        <label class="label">Password <span class="req">*</span></label>
+        <input type="password" id="fpassword" placeholder="Choose a password (min 6 characters)" />
+        <div class="hint">You'll use this to log in and manage your profile</div>
+      </div>
     </div>
     <button class="btn-next" onclick="goStep2()">Continue to Rink Selection →</button>
   </div>
@@ -208,7 +214,8 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
@@ -220,6 +227,7 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
+const auth = getAuth(app);
 
 const SKILL_LEVELS = [
   {id:'a',  label:'A',  name:'Advanced',   color:'#BF360C',bg:'#FFF3E0'},
@@ -244,7 +252,7 @@ const DC_RINKS = [
   {name:"Piney Orchard Ice Arena",    address:"8920 Piney Orchard Pkwy", city:"Odenton, MD",        miles:17.6},
 ];
 
-let state = {name:'',email:'',age:'',zip:'',rinks:[],levels:[]};
+let state = {name:'',email:'',password:'',age:'',zip:'',rinks:[],levels:[]};
 
 // Build level buttons
 const grid = document.getElementById('levelGrid');
@@ -271,9 +279,11 @@ window.goStep2 = () => {
   const n=document.getElementById('fname').value.trim();
   const e=document.getElementById('femail').value.trim();
   const z=document.getElementById('fzip1').value.trim();
-  if (!n||!e||!state.age||z.length<5) { alert('Please fill in all fields and select your age.'); return; }
+  const p=document.getElementById('fpassword').value;
+  if (!n||!e||!state.age||z.length<5||!p) { alert('Please fill in all fields and select your age.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { alert('Please enter a valid email address.'); return; }
-  state.name=n; state.email=e; state.zip=z;
+  if (p.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  state.name=n; state.email=e; state.password=p; state.zip=z;
   document.getElementById('fzip2').value=z;
   setStep(2); searchRinks();
 };
@@ -433,8 +443,12 @@ window.submitSignup = async () => {
   btn.disabled=true;
   btn.innerHTML='<span class="spinner"></span>Saving...';
   try {
-    await addDoc(collection(db,'goalies'),{
-      name:state.name, email:state.email, age:state.age,
+    // Create Firebase Auth account
+    const userCred = await createUserWithEmailAndPassword(auth, state.email, state.password);
+    const uid = userCred.user.uid;
+    // Store goalie profile in Firestore using uid as doc ID
+    await setDoc(doc(db,'goalies',uid),{
+      uid, name:state.name, email:state.email, age:state.age,
       zip:state.zip, levels:state.levels, rinks:state.rinks,
       active:true, createdAt:serverTimestamp()
     });
@@ -443,11 +457,15 @@ window.submitSignup = async () => {
     const lvls=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
     document.getElementById('successMsg').innerHTML=
       `<strong>${state.name}</strong>, you're now on the goalie roster!<br><br>
-      We'll email <strong>${state.email}</strong> whenever a team needs a goalie at one of your <strong>${state.rinks.length} rink${state.rinks.length>1?'s':''}</strong> at the <strong>${lvls.join(', ')}</strong> level${lvls.length>1?'s':''}.`;
+      We'll email <strong>${state.email}</strong> whenever a team needs a goalie at one of your <strong>${state.rinks.length} rink${state.rinks.length>1?'s':''}</strong> at the <strong>${lvls.join(', ')}</strong> level${lvls.length>1?'s':''}.<br><br>
+      <a href="goalie-login.html" style="color:var(--green);font-weight:800">→ Log in to manage your profile</a>`;
   } catch(e) {
     console.error(e);
+    let msg = 'Something went wrong. Please try again.';
+    if (e.code === 'auth/email-already-in-use') msg = 'That email is already registered. <a href="goalie-login.html">Log in here</a>.';
+    if (e.code === 'auth/weak-password') msg = 'Password must be at least 6 characters.';
     err.style.display='block';
-    err.textContent='Something went wrong. Please try again. ('+e.message+')';
+    err.innerHTML=msg;
     btn.disabled=false;
     btn.innerHTML='Add Me to the Roster ✓';
   }

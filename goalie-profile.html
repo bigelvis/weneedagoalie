@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Profile — We Need A Goalie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ice:#F0F8FF;--navy:#0A1628;--red:#CC2200;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;
+      --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
+      --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;--green-border:#7BC99A;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--gold)}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none;cursor:pointer}
+    .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
+    .nav-link.active{background:var(--red);border-color:var(--red)}
+    .page-hero{background:var(--navy);padding:2rem 1.5rem 1.75rem;text-align:center;position:relative;overflow:hidden}
+    .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(21,101,192,0.18) 0%,transparent 70%)}
+    .page-hero-content{position:relative;z-index:1}
+    .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,56px);color:#fff;letter-spacing:3px;line-height:1}
+    .page-sub{font-size:15px;color:rgba(255,255,255,0.65);margin-top:6px;font-weight:600}
+    .form-wrap{max-width:640px;margin:0 auto;padding:2rem 1.5rem}
+    .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
+    .card-title{font-size:18px;font-weight:800;margin-bottom:4px}
+    .card-desc{font-size:14px;color:var(--muted);margin-bottom:1.5rem}
+    .field{margin-bottom:1.25rem}
+    .field:last-child{margin-bottom:0}
+    .label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
+    input[type=text],input[type=email],input[type=password]{width:100%;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
+    input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,0.12)}
+    input::placeholder{color:#AAB4C8}
+    .hint{font-size:13px;color:var(--muted);margin-top:6px}
+    .age-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:10px}
+    .age-btn{position:relative;padding:14px 10px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;color:var(--text);transition:all 0.15s}
+    .age-btn:hover{border-color:var(--green);background:var(--green-light)}
+    .age-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green)}
+    .corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .age-btn.selected .corner-check{display:flex}
+    .zip-row{display:flex;gap:10px}
+    .zip-row input{flex:1}
+    .btn-find{padding:14px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
+    .btn-find:hover{background:#0D47A1}
+    .btn-find:disabled{background:#AAB4C8;cursor:not-allowed}
+    .rinks-list{margin-top:1rem;display:flex;flex-direction:column;gap:8px}
+    .rink-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;position:relative}
+    .rink-item:hover{border-color:var(--green);background:var(--green-light)}
+    .rink-item.selected{border-color:var(--green);background:var(--green-light)}
+    .rink-corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .rink-item.selected .rink-corner-check{display:flex}
+    .rink-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--border);background:#fff;flex-shrink:0;transition:all 0.15s}
+    .rink-item.selected .rink-dot{background:var(--green);border-color:var(--green)}
+    .rink-info{flex:1}
+    .rink-name{font-size:15px;font-weight:800}
+    .rink-addr{font-size:13px;color:var(--muted);margin-top:2px}
+    .rink-dist{font-size:13px;font-weight:800;color:var(--blue);white-space:nowrap}
+    .selected-count{font-size:13px;font-weight:700;color:var(--green);margin-top:10px}
+    .level-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
+    .level-btn{position:relative;padding:13px 10px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;transition:all 0.15s}
+    .level-btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,0.08)}
+    .level-btn.selected{transform:translateY(-2px)}
+    .level-letter{font-family:'Bebas Neue',sans-serif;font-size:28px;line-height:1;margin-bottom:3px}
+    .level-name{font-size:11px;font-weight:800;color:var(--muted)}
+    .level-corner-check{display:none;position:absolute;top:-8px;right:-8px;width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:12px;font-weight:800;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.2)}
+    .level-btn.selected .level-corner-check{display:flex}
+    /* Active/Inactive toggle */
+    .status-toggle{display:flex;gap:12px;margin-top:4px}
+    .status-btn{flex:1;padding:16px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;text-align:center;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;transition:all 0.15s}
+    .status-btn.active-btn.selected{border-color:var(--green);background:var(--green-light);color:var(--green)}
+    .status-btn.inactive-btn.selected{border-color:#9E9E9E;background:#F5F5F5;color:#616161}
+    .status-icon{font-size:22px;margin-bottom:4px}
+    .status-label{font-size:13px;font-weight:800}
+    .status-desc{font-size:12px;font-weight:600;color:var(--muted);margin-top:2px}
+    /* Save button */
+    .btn-save{width:100%;padding:18px;background:var(--green);color:#fff;border:none;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:18px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .btn-save:hover{background:#145C30;transform:translateY(-1px)}
+    .btn-save:disabled{background:#AAB4C8;cursor:not-allowed;transform:none}
+    /* Danger zone */
+    .danger-card{background:#fff;border-radius:var(--radius);border:1.5px solid #F5A090;padding:2rem;margin-bottom:1.5rem}
+    .danger-title{font-size:16px;font-weight:800;color:var(--red);margin-bottom:4px}
+    .danger-desc{font-size:14px;color:var(--muted);margin-bottom:1.25rem}
+    .btn-danger{padding:12px 24px;background:transparent;color:var(--red);border:2px solid var(--red);border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .btn-danger:hover{background:var(--red-light)}
+    /* Delete confirm overlay */
+    .overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.7);z-index:100;align-items:center;justify-content:center;padding:1.5rem}
+    .overlay.show{display:flex}
+    .overlay-card{background:#fff;border-radius:var(--radius);padding:2rem;max-width:420px;width:100%}
+    .overlay-title{font-size:18px;font-weight:800;color:var(--red);margin-bottom:8px}
+    .overlay-desc{font-size:14px;color:var(--muted);line-height:1.6;margin-bottom:1.25rem}
+    .overlay-actions{display:flex;gap:10px}
+    .overlay-actions button{flex:1;padding:13px;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;border:none;transition:all 0.15s}
+    .btn-cancel-del{background:var(--border);color:var(--text)}
+    .btn-cancel-del:hover{background:#C0C8D8}
+    .btn-confirm-del{background:var(--red);color:#fff}
+    .btn-confirm-del:hover{background:#A01A00}
+    .err-msg{background:var(--red-light);border:1.5px solid #F5A090;color:var(--red);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-top:12px;display:none}
+    .success-banner{background:var(--green-light);border:1.5px solid var(--green-border);color:var(--green);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-bottom:1.5rem;display:none}
+    .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    #loadingState{text-align:center;padding:3rem;color:var(--muted);font-weight:700;font-size:16px}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+  <div class="nav-links">
+    <a href="find-goalie.html" class="nav-link">Need a Goalie</a>
+    <a href="goalie-signup.html" class="nav-link">I Am a Goalie</a>
+    <a href="#" class="nav-link active" onclick="doSignOut(event)">Sign Out</a>
+  </div>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-content">
+    <div class="page-title" id="heroTitle">My Profile</div>
+    <div class="page-sub" id="heroSub">Loading your profile...</div>
+  </div>
+</div>
+
+<div class="form-wrap">
+  <div id="loadingState">Loading your profile... 🏒</div>
+  <div id="profileContent" style="display:none">
+
+    <div class="success-banner" id="saveBanner">✓ Profile saved successfully!</div>
+
+    <!-- Basic Info -->
+    <div class="card">
+      <div class="card-title">Your Info</div>
+      <div class="card-desc">Update your name, email, age, and zip code</div>
+      <div class="field"><label class="label">Full name</label><input type="text" id="pName" /></div>
+      <div class="field"><label class="label">Email</label><input type="email" id="pEmail" /><div class="hint">Changing your email here updates where we send notifications</div></div>
+      <div class="field">
+        <label class="label">Age range</label>
+        <div class="age-grid">
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>18–25</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>26–35</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>36–45</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>46–55</button>
+          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>55+</button>
+        </div>
+      </div>
+      <div class="field"><label class="label">Zip code</label><input type="text" id="pZip" maxlength="5" /><div class="hint">Used to find rinks near you</div></div>
+    </div>
+
+    <!-- Availability status -->
+    <div class="card">
+      <div class="card-title">Availability</div>
+      <div class="card-desc">Control whether teams can contact you for games</div>
+      <div class="status-toggle">
+        <button class="status-btn active-btn" id="statusActive" onclick="setStatus(true)">
+          <div class="status-icon">✅</div>
+          <div class="status-label">Active</div>
+          <div class="status-desc">Teams can contact me</div>
+        </button>
+        <button class="status-btn inactive-btn" id="statusInactive" onclick="setStatus(false)">
+          <div class="status-icon">⏸️</div>
+          <div class="status-label">Inactive</div>
+          <div class="status-desc">Pause notifications</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Skill levels -->
+    <div class="card">
+      <div class="card-title">Skill Levels</div>
+      <div class="card-desc">Select all levels you're comfortable playing at</div>
+      <div class="level-grid" id="levelGrid"></div>
+    </div>
+
+    <!-- Rinks -->
+    <div class="card">
+      <div class="card-title">Rinks You'll Play At</div>
+      <div class="card-desc">Select all rinks you're willing to travel to</div>
+      <div class="field">
+        <label class="label">Search by zip code</label>
+        <div class="zip-row">
+          <input type="text" id="rinkZip" maxlength="5" placeholder="e.g. 20850" />
+          <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
+        </div>
+      </div>
+      <div id="rinkResults"></div>
+      <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
+      <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;display:none" id="customRinkBox">
+        <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
+        <div class="zip-row">
+          <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
+          <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()">Search</button>
+        </div>
+        <div id="customRinkResults" style="margin-top:10px;"></div>
+      </div>
+      <div id="selectedCount" class="selected-count" style="display:none"></div>
+    </div>
+
+    <div class="err-msg" id="saveErr"></div>
+    <button class="btn-save" id="saveBtn" onclick="saveProfile()">Save Changes ✓</button>
+
+    <!-- Danger zone -->
+    <div class="danger-card" style="margin-top:2rem">
+      <div class="danger-title">⚠️ Danger Zone</div>
+      <div class="danger-desc">Permanently delete your account and remove yourself from the goalie roster. This cannot be undone.</div>
+      <button class="btn-danger" onclick="showDeleteConfirm()">Delete My Account</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Delete confirmation overlay -->
+<div class="overlay" id="deleteOverlay">
+  <div class="overlay-card">
+    <div class="overlay-title">Delete your account?</div>
+    <div class="overlay-desc">This will permanently remove you from the goalie roster. Teams will no longer be able to contact you. This cannot be undone.<br><br>Type <strong>DELETE</strong> below to confirm.</div>
+    <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to confirm" style="margin-bottom:1rem" />
+    <div class="overlay-actions">
+      <button class="btn-cancel-del" onclick="hideDeleteConfirm()">Cancel</button>
+      <button class="btn-confirm-del" id="confirmDelBtn" onclick="doDelete()">Delete Account</button>
+    </div>
+    <div class="err-msg" id="deleteErr" style="margin-top:10px;"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, getDoc, updateDoc, deleteDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
+  authDomain: "weneedagoalie.firebaseapp.com",
+  projectId: "weneedagoalie",
+  storageBucket: "weneedagoalie.firebasestorage.app",
+  messagingSenderId: "151415451382",
+  appId: "1:151415451382:web:5a29a552ccd092682986d7"
+};
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+const SKILL_LEVELS = [
+  {id:'a',  label:'A',  name:'Advanced',   color:'#BF360C',bg:'#FFF3E0'},
+  {id:'ub', label:'B+', name:'Upper B',    color:'#283593',bg:'#E8EAF6'},
+  {id:'lb', label:'B',  name:'Lower B',    color:'#3949AB',bg:'#EEF0FB'},
+  {id:'uc', label:'C+', name:'Upper C',    color:'#1B5E20',bg:'#E8F5E9'},
+  {id:'lc', label:'C',  name:'Lower C',    color:'#2E7D32',bg:'#F1F8F1'},
+  {id:'ud', label:'D+', name:'Upper D',    color:'#0D47A1',bg:'#E3F2FD'},
+  {id:'d',  label:'D',  name:'Beginner',   color:'#1565C0',bg:'#EBF4FE'},
+  {id:'rec',label:'Rec',name:'Pickup/Rec', color:'#4A148C',bg:'#F3E5F5'},
+];
+
+const DC_RINKS = [
+  {name:"Kettler Capitals Iceplex",  address:"627 N Glebe Rd",          city:"Arlington, VA",      miles:1.2},
+  {name:"Rockville Ice Arena",        address:"50 Southlawn Ln",         city:"Rockville, MD",      miles:3.4},
+  {name:"Fairfax Ice Arena",          address:"3779 Pickett Rd",         city:"Fairfax, VA",        miles:5.1},
+  {name:"SkateQuest",                 address:"1800 Michael Faraday Ct", city:"Reston, VA",         miles:6.8},
+  {name:"Cabin John Ice Rink",        address:"10610 Westlake Dr",       city:"Bethesda, MD",       miles:7.3},
+  {name:"Fort Dupont Ice Arena",      address:"3779 Ely Pl SE",          city:"Washington, DC",     miles:8.9},
+  {name:"Tucker Road Ice Rink",       address:"1770 Tucker Rd",          city:"Fort Washington, MD",miles:10.2},
+  {name:"Wheaton Ice Arena",          address:"11717 Orebaugh Ave",      city:"Wheaton, MD",        miles:11.5},
+  {name:"Prince William Ice Center",  address:"5180 Dale Blvd",          city:"Woodbridge, VA",     miles:14.1},
+  {name:"Piney Orchard Ice Arena",    address:"8920 Piney Orchard Pkwy", city:"Odenton, MD",        miles:17.6},
+];
+
+let currentUser = null;
+let goalieDocId = null;
+let profileData = {};
+let selectedRinks = [];
+let selectedLevels = [];
+let isActive = true;
+let allRinks = [], rinksShown = 0, nextPageToken = null, currentZip = '';
+const RINKS_PER_PAGE = 5;
+
+// Build level grid
+const grid = document.getElementById('levelGrid');
+SKILL_LEVELS.forEach(lv => {
+  const b = document.createElement('button');
+  b.className='level-btn'; b.id='lvl-'+lv.id;
+  b.innerHTML=`<span class="level-corner-check">✓</span><div class="level-letter" style="color:${lv.color}">${lv.label}</div><div class="level-name">${lv.name}</div>`;
+  b.style.borderColor=lv.color+'55';
+  b.onclick=()=>toggleLevel(lv,b);
+  grid.appendChild(b);
+});
+
+// Auth guard — redirect to login if not signed in
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = 'goalie-login.html'; return; }
+  currentUser = user;
+  await loadProfile(user);
+});
+
+async function loadProfile(user) {
+  try {
+    // First try uid-keyed doc
+    let goalieSnap = await getDoc(doc(db,'goalies',user.uid));
+    let data, docId;
+
+    if (goalieSnap.exists()) {
+      data = goalieSnap.data();
+      docId = user.uid;
+    } else {
+      // Fallback: find by email (migrated users whose doc still has old auto-id)
+      const q = query(collection(db,'goalies'), where('email','==',user.email));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        document.getElementById('loadingState').textContent = 'No goalie profile found. Please sign up first.';
+        return;
+      }
+      data = snap.docs[0].data();
+      docId = snap.docs[0].id;
+      // Backfill uid onto the doc
+      await updateDoc(doc(db,'goalies',docId), { uid: user.uid });
+    }
+
+    goalieDocId = docId;
+    profileData = data;
+
+    // Populate fields
+    document.getElementById('pName').value = data.name || '';
+    document.getElementById('pEmail').value = data.email || '';
+    document.getElementById('pZip').value = data.zip || '';
+    document.getElementById('rinkZip').value = data.zip || '';
+    document.getElementById('heroTitle').textContent = data.name ? `Hey, ${data.name.split(' ')[0]}! 🥅` : 'My Profile';
+    document.getElementById('heroSub').textContent = 'Manage your profile and availability';
+
+    // Age
+    if (data.age) {
+      document.querySelectorAll('.age-btn').forEach(btn => {
+        if (btn.textContent.replace('✓','').trim() === data.age) selectAge(btn);
+      });
+    }
+
+    // Active status
+    isActive = data.active !== false;
+    setStatus(isActive);
+
+    // Levels
+    selectedLevels = data.levels || [];
+    selectedLevels.forEach(id => {
+      const lv = SKILL_LEVELS.find(l => l.id===id);
+      const btn = document.getElementById('lvl-'+id);
+      if (lv && btn) {
+        btn.classList.add('selected');
+        btn.style.cssText=`border-color:${lv.color};background:${lv.bg};border-width:2px`;
+      }
+    });
+
+    // Rinks — pre-select existing ones then search
+    selectedRinks = data.rinks ? [...data.rinks] : [];
+    if (data.zip) {
+      currentZip = data.zip;
+      await searchRinksForZip(data.zip);
+    }
+
+    document.getElementById('loadingState').style.display='none';
+    document.getElementById('profileContent').style.display='block';
+  } catch(e) {
+    console.error(e);
+    document.getElementById('loadingState').textContent = 'Error loading profile. Please try again.';
+  }
+}
+
+window.selectAge = btn => {
+  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+};
+
+window.setStatus = (active) => {
+  isActive = active;
+  document.getElementById('statusActive').classList.toggle('selected', active);
+  document.getElementById('statusInactive').classList.toggle('selected', !active);
+};
+
+function toggleLevel(lv, btn) {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    btn.style.cssText=`border-color:${lv.color};background:${lv.bg};border-width:2px`;
+    if (!selectedLevels.includes(lv.id)) selectedLevels.push(lv.id);
+  } else {
+    btn.style.cssText=`border-color:${lv.color}55`;
+    selectedLevels = selectedLevels.filter(x=>x!==lv.id);
+  }
+}
+
+// ---- Rink search (same pattern as signup) ----
+async function searchRinksForZip(zip) {
+  allRinks=[]; rinksShown=0; nextPageToken=null; currentZip=zip;
+  document.getElementById('rinkResults').innerHTML='<div class="rinks-list" id="rinksList"></div>';
+  document.getElementById('rinkPaginationRow').innerHTML='';
+  try {
+    const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    allRinks = data.rinks || [];
+    nextPageToken = data.next_page_token || null;
+  } catch(e) {
+    const seed=parseInt(zip.slice(-2))||0;
+    allRinks = DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)}));
+  }
+  showMoreRinks();
+  document.getElementById('customRinkBox').style.display='block';
+}
+
+window.searchRinks = async () => {
+  const zip = document.getElementById('rinkZip').value.trim();
+  if (zip.length<5) { alert('Please enter a valid 5-digit zip code.'); return; }
+  const btn = document.getElementById('searchBtn');
+  btn.disabled=true; btn.textContent='Searching...';
+  document.getElementById('customRinkBox').style.display='none';
+  document.getElementById('customRinkResults').innerHTML='';
+  await searchRinksForZip(zip);
+  btn.disabled=false; btn.textContent='Find Rinks';
+};
+
+window.showMoreRinks = async function() {
+  if (rinksShown >= allRinks.length && nextPageToken) {
+    const pr = document.getElementById('rinkPaginationRow');
+    pr.innerHTML=`<button disabled style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--muted);cursor:not-allowed;">Loading more rinks...</button>`;
+    await new Promise(r=>setTimeout(r,2000));
+    try {
+      const resp=await fetch(`/.netlify/functions/rinks?zip=${currentZip}&pagetoken=${encodeURIComponent(nextPageToken)}`);
+      const data=await resp.json();
+      allRinks=allRinks.concat(data.rinks||[]);
+      nextPageToken=data.next_page_token||null;
+    } catch(e){nextPageToken=null;}
+  }
+  const list=document.getElementById('rinksList');
+  allRinks.slice(rinksShown,rinksShown+RINKS_PER_PAGE).forEach((r,offset)=>{
+    const i=rinksShown+offset;
+    const div=document.createElement('div');
+    div.className='rink-item'; div.id='rink'+i;
+    div.setAttribute('data-name',r.name);
+    div.onclick=()=>toggleRink(i);
+    if (selectedRinks.includes(r.name)) div.classList.add('selected');
+    div.innerHTML=`<span class="rink-corner-check">✓</span>
+      <div class="rink-dot"></div>
+      <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
+    list.appendChild(div);
+  });
+  rinksShown+=Math.min(RINKS_PER_PAGE,allRinks.length-rinksShown);
+  const pr=document.getElementById('rinkPaginationRow');
+  pr.innerHTML=(rinksShown<allRinks.length||nextPageToken)
+    ?`<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show more rinks ↓</button>`:'';
+  updateRinkCount();
+};
+
+window.searchCustomRink = async function() {
+  const query=document.getElementById('customRinkSearch').value.trim();
+  if (!query){alert('Please type a rink name.');return;}
+  const btn=document.getElementById('customSearchBtn');
+  const resultsDiv=document.getElementById('customRinkResults');
+  btn.disabled=true; btn.textContent='Searching...';
+  resultsDiv.innerHTML='';
+  try {
+    const resp=await fetch(`/.netlify/functions/rinks?zip=${currentZip}&query=${encodeURIComponent(query)}`);
+    const data=await resp.json();
+    const found=data.rinks||[];
+    if(!found.length){resultsDiv.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:8px 0;">No results found.</div>`;}
+    else {
+      const list=document.createElement('div'); list.className='rinks-list';
+      found.forEach((r,i)=>{
+        const idx='custom_'+i;
+        const div=document.createElement('div');
+        div.className='rink-item'; div.id='rink'+idx;
+        div.setAttribute('data-name',r.name);
+        div.onclick=()=>toggleRink(idx);
+        if(selectedRinks.includes(r.name)) div.classList.add('selected');
+        div.innerHTML=`<span class="rink-corner-check">✓</span>
+          <div class="rink-dot"></div>
+          <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+          <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
+        list.appendChild(div);
+      });
+      resultsDiv.appendChild(list);
+    }
+  } catch(e){resultsDiv.innerHTML=`<div style="font-size:13px;color:var(--red);padding:8px 0;">Search failed.</div>`;}
+  btn.disabled=false; btn.textContent='Search';
+};
+
+window.toggleRink = i => {
+  const el=document.getElementById('rink'+i);
+  const name=el.dataset.name;
+  el.classList.toggle('selected');
+  selectedRinks=el.classList.contains('selected')
+    ?[...new Set([...selectedRinks,name])]
+    :selectedRinks.filter(r=>r!==name);
+  updateRinkCount();
+};
+
+function updateRinkCount() {
+  const cnt=document.getElementById('selectedCount');
+  cnt.style.display=selectedRinks.length?'block':'none';
+  if(selectedRinks.length) cnt.textContent=`✓ ${selectedRinks.length} rink${selectedRinks.length>1?'s':''} selected`;
+}
+
+// ---- Save ----
+window.saveProfile = async () => {
+  const btn=document.getElementById('saveBtn');
+  const err=document.getElementById('saveErr');
+  err.style.display='none';
+  document.getElementById('saveBanner').style.display='none';
+
+  const name=document.getElementById('pName').value.trim();
+  const email=document.getElementById('pEmail').value.trim();
+  const zip=document.getElementById('pZip').value.trim();
+  const ageBtn=document.querySelector('.age-btn.selected');
+  const age=ageBtn?ageBtn.textContent.replace('✓','').trim():'';
+
+  if(!name||!email){err.style.display='block';err.textContent='Name and email are required.';return;}
+  if(selectedRinks.length===0){err.style.display='block';err.textContent='Please select at least one rink.';return;}
+  if(selectedLevels.length===0){err.style.display='block';err.textContent='Please select at least one skill level.';return;}
+
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Saving...';
+  try {
+    const docRef = doc(db,'goalies',goalieDocId);
+    await updateDoc(docRef,{
+      name, email, age, zip,
+      levels:selectedLevels, rinks:selectedRinks, active:isActive
+    });
+    document.getElementById('heroTitle').textContent=`Hey, ${name.split(' ')[0]}! 🥅`;
+    document.getElementById('saveBanner').style.display='block';
+    window.scrollTo({top:0,behavior:'smooth'});
+  } catch(e) {
+    err.style.display='block'; err.textContent='Save failed. Please try again. ('+e.message+')';
+  }
+  btn.disabled=false; btn.innerHTML='Save Changes ✓';
+};
+
+// ---- Delete ----
+window.showDeleteConfirm = () => {
+  document.getElementById('deleteConfirmInput').value='';
+  document.getElementById('deleteErr').style.display='none';
+  document.getElementById('deleteOverlay').classList.add('show');
+};
+window.hideDeleteConfirm = () => {
+  document.getElementById('deleteOverlay').classList.remove('show');
+};
+
+window.doDelete = async () => {
+  const confirm=document.getElementById('deleteConfirmInput').value.trim();
+  const err=document.getElementById('deleteErr');
+  const btn=document.getElementById('confirmDelBtn');
+  if(confirm!=='DELETE'){err.style.display='block';err.textContent='Please type DELETE to confirm.';return;}
+  btn.disabled=true; btn.textContent='Deleting...';
+  try {
+    await deleteDoc(doc(db,'goalies',goalieDocId));
+    await deleteUser(currentUser);
+    window.location.href='index.html';
+  } catch(e) {
+    err.style.display='block';
+    err.textContent='Delete failed. You may need to log out and log back in first. ('+e.message+')';
+    btn.disabled=false; btn.textContent='Delete Account';
+  }
+};
+
+window.doSignOut = async (e) => {
+  e.preventDefault();
+  await signOut(auth);
+  window.location.href='goalie-login.html';
+};
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&document.activeElement.id==='customRinkSearch') searchCustomRink();
+});
+</script>
+</body>
+</html>
