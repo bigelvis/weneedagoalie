@@ -163,6 +163,16 @@
         <div class="hint">Showing 10 nearest ice rinks sorted by distance</div>
       </div>
       <div id="rinkResults"></div>
+      <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
+      <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;display:none" id="customRinkBox">
+        <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
+        <div class="zip-row">
+          <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
+          <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()">Search</button>
+        </div>
+        <div id="customRinkResults" style="margin-top:10px;"></div>
+      </div>
       <div id="selectedCount" class="selected-count" style="display:none"></div>
     </div>
     <button class="btn-next" id="next2" onclick="goStep3()" disabled>Continue to Skill Level →</button>
@@ -253,6 +263,10 @@ window.selectAge = btn => {
   state.age = btn.textContent.replace('✓','').trim();
 };
 
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.activeElement.id === 'customRinkSearch') searchCustomRink();
+});
+
 window.goStep2 = () => {
   const n=document.getElementById('fname').value.trim();
   const e=document.getElementById('femail').value.trim();
@@ -264,40 +278,110 @@ window.goStep2 = () => {
   setStep(2); searchRinks();
 };
 
+let allRinks = [];
+let rinksShown = 0;
+let nextPageToken = null;
+let currentZip = '';
+const RINKS_PER_PAGE = 5;
+
 window.searchRinks = async () => {
   const zip=document.getElementById('fzip2').value.trim();
   if (zip.length<5) { alert('Please enter a valid 5-digit zip code.'); return; }
-  state.zip=zip; state.rinks=[];
+  state.zip=zip; state.rinks=[]; currentZip=zip;
+  allRinks=[]; rinksShown=0; nextPageToken=null;
   const btn=document.getElementById('searchBtn');
-  const res=document.getElementById('rinkResults');
   document.getElementById('selectedCount').style.display='none';
   document.getElementById('next2').disabled=true;
+  document.getElementById('customRinkBox').style.display='none';
+  document.getElementById('customRinkResults').innerHTML='';
   btn.disabled=true; btn.textContent='Searching...';
-  res.innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${zip}…</div>`;
+  document.getElementById('rinkResults').innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${zip}…</div>`;
   try {
     const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    renderRinks(data.rinks);
+    allRinks = data.rinks || [];
+    nextPageToken = data.next_page_token || null;
   } catch(err) {
     const seed=parseInt(zip.slice(-2))||0;
-    renderRinks(DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)})));
+    allRinks = DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)}));
+    nextPageToken = null;
   }
+  document.getElementById('rinkResults').innerHTML = '<div class="rinks-list" id="rinksList"></div>';
+  rinksShown = 0;
+  showMoreRinks();
+  document.getElementById('customRinkBox').style.display='block';
   btn.disabled=false; btn.textContent='Find Rinks';
 };
 
-function renderRinks(rinks) {
-  let html='<div class="rinks-list">';
-  rinks.forEach((r,i)=>{
-    html+=`<div class="rink-item" id="rink${i}" data-name="${r.name.replace(/"/g,'&quot;')}" onclick="toggleRink(${i})">
-      <span class="rink-corner-check">✓</span>
+window.showMoreRinks = async function() {
+  if (rinksShown >= allRinks.length && nextPageToken) {
+    const pr = document.getElementById('rinkPaginationRow');
+    pr.innerHTML = `<button disabled style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--muted);cursor:not-allowed;">Loading more rinks...</button>`;
+    await new Promise(r => setTimeout(r, 2000));
+    try {
+      const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&pagetoken=${encodeURIComponent(nextPageToken)}`);
+      const data = await resp.json();
+      allRinks = allRinks.concat(data.rinks || []);
+      nextPageToken = data.next_page_token || null;
+    } catch(e) { nextPageToken = null; }
+  }
+  const list = document.getElementById('rinksList');
+  allRinks.slice(rinksShown, rinksShown + RINKS_PER_PAGE).forEach((r, offset) => {
+    const i = rinksShown + offset;
+    const div = document.createElement('div');
+    div.className = 'rink-item'; div.id = 'rink'+i;
+    div.setAttribute('data-name', r.name);
+    div.onclick = () => toggleRink(i);
+    div.innerHTML = `<span class="rink-corner-check">✓</span>
       <div class="rink-dot"></div>
       <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
-      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>
-    </div>`;
+      <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
+    list.appendChild(div);
   });
-  document.getElementById('rinkResults').innerHTML=html+'</div>';
-}
+  rinksShown += Math.min(RINKS_PER_PAGE, allRinks.length - rinksShown);
+  const pr = document.getElementById('rinkPaginationRow');
+  pr.innerHTML = (rinksShown < allRinks.length || nextPageToken)
+    ? `<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show more rinks ↓</button>`
+    : '';
+};
+
+window.searchCustomRink = async function() {
+  const query = document.getElementById('customRinkSearch').value.trim();
+  if (!query) { alert('Please type a rink name to search.'); return; }
+  const btn = document.getElementById('customSearchBtn');
+  const resultsDiv = document.getElementById('customRinkResults');
+  btn.disabled=true; btn.textContent='Searching...';
+  resultsDiv.innerHTML='';
+  try {
+    const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&query=${encodeURIComponent(query)}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    const found = data.rinks || [];
+    if (found.length === 0) {
+      resultsDiv.innerHTML=`<div style="font-size:13px;color:var(--muted);padding:8px 0;">No results found. Try a different name.</div>`;
+    } else {
+      const list = document.createElement('div');
+      list.className='rinks-list';
+      found.forEach((r,i) => {
+        const idx='custom_'+i;
+        const div=document.createElement('div');
+        div.className='rink-item'; div.id='rink'+idx;
+        div.setAttribute('data-name', r.name);
+        div.onclick=()=>toggleRink(idx);
+        div.innerHTML=`<span class="rink-corner-check">✓</span>
+          <div class="rink-dot"></div>
+          <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+          <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
+        list.appendChild(div);
+      });
+      resultsDiv.appendChild(list);
+    }
+  } catch(e) {
+    resultsDiv.innerHTML=`<div style="font-size:13px;color:var(--red);padding:8px 0;">Search failed. Please try again.</div>`;
+  }
+  btn.disabled=false; btn.textContent='Search';
+};
 
 window.toggleRink = i => {
   const el=document.getElementById('rink'+i);
