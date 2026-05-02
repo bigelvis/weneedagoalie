@@ -29,7 +29,8 @@
     .page-sub{font-size:16px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
     .steps-bar{display:flex;align-items:center;justify-content:center;padding:1.25rem 1rem;background:var(--white);border-bottom:1.5px solid var(--border);gap:0}
     .step-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:40px;font-size:13px;font-weight:800;color:var(--muted);transition:all 0.2s}
-    .step-pill.done{color:var(--green)}
+    .step-pill.done{color:var(--green);cursor:pointer}
+    .step-pill.done:hover{background:var(--green-light)}
     .step-pill.active{background:var(--blue-light);color:var(--blue)}
     .step-num-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--border);color:var(--muted);flex-shrink:0;transition:all 0.2s}
     .step-pill.active .step-num-circle{background:var(--blue);color:#fff}
@@ -477,6 +478,12 @@ function setStep(n) {
     const sp=document.getElementById('sp'+i), sc=document.getElementById('sc'+i);
     sp.className='step-pill'+(i===n?' active':i<n?' done':'');
     sc.textContent=i<n?'✓':i;
+    // Make completed steps clickable to go back
+    if (i < n) {
+      sp.onclick = () => setStep(i);
+    } else {
+      sp.onclick = null;
+    }
   });
 }
 </script>
