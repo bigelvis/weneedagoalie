@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>WNG Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --navy:#0A1628;--navy2:#0d2e5e;--red:#C8102E;--red-light:#FFE8E4;
+      --blue:#2a5298;--ice:#e8f4fd;--border:#D0D8E8;--muted:#5A6480;
+      --green:#1A7A3E;--green-light:#E6F4EC;--white:#fff;--text:#1A2340;
+      --gold:#F5A623;--radius:12px;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+
+    /* TOP BAR */
+    .topbar{background:var(--navy2);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
+    .topbar-logo span{color:var(--red)}
+    .topbar-badge{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+
+    /* STATS ROW */
+    .stats-row{display:flex;gap:16px;padding:24px 32px 0;flex-wrap:wrap}
+    .stat-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px 24px;flex:1;min-width:140px}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;color:#fff}
+    .stat-num.red{color:var(--red)}
+    .stat-num.gold{color:var(--gold)}
+    .stat-num.green{color:#4ade80}
+    .stat-label{font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+
+    /* TOOLBAR */
+    .toolbar{padding:20px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+    .search-box{flex:1;min-width:200px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
+    .search-box::placeholder{color:rgba(255,255,255,0.3)}
+    .search-box:focus{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.12)}
+    .filter-select{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;outline:none}
+    .filter-select option{background:#1a2340;color:#fff}
+    .btn{padding:10px 20px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.3px}
+    .btn-danger{background:var(--red);color:#fff}
+    .btn-danger:hover{background:#a00f24}
+    .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.3)}
+    .btn-outline:hover{background:rgba(255,255,255,0.08)}
+    .btn-green{background:var(--green);color:#fff}
+    .btn-green:hover{background:#155f30}
+
+    /* TABLE */
+    .table-wrap{padding:0 32px 32px;overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    thead tr{border-bottom:1px solid rgba(255,255,255,0.1)}
+    th{text-align:left;padding:12px 14px;font-size:11px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap}
+    tbody tr{border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.1s}
+    tbody tr:hover{background:rgba(255,255,255,0.04)}
+    td{padding:14px 14px;vertical-align:top}
+    .goalie-name{font-weight:800;font-size:15px}
+    .goalie-email{font-size:13px;color:rgba(255,255,255,0.5);margin-top:2px}
+    .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;margin:2px}
+    .badge-active{background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3)}
+    .badge-inactive{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1)}
+    .badge-level{background:rgba(200,16,46,0.15);color:#f87171;border:1px solid rgba(200,16,46,0.2)}
+    .badge-rink{background:rgba(42,82,152,0.3);color:#93c5fd;border:1px solid rgba(42,82,152,0.4);font-size:10px}
+    .rinks-cell{max-width:260px}
+    .action-btns{display:flex;gap:8px;align-items:center}
+    .icon-btn{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.15s}
+    .icon-btn-toggle{background:rgba(74,222,128,0.1);color:#4ade80}
+    .icon-btn-toggle:hover{background:rgba(74,222,128,0.25)}
+    .icon-btn-toggle.inactive{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)}
+    .icon-btn-delete{background:rgba(200,16,46,0.1);color:#f87171}
+    .icon-btn-delete:hover{background:rgba(200,16,46,0.25)}
+    .icon-btn-edit{background:rgba(42,82,152,0.2);color:#93c5fd}
+    .icon-btn-edit:hover{background:rgba(42,82,152,0.4)}
+    .empty-state{text-align:center;padding:60px;color:rgba(255,255,255,0.3)}
+    .empty-state div{font-size:48px;margin-bottom:12px}
+    .loading{text-align:center;padding:60px;color:rgba(255,255,255,0.4);font-size:16px;font-weight:600}
+
+    /* MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:#1a2340;border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
+    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:20px;color:#fff}
+    .modal-field{margin-bottom:16px}
+    .modal-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.5);margin-bottom:6px}
+    .modal-input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
+    .modal-input:focus{border-color:rgba(255,255,255,0.4)}
+    .modal-row{display:flex;gap:12px;margin-top:20px}
+    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:center;justify-content:center}
+    .confirm-overlay.open{display:flex}
+    .confirm-box{background:#1a2340;border:1.5px solid rgba(200,16,46,0.4);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center}
+    .confirm-box h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--red);margin-bottom:12px}
+    .confirm-box p{color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;margin-bottom:20px}
+    .confirm-row{display:flex;gap:12px;justify-content:center}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:24px;right:24px;background:#1a2340;border:1.5px solid rgba(74,222,128,0.4);border-radius:10px;padding:14px 20px;font-size:14px;font-weight:700;color:#4ade80;z-index:300;transform:translateY(80px);opacity:0;transition:all 0.3s}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.error{border-color:rgba(200,16,46,0.4);color:#f87171}
+
+    .checkbox-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+    .checkbox-item{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.15s}
+    .checkbox-item:hover{background:rgba(255,255,255,0.1)}
+    .checkbox-item.checked{background:rgba(42,82,152,0.3);border-color:rgba(42,82,152,0.5);color:#93c5fd}
+    .checkbox-item input{display:none}
+  </style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-logo">WENeedAGoalie<span>.</span>COM <span style="font-size:16px;color:rgba(255,255,255,0.4);letter-spacing:1px">ADMIN</span></div>
+  <div style="display:flex;gap:10px;align-items:center">
+    <span id="lastRefresh" style="font-size:12px;color:rgba(255,255,255,0.3);font-weight:600"></span>
+    <button class="btn btn-outline" onclick="loadGoalies()">↻ Refresh</button>
+    <button class="btn btn-green" onclick="exportGoalies()">⬇ Export JSON</button>
+    <button class="btn btn-danger" onclick="confirmClearAll()">⚠ Clear All Goalies</button>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-card"><div class="stat-num" id="statTotal">—</div><div class="stat-label">Total Goalies</div></div>
+  <div class="stat-card"><div class="stat-num green" id="statActive">—</div><div class="stat-label">Active</div></div>
+  <div class="stat-card"><div class="stat-num red" id="statInactive">—</div><div class="stat-label">Inactive</div></div>
+  <div class="stat-card"><div class="stat-num gold" id="statRinks">—</div><div class="stat-label">Unique Rinks</div></div>
+</div>
+
+<div class="toolbar">
+  <input class="search-box" id="searchBox" placeholder="🔍 Search by name, email, or rink..." oninput="filterGoalies()"/>
+  <select class="filter-select" id="filterStatus" onchange="filterGoalies()">
+    <option value="all">All Status</option>
+    <option value="active">Active Only</option>
+    <option value="inactive">Inactive Only</option>
+  </select>
+  <select class="filter-select" id="filterLevel" onchange="filterGoalies()">
+    <option value="all">All Levels</option>
+    <option value="a">A – Advanced</option>
+    <option value="ub">B+ – Upper B</option>
+    <option value="lb">B – Lower B</option>
+    <option value="uc">C+ – Upper C</option>
+    <option value="lc">C – Lower C</option>
+    <option value="ud">D+ – Upper D</option>
+    <option value="d">D – Beginner</option>
+    <option value="rec">Rec / Pickup</option>
+  </select>
+</div>
+
+<div class="table-wrap">
+  <div id="tableContent" class="loading">Loading goalies...</div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-title">Edit Goalie</div>
+    <div class="modal-field">
+      <div class="modal-label">Full Name</div>
+      <input class="modal-input" id="editName" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Email</div>
+      <input class="modal-input" id="editEmail" type="email"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Age Range</div>
+      <input class="modal-input" id="editAge" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Skill Levels</div>
+      <div class="checkbox-group" id="editLevels"></div>
+    </div>
+    <div class="modal-row">
+      <button class="btn btn-green" style="flex:1" onclick="saveEdit()">Save Changes</button>
+      <button class="btn btn-outline" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div class="confirm-overlay" id="confirmModal">
+  <div class="confirm-box">
+    <h3 id="confirmTitle">Are you sure?</h3>
+    <p id="confirmMsg"></p>
+    <div class="confirm-row">
+      <button class="btn btn-danger" id="confirmYes">Yes, Delete</button>
+      <button class="btn btn-outline" onclick="closeConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script type="module">
+
+const ADMIN_SECRET = prompt('Enter admin password:');
+if (!ADMIN_SECRET) { document.body.innerHTML = '<div style="color:#fff;padding:2rem;font-size:1.5rem">Access denied.</div>'; throw new Error('No password'); }
+
+const API = (action='', id='', method='GET', body=null) => {
+  const url = `/.netlify/functions/admin-stats?secret=${encodeURIComponent(ADMIN_SECRET)}${action ? '&action='+action : ''}${id ? '&id='+id : ''}`;
+  return fetch(url, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : null,
+  }).then(r => r.json());
+};
+
+const SKILL_LEVELS = [
+  {id:'a',  label:'A',  name:'Advanced'},
+  {id:'ub', label:'B+', name:'Upper B'},
+  {id:'lb', label:'B',  name:'Lower B'},
+  {id:'uc', label:'C+', name:'Upper C'},
+  {id:'lc', label:'C',  name:'Lower C'},
+  {id:'ud', label:'D+', name:'Upper D'},
+  {id:'d',  label:'D',  name:'Beginner'},
+  {id:'rec',label:'Rec',name:'Pickup/Rec'},
+];
+
+let allGoalies = [];
+let editingId = null;
+
+window.loadGoalies = async () => {
+  document.getElementById('tableContent').innerHTML = '<div class="loading">Loading goalies...</div>';
+  try {
+    const data = await API();
+    if (data.error) throw new Error(data.error);
+    allGoalies = data.goalies || [];
+    allGoalies.sort((a,b) => (a.name||'').localeCompare(b.name||''));
+    updateStats();
+    filterGoalies();
+    document.getElementById('lastRefresh').textContent = 'Updated ' + new Date().toLocaleTimeString();
+  } catch(e) {
+    document.getElementById('tableContent').innerHTML = `<div class="empty-state"><div>⚠️</div>Error loading: ${e.message}</div>`;
+  }
+};
+
+function updateStats() {
+  const active = allGoalies.filter(g => g.active !== false).length;
+  const rinks = new Set(allGoalies.flatMap(g => g.rinks || [])).size;
+  document.getElementById('statTotal').textContent = allGoalies.length;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statInactive').textContent = allGoalies.length - active;
+  document.getElementById('statRinks').textContent = rinks;
+}
+
+window.filterGoalies = () => {
+  const q = document.getElementById('searchBox').value.toLowerCase();
+  const status = document.getElementById('filterStatus').value;
+  const level = document.getElementById('filterLevel').value;
+  let filtered = allGoalies.filter(g => {
+    const matchQ = !q || (g.name||'').toLowerCase().includes(q) ||
+      (g.email||'').toLowerCase().includes(q) ||
+      (g.rinks||[]).some(r => r.toLowerCase().includes(q));
+    const matchStatus = status === 'all' ||
+      (status === 'active' && g.active !== false) ||
+      (status === 'inactive' && g.active === false);
+    const matchLevel = level === 'all' || (g.levels||[]).includes(level);
+    return matchQ && matchStatus && matchLevel;
+  });
+  renderTable(filtered);
+};
+
+function renderTable(goalies) {
+  if (!goalies.length) {
+    document.getElementById('tableContent').innerHTML = '<div class="empty-state"><div>🥅</div>No goalies found</div>';
+    return;
+  }
+
+  const rows = goalies.map(g => {
+    const isActive = g.active !== false;
+    const hasLogin = !!g.uid;
+    const levelBadges = (g.levels||[]).map(l => {
+      const lv = SKILL_LEVELS.find(x => x.id === l);
+      return lv ? `<span class="badge badge-level">${lv.label}</span>` : '';
+    }).join('');
+    const rinkBadges = (g.rinks||[]).map(r => `<span class="badge badge-rink">${r}</span>`).join('');
+    const signedUp = g.createdAt ? new Date(g.createdAt).toLocaleDateString() : '—';
+
+    return `<tr>
+      <td>
+        <div class="goalie-name">${g.name || '—'}</div>
+        <div class="goalie-email">${g.email || '—'}</div>
+      </td>
+      <td><span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? '● Active' : '○ Inactive'}</span></td>
+      <td>${g.age || '—'}</td>
+      <td>${levelBadges || '—'}</td>
+      <td class="rinks-cell">${rinkBadges || '—'}</td>
+      <td style="font-size:13px">${signedUp}</td>
+      <td>
+        <span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;
+          background:${hasLogin ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)'};
+          color:${hasLogin ? '#4ade80' : 'rgba(255,255,255,0.35)'};
+          border:1px solid ${hasLogin ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}">
+          ${hasLogin ? '✓ Set up' : '— Not set up'}
+        </span>
+      </td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn icon-btn-edit" title="Edit" onclick="openEdit('${g.id}')">✏️</button>
+          <button class="icon-btn icon-btn-toggle ${isActive ? '' : 'inactive'}" title="${isActive ? 'Deactivate' : 'Activate'}" onclick="toggleActive('${g.id}', ${isActive})">
+            ${isActive ? '✓' : '○'}
+          </button>
+          <button class="icon-btn icon-btn-delete" title="Delete" onclick="confirmDelete('${g.id}', '${(g.name||'').replace(/'/g,"\\'")}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('tableContent').innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Goalie</th><th>Status</th><th>Age</th><th>Levels</th><th>Rinks</th><th>Signed Up</th><th>Login</th><th>Actions</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+window.toggleActive = async (id, currentlyActive) => {
+  try {
+    await API('toggle', id, 'POST', { active: !currentlyActive });
+    const g = allGoalies.find(x => x.id === id);
+    if (g) g.active = !currentlyActive;
+    updateStats();
+    filterGoalies();
+    showToast(currentlyActive ? 'Goalie deactivated' : 'Goalie activated ✓');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
+
+window.openEdit = (id) => {
+  const g = allGoalies.find(x => x.id === id);
+  if (!g) return;
+  editingId = id;
+  document.getElementById('editName').value = g.name || '';
+  document.getElementById('editEmail').value = g.email || '';
+  document.getElementById('editAge').value = g.age || '';
+  const levelsDiv = document.getElementById('editLevels');
+  levelsDiv.innerHTML = SKILL_LEVELS.map(lv => `
+    <label class="checkbox-item ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}" id="lvlchk-${lv.id}" onclick="toggleLevelCheck('${lv.id}')">
+      <input type="checkbox" ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}/>
+      ${lv.label} – ${lv.name}
+    </label>`).join('');
+  document.getElementById('editModal').classList.add('open');
+};
+
+window.toggleLevelCheck = (id) => {
+  const el = document.getElementById('lvlchk-' + id);
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+};
+
+window.saveEdit = async () => {
+  const levels = SKILL_LEVELS.filter(lv => document.getElementById('lvlchk-' + lv.id)?.classList.contains('checked')).map(lv => lv.id);
+  try {
+    const updates = {
+      name: document.getElementById('editName').value.trim(),
+      email: document.getElementById('editEmail').value.trim(),
+      age: document.getElementById('editAge').value.trim(),
+      levels,
+    };
+    await API('update', editingId, 'POST', updates);
+    const g = allGoalies.find(x => x.id === editingId);
+    if (g) Object.assign(g, updates);
+    closeEdit(); updateStats(); filterGoalies();
+    showToast('Goalie updated ✓');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
+
+window.closeEdit = () => {
+  document.getElementById('editModal').classList.remove('open');
+  editingId = null;
+};
+
+window.confirmDelete = (id, name) => {
+  document.getElementById('confirmTitle').textContent = 'Delete Goalie?';
+  document.getElementById('confirmMsg').textContent = `This will permanently remove ${name} from the database. This cannot be undone.`;
+  document.getElementById('confirmYes').textContent = 'Yes, Delete';
+  document.getElementById('confirmYes').onclick = () => deleteGoalie(id);
+  document.getElementById('confirmModal').classList.add('open');
+};
+
+window.confirmClearAll = () => {
+  document.getElementById('confirmTitle').textContent = '⚠ Clear ALL Goalies?';
+  document.getElementById('confirmMsg').textContent = `This will permanently delete all ${allGoalies.length} goalies. There is no undo.`;
+  document.getElementById('confirmYes').textContent = 'Yes, Delete All';
+  document.getElementById('confirmYes').onclick = () => clearAllGoalies();
+  document.getElementById('confirmModal').classList.add('open');
+};
+
+window.deleteGoalie = async (id) => {
+  closeConfirm();
+  try {
+    await API('delete', id, 'POST');
+    allGoalies = allGoalies.filter(g => g.id !== id);
+    updateStats(); filterGoalies();
+    showToast('Goalie deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
+
+window.clearAllGoalies = async () => {
+  closeConfirm();
+  try {
+    await Promise.all(allGoalies.map(g => API('delete', g.id, 'POST')));
+    allGoalies = [];
+    updateStats(); filterGoalies();
+    showToast('All goalies cleared');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
+
+window.closeConfirm = () => document.getElementById('confirmModal').classList.remove('open');
+
+function showToast(msg, isError=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+window.exportGoalies = () => {
+  if (!allGoalies.length) { showToast('No goalies to export', true); return; }
+  const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), totalGoalies: allGoalies.length, goalies: allGoalies }, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `weneedagoalie-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  showToast(`Exported ${allGoalies.length} goalies ✓`);
+};
+
+loadGoalies();
+</script>
+</body>
+</html>
