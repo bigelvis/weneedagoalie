@@ -15,6 +15,18 @@
     }
     body{font-family:'Nunito',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
 
+    /* LOGIN SCREEN */
+    .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+    .login-card{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center}
+    .login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff;margin-bottom:4px}
+    .login-logo span{color:var(--red)}
+    .login-sub{font-size:13px;color:rgba(255,255,255,0.4);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2rem}
+    .login-input{width:100%;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px 16px;color:#fff;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;margin-bottom:12px}
+    .login-input:focus{border-color:rgba(255,255,255,0.4)}
+    .login-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .login-btn:hover{background:#a00f24}
+    .login-err{font-size:13px;color:#f87171;margin-top:10px;font-weight:700;display:none}
+
     /* TOP BAR */
     .topbar{background:var(--navy2);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,0.08)}
     .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
@@ -112,6 +124,7 @@
     <button class="btn btn-outline" onclick="loadGoalies()">↻ Refresh</button>
     <button class="btn btn-green" onclick="exportGoalies()">⬇ Export JSON</button>
     <button class="btn btn-danger" onclick="confirmClearAll()">⚠ Clear All Goalies</button>
+    <button class="btn btn-outline" onclick="localStorage.removeItem('wng_admin_secret');location.reload()">Sign Out</button>
   </div>
 </div>
 
@@ -190,8 +203,13 @@
 
 <script type="module">
 
-const ADMIN_SECRET = prompt('Enter admin password:');
-if (!ADMIN_SECRET) { document.body.innerHTML = '<div style="color:#fff;padding:2rem;font-size:1.5rem">Access denied.</div>'; throw new Error('No password'); }
+const STORAGE_KEY = 'wng_admin_secret';
+let ADMIN_SECRET = localStorage.getItem(STORAGE_KEY);
+if (!ADMIN_SECRET) {
+  ADMIN_SECRET = prompt('Enter admin password:');
+  if (!ADMIN_SECRET) { document.body.innerHTML = '<div style="color:#fff;padding:2rem;font-size:1.5rem">Access denied.</div>'; throw new Error('No password'); }
+  localStorage.setItem(STORAGE_KEY, ADMIN_SECRET);
+}
 
 const API = (action='', id='', method='GET', body=null) => {
   const url = `/.netlify/functions/admin-stats?secret=${encodeURIComponent(ADMIN_SECRET)}${action ? '&action='+action : ''}${id ? '&id='+id : ''}`;
