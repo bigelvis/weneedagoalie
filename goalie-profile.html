@@ -105,6 +105,27 @@
     .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
     #loadingState{text-align:center;padding:3rem;color:var(--muted);font-weight:700;font-size:16px}
+    /* Selected rinks list */
+    .selected-rinks-list{display:flex;flex-direction:column;gap:0}
+    .selected-rink-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+    .selected-rink-row:last-child{border-bottom:none}
+    .selected-rink-info .rink-name{font-size:15px;font-weight:800}
+    .selected-rink-info .rink-addr{font-size:13px;color:var(--muted);margin-top:2px}
+    .remove-rink-btn{width:30px;height:30px;border-radius:50%;border:2px solid #F5A090;background:transparent;color:var(--red);font-size:15px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;line-height:1}
+    .remove-rink-btn:hover{background:var(--red-light);border-color:var(--red)}
+    .no-rinks-msg{font-size:14px;color:var(--muted);padding:10px 0;font-weight:600}
+    .btn-add-rink{display:inline-flex;align-items:center;gap:6px;margin-top:14px;padding:11px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .btn-add-rink:hover{background:#0D47A1}
+    /* Add rink modal */
+    .modal-rink-overlay{display:none;position:fixed;inset:0;background:rgba(10,22,40,0.7);z-index:200;align-items:flex-start;justify-content:center;padding:1.5rem;overflow-y:auto}
+    .modal-rink-overlay.show{display:flex}
+    .modal-rink-card{background:#fff;border-radius:var(--radius);padding:1.75rem;max-width:520px;width:100%;margin:auto}
+    .modal-rink-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+    .modal-rink-title{font-size:18px;font-weight:800}
+    .modal-close-btn{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--border);background:transparent;font-size:18px;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+    .modal-close-btn:hover{background:var(--border)}
+    .modal-done-btn{width:100%;margin-top:1.25rem;padding:14px;background:var(--green);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all 0.15s}
+    .modal-done-btn:hover{background:#145C30}
   </style>
 </head>
 <body>
@@ -176,27 +197,10 @@
 
     <!-- Rinks -->
     <div class="card">
-      <div class="card-title">Rinks You'll Play At</div>
-      <div class="card-desc">Select all rinks you're willing to travel to</div>
-      <div class="field">
-        <label class="label">Search by zip code</label>
-        <div class="zip-row">
-          <input type="text" id="rinkZip" maxlength="5" placeholder="e.g. 20850" />
-          <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
-        </div>
-      </div>
-      <div id="rinkResults"></div>
-      <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
-      <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;display:none" id="customRinkBox">
-        <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
-        <div class="zip-row">
-          <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
-          <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()">Search</button>
-        </div>
-        <div id="customRinkResults" style="margin-top:10px;"></div>
-      </div>
-      <div id="selectedCount" class="selected-count" style="display:none"></div>
+      <div class="card-title">Selected Rinks</div>
+      <div class="card-desc">Rinks you're willing to travel to for games</div>
+      <div id="selectedRinksList" class="selected-rinks-list"></div>
+      <button class="btn-add-rink" onclick="openAddRinkModal()">+ Add a Rink</button>
     </div>
 
     <div class="err-msg" id="saveErr"></div>
@@ -209,6 +213,48 @@
       <button class="btn-danger" onclick="showDeleteConfirm()">Delete My Account</button>
     </div>
 
+  </div>
+</div>
+
+<!-- Remove rink confirm overlay -->
+<div class="overlay" id="removeRinkOverlay">
+  <div class="overlay-card">
+    <div class="overlay-title">Remove rink?</div>
+    <div class="overlay-desc" id="removeRinkDesc"></div>
+    <div class="overlay-actions">
+      <button class="btn-cancel-del" onclick="hideRemoveRinkConfirm()">Cancel</button>
+      <button class="btn-confirm-del" id="confirmRemoveBtn" onclick="confirmRemoveRink()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add rink modal -->
+<div class="modal-rink-overlay" id="addRinkModal">
+  <div class="modal-rink-card">
+    <div class="modal-rink-header">
+      <div class="modal-rink-title">Add a Rink</div>
+      <button class="modal-close-btn" onclick="closeAddRinkModal()">✕</button>
+    </div>
+    <div class="field">
+      <label class="label">Search by zip code</label>
+      <div class="zip-row">
+        <input type="text" id="rinkZip" maxlength="5" placeholder="e.g. 20850" />
+        <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
+      </div>
+    </div>
+    <div id="rinkResults"></div>
+    <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
+    <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;display:none" id="customRinkBox">
+      <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
+      <div class="zip-row">
+        <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
+        <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()">Search</button>
+      </div>
+      <div id="customRinkResults" style="margin-top:10px;"></div>
+    </div>
+    <div id="selectedCount" class="selected-count" style="display:none"></div>
+    <button class="modal-done-btn" onclick="closeAddRinkModal()">Done ✓</button>
   </div>
 </div>
 
@@ -352,9 +398,10 @@ async function loadProfile(user) {
 
     // Rinks — pre-select existing ones then search
     selectedRinks = data.rinks ? [...data.rinks] : [];
+    renderSelectedRinks();
     if (data.zip) {
       currentZip = data.zip;
-      await searchRinksForZip(data.zip);
+      document.getElementById('rinkZip').value = data.zip;
     }
 
     document.getElementById('loadingState').style.display='none';
@@ -493,11 +540,58 @@ window.toggleRink = i => {
   updateRinkCount();
 };
 
-function updateRinkCount() {
-  const cnt=document.getElementById('selectedCount');
-  cnt.style.display=selectedRinks.length?'block':'none';
-  if(selectedRinks.length) cnt.textContent=`✓ ${selectedRinks.length} rink${selectedRinks.length>1?'s':''} selected`;
+function renderSelectedRinks() {
+  const container = document.getElementById('selectedRinksList');
+  if (!selectedRinks.length) {
+    container.innerHTML = '<div class="no-rinks-msg">No rinks selected yet. Click "+ Add a Rink" to get started.</div>';
+    return;
+  }
+  container.innerHTML = selectedRinks.map(name => `
+    <div class="selected-rink-row">
+      <div class="selected-rink-info">
+        <div class="rink-name">${name}</div>
+      </div>
+      <button class="remove-rink-btn" onclick="showRemoveRinkConfirm('${name.replace(/'/g, "\'")}')">✕</button>
+    </div>`).join('');
 }
+
+function updateRinkCount() {
+  const cnt = document.getElementById('selectedCount');
+  if (cnt) {
+    cnt.style.display = selectedRinks.length ? 'block' : 'none';
+    if (selectedRinks.length) cnt.textContent = `✓ ${selectedRinks.length} rink${selectedRinks.length > 1 ? 's' : ''} selected`;
+  }
+  renderSelectedRinks();
+}
+
+let rinkToRemove = null;
+window.showRemoveRinkConfirm = (name) => {
+  rinkToRemove = name;
+  document.getElementById('removeRinkDesc').textContent = `Remove "${name}" from selected rinks?`;
+  document.getElementById('removeRinkOverlay').classList.add('show');
+};
+window.hideRemoveRinkConfirm = () => {
+  rinkToRemove = null;
+  document.getElementById('removeRinkOverlay').classList.remove('show');
+};
+window.confirmRemoveRink = () => {
+  if (!rinkToRemove) return;
+  selectedRinks = selectedRinks.filter(r => r !== rinkToRemove);
+  // Also deselect in the search list if visible
+  document.querySelectorAll('.rink-item').forEach(el => {
+    if (el.dataset.name === rinkToRemove) el.classList.remove('selected');
+  });
+  hideRemoveRinkConfirm();
+  renderSelectedRinks();
+};
+
+window.openAddRinkModal = () => {
+  document.getElementById('addRinkModal').classList.add('show');
+  if (currentZip) searchRinks();
+};
+window.closeAddRinkModal = () => {
+  document.getElementById('addRinkModal').classList.remove('show');
+};
 
 // ---- Save ----
 window.saveProfile = async () => {
