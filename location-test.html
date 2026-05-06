@@ -20,15 +20,12 @@
     .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
     .nav-logo span{color:var(--gold)}
     .test-badge{background:var(--gold);color:var(--navy);font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:0.5px;text-transform:uppercase;margin-left:10px;vertical-align:middle}
-
     .page-hero{background:var(--navy);padding:2rem 1.5rem 1.75rem;text-align:center;position:relative;overflow:hidden}
     .page-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(106,13,173,0.2) 0%,transparent 70%)}
     .page-hero-content{position:relative;z-index:1}
     .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(32px,6vw,56px);color:#fff;letter-spacing:3px;line-height:1}
     .page-sub{font-size:15px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
-
     .test-banner{background:var(--purple-light);border-bottom:2px solid #C49AD4;padding:12px 24px;text-align:center;font-size:13px;font-weight:700;color:var(--purple)}
-
     .form-wrap{max-width:680px;margin:0 auto;padding:2rem 1.5rem}
     .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
     .card-title{font-size:20px;font-weight:800;margin-bottom:4px}
@@ -36,7 +33,6 @@
     .label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px}
     .hint{font-size:13px;color:var(--muted);margin-top:6px}
     .req{color:var(--red);margin-left:2px}
-
     .search-row{display:flex;gap:10px}
     .search-row input{flex:1;padding:14px 16px;border:1.5px solid var(--border);border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;color:var(--text);background:#fff;transition:border-color 0.15s;outline:none}
     .search-row input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,101,192,0.12)}
@@ -44,42 +40,31 @@
     .btn-search{padding:14px 22px;background:var(--blue);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;white-space:nowrap;transition:all 0.15s;flex-shrink:0}
     .btn-search:hover{background:#0D47A1}
     .btn-search:disabled{background:#AAB4C8;cursor:not-allowed}
-
     .radius-row{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
     .radius-btn{padding:8px 16px;border-radius:20px;border:2px solid var(--border);background:#fff;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:all 0.15s;color:var(--muted)}
     .radius-btn.active{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
-
-    /* Results */
     #results{display:none}
-
-    .geocode-result{background:var(--green-light);border:1.5px solid var(--green-border);border-radius:10px;padding:16px 20px;margin-bottom:1.5rem}
-    .geocode-result.error{background:var(--red-light);border-color:#F5A090}
+    .geocode-result{background:var(--green-light);border:1.5px solid var(--green-border);border-radius:10px;padding:16px 20px;margin-bottom:0}
     .geocode-title{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--green);margin-bottom:6px}
-    .geocode-result.error .geocode-title{color:var(--red)}
     .geocode-detail{font-size:14px;color:var(--text);line-height:1.8}
     .geocode-detail strong{font-weight:800}
     .geocode-coords{font-size:12px;color:var(--muted);margin-top:4px;font-family:monospace}
-
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:1.5rem}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:1.5rem}
     .stat-box{background:var(--white);border:1.5px solid var(--border);border-radius:12px;padding:18px 16px;text-align:center}
     .stat-box.highlight{border-color:var(--blue);background:var(--blue-light)}
     .stat-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;color:var(--navy)}
     .stat-box.highlight .stat-num{color:var(--blue)}
     .stat-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.4px;color:var(--muted);margin-top:4px}
-
-    .rinks-title{font-size:16px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:8px}
-    .rink-count-badge{background:var(--blue-light);color:var(--blue);font-size:12px;font-weight:800;padding:3px 10px;border-radius:20px}
+    .section-header{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin:1.5rem 0 10px}
     .rinks-list{display:flex;flex-direction:column;gap:8px}
     .rink-item{display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:10px;border:1.5px solid var(--border);background:#fff}
     .rink-info{flex:1}
     .rink-name{font-size:15px;font-weight:800}
     .rink-addr{font-size:13px;color:var(--muted);margin-top:2px}
     .rink-dist{font-size:13px;font-weight:800;color:var(--blue);white-space:nowrap}
-    .goalie-count-pill{font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap}
+    .goalie-count-pill{font-size:12px;font-weight:800;padding:4px 10px;border-radius:20px;white-space:nowrap;margin-left:8px;flex-shrink:0}
     .pill-green{background:var(--green-light);color:var(--green)}
     .pill-muted{background:#F0F2F6;color:var(--muted)}
-
-    .goalie-section{margin-top:1.5rem}
     .goalie-row{display:flex;align-items:center;gap:14px;padding:14px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;background:#fff}
     .goalie-avatar{width:40px;height:40px;border-radius:50%;background:var(--blue-light);color:var(--blue);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0}
     .goalie-name{font-size:15px;font-weight:800}
@@ -87,17 +72,12 @@
     .goalie-rink-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
     .rink-tag{font-size:11px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--blue-light);color:var(--blue)}
     .dist-badge{font-size:12px;font-weight:800;color:var(--muted);margin-left:auto;white-space:nowrap;flex-shrink:0}
-
     .no-goalies{text-align:center;padding:2rem;color:var(--muted);font-size:15px;font-weight:700}
-
     .spinner{display:inline-block;width:16px;height:16px;border:3px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;vertical-align:middle;margin-right:8px}
     @keyframes spin{to{transform:rotate(360deg)}}
     .err-msg{background:var(--red-light);border:1.5px solid #F5A090;color:var(--red);border-radius:8px;padding:12px 16px;font-size:14px;font-weight:700;margin-top:12px;display:none}
-
-    .section-header{font-size:13px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin:1.5rem 0 10px}
-
     .test-note{background:#FFFBEB;border:1.5px solid #F5A623;border-radius:10px;padding:14px 18px;font-size:13px;font-weight:700;color:#7A5000;margin-bottom:1.5rem}
-    .test-note span{font-weight:800;color:var(--gold)}
+    .test-note span{font-weight:800;color:#B07800}
   </style>
 </head>
 <body>
@@ -120,54 +100,48 @@
 <div class="form-wrap">
 
   <div class="test-note">
-    <span>What this tests:</span> Type any city, region, or address ("Rockville, MD" / "Toronto, ON" / "London, England"). 
-    We geocode it, then query your live Firestore database to show how many goalies would be found — and at which rinks — using the new location-based system.
+    <span>What this tests:</span> Type any city, region, or address ("Rockville, MD" / "Toronto, ON" / "London, England").
+    The request routes through your Netlify function (same path as production), geocodes it server-side,
+    finds nearby rinks, then queries your live Firestore to show how many goalies would match.
   </div>
 
   <div class="card">
     <div class="card-title">Search by location</div>
-    <div class="card-desc">Replace zipcode — type any city, region, or address anywhere in the world</div>
-
+    <div class="card-desc">Type any city, region, or address anywhere in the world</div>
     <div class="label">Location <span class="req">*</span></div>
     <div class="search-row">
       <input type="text" id="locationInput" placeholder="e.g. Toronto, ON  /  London, England  /  Rockville, MD" />
       <button class="btn-search" id="searchBtn" onclick="runTest()">Test It →</button>
     </div>
-    <div class="hint">We'll geocode this, find nearby rinks, and show matching goalies from the live database</div>
-
+    <div class="hint">Geocoding runs server-side through your Netlify function — same path as production</div>
     <div style="margin-top:16px">
       <div class="label" style="margin-bottom:8px">Search radius</div>
-      <div class="radius-row" id="radiusBtns">
-        <button class="radius-btn" onclick="setRadius(10,this)">10 mi / 16 km</button>
-        <button class="radius-btn active" onclick="setRadius(25,this)">25 mi / 40 km</button>
-        <button class="radius-btn" onclick="setRadius(50,this)">50 mi / 80 km</button>
-        <button class="radius-btn" onclick="setRadius(100,this)">100 mi / 160 km</button>
+      <div class="radius-row">
+        <button class="radius-btn" onclick="setRadius(10,this)">10 mi</button>
+        <button class="radius-btn active" onclick="setRadius(25,this)">25 mi</button>
+        <button class="radius-btn" onclick="setRadius(50,this)">50 mi</button>
+        <button class="radius-btn" onclick="setRadius(100,this)">100 mi</button>
       </div>
     </div>
-
     <div class="err-msg" id="errMsg"></div>
   </div>
 
-  <!-- Results section -->
   <div id="results">
-
     <div class="card" id="geocodeCard"></div>
 
     <div class="card">
       <div class="card-title">Goalie counts</div>
       <div class="card-desc">How many goalies would receive a notification from this location</div>
       <div class="stats-grid" id="statsGrid"></div>
-
       <div class="section-header">Nearby rinks with goalie coverage</div>
       <div id="rinkBreakdown"></div>
     </div>
 
     <div class="card">
       <div class="card-title">Matching goalies <span id="goalieCountLabel" style="font-size:14px;font-weight:600;color:var(--muted)"></span></div>
-      <div class="card-desc">Live data from your Firestore database — emails are masked for privacy</div>
+      <div class="card-desc">Live data from Firestore — emails masked for privacy</div>
       <div id="goalieList"></div>
     </div>
-
   </div>
 
 </div>
@@ -184,11 +158,9 @@ const firebaseConfig = {
   messagingSenderId: "151415451382",
   appId: "1:151415451382:web:5a29a552ccd092682986d7"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// --- State ---
 let searchRadiusMiles = 25;
 
 window.setRadius = (miles, btn) => {
@@ -197,72 +169,6 @@ window.setRadius = (miles, btn) => {
   btn.classList.add('active');
 };
 
-// --- Haversine distance ---
-function distanceMiles(lat1, lng1, lat2, lng2) {
-  const R = 3958.8;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
-  const a = Math.sin(dLat/2)**2 +
-    Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-}
-
-// --- Geocode via Google Maps (via rinks function) ---
-async function geocodeLocation(locationText) {
-  // We call a small helper — or we can use the geocoding API directly via a fetch
-  // We'll hit the Google Geocoding API via our Netlify function indirectly:
-  // Since we don't have a standalone geocode endpoint yet, we'll call rinks.js
-  // with a dummy query just to get the geocode result back.
-  // For the test page, we use Google's Geocoding API directly via a public endpoint.
-  // NOTE: This uses the same API key embedded in the app (read-only geocoding is safe).
-  const apiKey = 'AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU';
-  const encoded = encodeURIComponent(locationText);
-  const res = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encoded}&key=${apiKey}`);
-  const data = await res.json();
-  if (!data.results || data.results.length === 0) throw new Error('Location not found. Try being more specific, e.g. "Toronto, ON, Canada".');
-  const result = data.results[0];
-  return {
-    formattedAddress: result.formatted_address,
-    lat: result.geometry.location.lat,
-    lng: result.geometry.location.lng,
-    types: result.types,
-  };
-}
-
-// --- Fetch rinks near geocoded location ---
-async function fetchRinks(lat, lng) {
-  const apiKey = 'AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU';
-  const radiusMeters = Math.round(searchRadiusMiles * 1609.34);
-  const res = await fetch(`https://maps.googleapis.com/maps/api/place/textsearch/json?query=ice+hockey+rink&location=${lat},${lng}&radius=${radiusMeters}&key=${apiKey}`);
-  const data = await res.json();
-
-  const EXCLUDE = ['pro shop','sports store','equipment','apparel','inline','roller','miniature','mini golf','bowling','supply','retail','warehouse','hotel','resort spa','country club','fitness center','gym'];
-  const POSITIVE = ['ice','rink','arena','hockey','skating','iceplex','iceport','icehouse','blade','freeze','frost','glacial','polar','skate','quest'];
-
-  return (data.results || [])
-    .filter(p => {
-      const n = (p.name||'').toLowerCase();
-      if (EXCLUDE.some(kw => n.includes(kw))) return false;
-      return POSITIVE.some(t => n.includes(t));
-    })
-    .map(p => ({
-      name: p.name,
-      lat: p.geometry.location.lat,
-      lng: p.geometry.location.lng,
-      address: (p.formatted_address||p.vicinity||'').split(',')[0] || '',
-      city: (p.formatted_address||p.vicinity||'').split(',').slice(1,3).join(',').trim() || '',
-      miles: Math.round(distanceMiles(lat, lng, p.geometry.location.lat, p.geometry.location.lng) * 10) / 10,
-    }))
-    .sort((a,b) => a.miles - b.miles);
-}
-
-// --- Load all goalies from Firestore ---
-async function loadGoalies() {
-  const snap = await getDocs(collection(db, 'goalies'));
-  return snap.docs.map(d => ({ id: d.id, ...d.data() }));
-}
-
-// --- Mask email for display ---
 function maskEmail(email) {
   if (!email) return '—';
   const [user, domain] = email.split('@');
@@ -270,7 +176,6 @@ function maskEmail(email) {
   return user.slice(0,2) + '***@' + domain;
 }
 
-// --- Main test runner ---
 window.runTest = async () => {
   const location = document.getElementById('locationInput').value.trim();
   if (!location) { alert('Please enter a location.'); return; }
@@ -283,70 +188,63 @@ window.runTest = async () => {
   document.getElementById('results').style.display = 'none';
 
   try {
-    // 1. Geocode
-    const geo = await geocodeLocation(location);
+    // Call rinks Netlify function with location param (server-side geocoding)
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
 
-    // 2. Fetch rinks near geocoded point
-    let nearbyRinks = [];
-    try {
-      nearbyRinks = await fetchRinks(geo.lat, geo.lng);
-    } catch(e) {
-      // Rinks fetch failed — that's ok for the test, goalies still work
-      console.warn('Rink fetch failed:', e.message);
-    }
+    const { rinks: allRinks, geocode } = data;
 
-    // 3. Load goalies from Firestore
-    const allGoalies = await loadGoalies();
+    // Filter to chosen radius
+    const nearbyRinks = allRinks.filter(r => r.miles <= searchRadiusMiles);
 
-    // 4. Match goalies by rink name proximity to nearby rinks
-    //    Current goalies store zip + rinks[] (rink names).
-    //    For the test: a goalie matches if ANY of their rinks appears in our nearby rinks list
-    //    OR if their zip geocodes within the radius.
-    //    Since we're testing the NEW system, we also check if goalie has lat/lng stored.
-    //    Fallback: attempt to geocode their zip and check distance.
-
-    const rinkNames = new Set(nearbyRinks.map(r => r.name.toLowerCase()));
+    // Load goalies from Firestore
+    const snap = await getDocs(collection(db, 'goalies'));
+    const allGoalies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
 
     // Match goalies whose saved rinks overlap with nearby rinks
+    const rinkNames = nearbyRinks.map(r => r.name.toLowerCase());
+
     const matchedGoalies = allGoalies.filter(g => {
       if (!g.rinks || !Array.isArray(g.rinks)) return false;
-      return g.rinks.some(r => {
-        // Try exact match first
-        if (rinkNames.has(r.toLowerCase())) return true;
-        // Try partial match (rink names can vary slightly)
-        return [...rinkNames].some(nr => nr.includes(r.toLowerCase().split(' ')[0]) || r.toLowerCase().includes(nr.split(' ')[0]));
+      return g.rinks.some(gr => {
+        const grLower = gr.toLowerCase();
+        return rinkNames.some(nr =>
+          nr === grLower ||
+          nr.includes(grLower.split(' ')[0]) ||
+          grLower.includes(nr.split(' ')[0])
+        );
       });
     });
 
-    // 5. Build per-rink goalie counts
+    // Per-rink goalie counts
     const rinkGoalieCounts = {};
     nearbyRinks.forEach(r => { rinkGoalieCounts[r.name] = 0; });
     matchedGoalies.forEach(g => {
       (g.rinks || []).forEach(gr => {
+        const grLower = gr.toLowerCase();
         nearbyRinks.forEach(r => {
-          if (r.name.toLowerCase().includes(gr.toLowerCase().split(' ')[0]) || gr.toLowerCase().includes(r.name.toLowerCase().split(' ')[0])) {
+          const rLower = r.name.toLowerCase();
+          if (rLower === grLower || rLower.includes(grLower.split(' ')[0]) || grLower.includes(rLower.split(' ')[0])) {
             rinkGoalieCounts[r.name] = (rinkGoalieCounts[r.name] || 0) + 1;
           }
         });
       });
     });
 
-    // --- Render results ---
+    // --- Render ---
     document.getElementById('results').style.display = 'block';
 
-    // Geocode card
     document.getElementById('geocodeCard').innerHTML = `
       <div class="geocode-result">
-        <div class="geocode-title">✓ Geocoded successfully</div>
+        <div class="geocode-title">✓ Geocoded successfully via Netlify function</div>
         <div class="geocode-detail">
           <strong>Input:</strong> ${location}<br>
-          <strong>Resolved to:</strong> ${geo.formattedAddress}
+          <strong>Resolved to:</strong> ${geocode.formattedAddress}
         </div>
-        <div class="geocode-coords">lat: ${geo.lat.toFixed(6)}, lng: ${geo.lng.toFixed(6)}</div>
-      </div>
-    `;
+        <div class="geocode-coords">lat: ${geocode.lat.toFixed(6)}, lng: ${geocode.lng.toFixed(6)}</div>
+      </div>`;
 
-    // Stats grid
     document.getElementById('statsGrid').innerHTML = `
       <div class="stat-box highlight">
         <div class="stat-num">${matchedGoalies.length}</div>
@@ -361,60 +259,43 @@ window.runTest = async () => {
         <div class="stat-label">Mile radius</div>
       </div>
       <div class="stat-box">
-        <div class="stat-num">${nearbyRinks.filter(r => (rinkGoalieCounts[r.name]||0) > 0).length}</div>
+        <div class="stat-num">${nearbyRinks.filter(r=>(rinkGoalieCounts[r.name]||0)>0).length}</div>
         <div class="stat-label">Rinks with goalies</div>
-      </div>
-    `;
+      </div>`;
 
-    // Rink breakdown
     const topRinks = nearbyRinks.slice(0, 10);
-    if (topRinks.length === 0) {
-      document.getElementById('rinkBreakdown').innerHTML = `<div class="no-goalies">No rinks found within ${searchRadiusMiles} miles. Try increasing the radius.</div>`;
-    } else {
-      document.getElementById('rinkBreakdown').innerHTML = `
-        <div class="rinks-list">
+    document.getElementById('rinkBreakdown').innerHTML = topRinks.length === 0
+      ? `<div class="no-goalies">No rinks found within ${searchRadiusMiles} miles. Try increasing the radius.</div>`
+      : `<div class="rinks-list">
           ${topRinks.map(r => `
             <div class="rink-item">
               <div class="rink-info">
                 <div class="rink-name">${r.name}</div>
-                <div class="rink-addr">${r.address}${r.city ? ', ' + r.city : ''}</div>
+                <div class="rink-addr">${r.address}${r.city?', '+r.city:''}</div>
               </div>
               <div class="rink-dist">${r.miles} mi</div>
-              <span class="goalie-count-pill ${(rinkGoalieCounts[r.name]||0) > 0 ? 'pill-green' : 'pill-muted'}">
-                ${rinkGoalieCounts[r.name]||0} goalie${(rinkGoalieCounts[r.name]||0) !== 1 ? 's' : ''}
+              <span class="goalie-count-pill ${(rinkGoalieCounts[r.name]||0)>0?'pill-green':'pill-muted'}">
+                ${rinkGoalieCounts[r.name]||0} goalie${(rinkGoalieCounts[r.name]||0)!==1?'s':''}
               </span>
-            </div>
-          `).join('')}
+            </div>`).join('')}
         </div>
-        ${nearbyRinks.length > 10 ? `<div style="font-size:13px;color:var(--muted);margin-top:10px;text-align:center;">+ ${nearbyRinks.length - 10} more rinks found</div>` : ''}
-      `;
-    }
+        ${nearbyRinks.length > 10 ? `<div style="font-size:13px;color:var(--muted);margin-top:10px;text-align:center;">+ ${nearbyRinks.length-10} more rinks found</div>` : ''}`;
 
-    // Goalie list
     document.getElementById('goalieCountLabel').textContent = `(${matchedGoalies.length} found)`;
-    if (matchedGoalies.length === 0) {
-      document.getElementById('goalieList').innerHTML = `
-        <div class="no-goalies">
-          🥅 No goalies found in this area yet.<br>
-          <span style="font-size:13px;font-weight:600">This is expected for new regions — the goalie signup flow will use the same location system.</span>
-        </div>`;
-    } else {
-      document.getElementById('goalieList').innerHTML = matchedGoalies.map(g => `
-        <div class="goalie-row">
-          <div class="goalie-avatar">${(g.name||'?')[0].toUpperCase()}</div>
-          <div style="flex:1">
-            <div class="goalie-name">${g.name || 'Unknown'}</div>
-            <div class="goalie-details">${maskEmail(g.email)} · ${(g.levels||[]).join(', ')||'no levels'}</div>
-            <div class="goalie-rink-tags">
-              ${(g.rinks||[]).map(r => `<span class="rink-tag">${r}</span>`).join('')}
+    document.getElementById('goalieList').innerHTML = matchedGoalies.length === 0
+      ? `<div class="no-goalies">🥅 No goalies found in this area yet.<br>
+          <span style="font-size:13px;font-weight:600">Expected for new regions — the new signup flow will use the same location system.</span>
+         </div>`
+      : matchedGoalies.map(g => `
+          <div class="goalie-row">
+            <div class="goalie-avatar">${(g.name||'?')[0].toUpperCase()}</div>
+            <div style="flex:1">
+              <div class="goalie-name">${g.name||'Unknown'}</div>
+              <div class="goalie-details">${maskEmail(g.email)} · ${(g.levels||[]).join(', ')||'no levels'}</div>
+              <div class="goalie-rink-tags">${(g.rinks||[]).map(r=>`<span class="rink-tag">${r}</span>`).join('')}</div>
             </div>
-          </div>
-          <div class="dist-badge">
-            ${g.zip ? `zip: ${g.zip}` : g.location || '—'}
-          </div>
-        </div>
-      `).join('');
-    }
+            <div class="dist-badge">${g.zip||g.location||'—'}</div>
+          </div>`).join('');
 
   } catch(e) {
     err.style.display = 'block';
@@ -426,7 +307,6 @@ window.runTest = async () => {
   btn.innerHTML = 'Test It →';
 };
 
-// Enter key support
 document.getElementById('locationInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') runTest();
 });
@@ -436,6 +316,5 @@ document.getElementById('locationInput').addEventListener('keydown', e => {
   <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:2px;">WENeedAGoalie<span style="color:#F5A623;">.</span>com</span>
   <span style="background:var(--gold);color:var(--navy);font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:0.5px;">TEST PAGE — NOT FOR PUBLIC USE</span>
 </footer>
-
 </body>
 </html>

@@ -9,10 +9,13 @@ exports.handler = async (event) => {
     return { statusCode: 200, headers, body: '' };
   }
 
-  const { zip, pagetoken, query } = event.queryStringParameters || {};
+  // Accept either `location` (free text) or `zip` (legacy 5-digit)
+  const { location, zip, pagetoken, query } = event.queryStringParameters || {};
 
-  if (!zip || !/^\d{5}$/.test(zip)) {
-    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Valid 5-digit zip code required' }) };
+  const locationInput = location || zip || '';
+
+  if (!locationInput.trim()) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'A location or zip code is required' }) };
   }
 
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
@@ -36,24 +39,30 @@ exports.handler = async (event) => {
   function isLikelyHockeyRink(place) {
     const name = (place.name || '').toLowerCase();
     if (EXCLUDE_KEYWORDS.some(kw => name.includes(kw))) return false;
-    const positiveTerms = ['ice', 'rink', 'arena', 'hockey', 'skating', 'iceplex', 'iceport', 'icehouse', 'blade', 'freeze', 'frost', 'glacial', 'polar', 'skate', 'quest'];
+    const positiveTerms = ['ice', 'rink', 'arena', 'hockey', 'skating', 'iceplex', 'iceport',
+      'icehouse', 'blade', 'freeze', 'frost', 'glacial', 'polar', 'skate', 'quest'];
     return positiveTerms.some(t => name.includes(t));
   }
 
   try {
-    // Geocode the zip
-    const geocodeRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${zip}&key=${apiKey}`);
+    // Geocode the location (works for zip codes, cities, regions, full addresses)
+    const geocodeRes = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(locationInput)}&key=${apiKey}`
+    );
     const geocodeData = await geocodeRes.json();
 
     if (!geocodeData.results || geocodeData.results.length === 0) {
-      return { statusCode: 404, headers, body: JSON.stringify({ error: 'Zip code not found' }) };
+      return {
+        statusCode: 404,
+        headers,
+        body: JSON.stringify({ error: `Location not found: "${locationInput}". Try being more specific, e.g. "Toronto, ON, Canada".` })
+      };
     }
 
     const { lat, lng } = geocodeData.results[0].geometry.location;
+    const formattedAddress = geocodeData.results[0].formatted_address;
 
-    // Build the search URL
-    // If a custom query is provided, use it directly and skip the name filter
-    // If paginating, use the page token
+    // Build Places search URL
     const isCustomSearch = query && query.trim().length > 0;
     let url;
 
@@ -70,8 +79,10 @@ exports.handler = async (event) => {
     const placesData = await placesRes.json();
 
     const rinks = (placesData.results || [])
-      // For custom searches, skip the name filter — trust the user knows what they're looking for
-      .filter(place => isCustomSearch ? !EXCLUDE_KEYWORDS.some(kw => (place.name || '').toLowerCase().includes(kw)) : isLikelyHockeyRink(place))
+      .filter(place => isCustomSearch
+        ? !EXCLUDE_KEYWORDS.some(kw => (place.name || '').toLowerCase().includes(kw))
+        : isLikelyHockeyRink(place)
+      )
       .map(place => {
         const pLat = place.geometry.location.lat;
         const pLng = place.geometry.location.lng;
@@ -93,6 +104,12 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         rinks,
         next_page_token: placesData.next_page_token || null,
+        // Return geocode info so the front-end can store lat/lng instead of zip
+        geocode: {
+          formattedAddress,
+          lat,
+          lng,
+        },
       }),
     };
 
