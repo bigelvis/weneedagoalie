@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>We Need A Goalie — Matching Teams And Goalies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --ice:#F0F8FF;--navy:#0A1628;--red:#C8102E;--red-light:#FFE8E4;
+      --blue:#1565C0;--blue-light:#E3F0FF;--gold:#F5A623;--hero-blue:#2a5298;
+      --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
+      --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;
+    }
+    body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
+    .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
+    .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
+    .nav-logo span{color:var(--gold)}
+    .nav-links{display:flex;gap:8px}
+    .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none}
+    .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
+    .nav-link.red{background:var(--red);border-color:var(--red)}
+
+    .hero{background:#c8dff0;padding:0;overflow:hidden;position:relative;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .rink-bg{position:absolute;inset:0;width:100%;height:100%;opacity:0.5}
+    .rink-lines{display:none}
+    .center-circle{display:none}
+    .red-line{display:none}
+    .blue-line-left{display:none}
+    .blue-line-right{display:none}
+    .hero-content{position:relative;z-index:2;text-align:center;padding:0.5rem 1.5rem 0.5rem}
+    .site-name{font-family:'Bebas Neue',sans-serif;font-size:clamp(52px,10vw,96px);color:#0d2e5e;letter-spacing:3px;line-height:1}
+    .dot-com{color:var(--red)}
+    .tagline{font-size:clamp(15px,2.5vw,19px);color:#2a5298;margin-top:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+    .cta-row{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:2.5rem}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:16px 32px;border-radius:var(--radius);font-family:'Nunito',sans-serif;font-size:17px;font-weight:800;cursor:pointer;border:none;transition:transform 0.15s;text-decoration:none}
+    .btn:hover{transform:translateY(-2px)}
+    .btn-red{background:var(--red);color:#fff}
+    .btn-blue-hero{background:#2a5298;color:#fff;border:none}
+    .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.5)}
+    .btn-big{padding:20px 40px;font-size:19px}
+
+    .how{background:var(--navy);padding:3rem 1.5rem}
+    .how-inner{max-width:900px;margin:0 auto}
+    .how-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,40px);letter-spacing:2px;color:#fff;margin-bottom:0.25rem}
+    .how-sub{font-size:15px;color:rgba(255,255,255,0.5);margin-bottom:2rem;font-weight:600}
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+    .step{background:rgba(255,255,255,0.06);border-radius:var(--radius);border:1px solid rgba(255,255,255,0.1);padding:1.5rem;text-align:center}
+    .step-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--gold);line-height:1;margin-bottom:8px}
+    .step h4{font-size:16px;font-weight:800;color:#fff;margin-bottom:6px}
+    .step p{font-size:14px;color:rgba(255,255,255,0.55);line-height:1.5}
+
+    .section{padding:3rem 1.5rem;max-width:900px;margin:0 auto}
+    .section-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,5vw,40px);letter-spacing:2px;color:var(--text);margin-bottom:0.25rem}
+    .section-sub{font-size:15px;color:var(--muted);margin-bottom:2rem;font-weight:600}
+    .two-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+    .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:1.75rem;transition:border-color 0.2s}
+    .card:hover{border-color:var(--blue)}
+    .card-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:1rem;font-size:26px}
+    .icon-red{background:var(--red-light)}
+    .icon-blue{background:var(--blue-light)}
+    .card h3{font-size:20px;font-weight:800;margin-bottom:8px}
+    .card p{font-size:15px;color:var(--muted);line-height:1.6}
+    .card-btn{display:inline-flex;align-items:center;padding:12px 24px;border-radius:10px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;margin-top:1.25rem;text-decoration:none}
+    .card-btn-red{background:var(--red);color:#fff}
+    .card-btn-red:hover{background:#A01A00}
+    .card-btn-blue{background:var(--blue);color:#fff}
+    .card-btn-blue:hover{background:#0D47A1}
+
+    .levels-card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:2rem}
+    .levels-card h3{font-size:18px;font-weight:800;margin-bottom:1rem}
+    .level-row{display:flex;flex-wrap:wrap;gap:10px}
+    .level-badge{display:inline-flex;align-items:center;padding:10px 18px;border-radius:40px;font-size:15px;font-weight:700;border:2px solid transparent}
+    .lvl-a{background:#FFF3E0;color:#BF360C;border-color:#FFCC80}
+    .lvl-b{background:#E8EAF6;color:#283593;border-color:#9FA8DA}
+    .lvl-c{background:#E8F5E9;color:#1B5E20;border-color:#A5D6A7}
+    .lvl-d{background:#E3F2FD;color:#0D47A1;border-color:#90CAF9}
+    .lvl-r{background:#F3E5F5;color:#4A148C;border-color:#CE93D8}
+
+    .cta-bottom{background:var(--navy);padding:3rem 1.5rem;text-align:center}
+    .cta-bottom h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(28px,6vw,52px);color:#fff;letter-spacing:2px;margin-bottom:0.5rem}
+    .cta-bottom p{color:rgba(255,255,255,0.6);font-size:16px;margin-bottom:2rem}
+
+    footer{background:#060E1A;padding:1.5rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    footer .fl{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:2px}
+    footer .fl span{color:var(--gold)}
+    footer p{font-size:13px;color:rgba(255,255,255,0.35)}
+  </style>
+</head>
+<body>
+<nav class="nav">
+  <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
+  <div class="nav-links">
+    <a href="find-goalie.html" class="nav-link red">Need a Goalie</a>
+    <a href="goalie-signup.html" class="nav-link">I Am a Goalie</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <svg class="rink-bg" viewBox="0 0 680 480" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <rect width="680" height="480" fill="#e8f4fd"/>
+    <rect x="30" y="20" width="620" height="440" rx="60" ry="60" fill="#f0f8ff" stroke="#b8d4ee" stroke-width="3"/>
+    <rect x="33" y="23" width="614" height="434" rx="58" ry="58" fill="none" stroke="#daeefa" stroke-width="1.5"/>
+    <line x1="340" y1="20" x2="340" y2="460" stroke="#c8102e" stroke-width="3"/>
+    <line x1="215" y1="20" x2="215" y2="460" stroke="#1a4a8a" stroke-width="3"/>
+    <line x1="465" y1="20" x2="465" y2="460" stroke="#1a4a8a" stroke-width="3"/>
+    <circle cx="340" cy="240" r="60" fill="none" stroke="#c8102e" stroke-width="2.5"/>
+    <circle cx="340" cy="240" r="5" fill="#c8102e"/>
+    <circle cx="145" cy="160" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="145" cy="320" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="145" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="145" cy="320" r="4" fill="#c8102e"/>
+    <circle cx="535" cy="160" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="535" cy="320" r="40" fill="none" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="535" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="535" cy="320" r="4" fill="#c8102e"/>
+    <path d="M55 210 Q100 210 100 240 Q100 270 55 270" fill="rgba(100,160,220,0.15)" stroke="#1a4a8a" stroke-width="1.5"/>
+    <path d="M625 210 Q580 210 580 240 Q580 270 625 270" fill="rgba(100,160,220,0.15)" stroke="#1a4a8a" stroke-width="1.5"/>
+    <line x1="68" y1="190" x2="68" y2="290" stroke="#c8102e" stroke-width="2"/>
+    <line x1="612" y1="190" x2="612" y2="290" stroke="#c8102e" stroke-width="2"/>
+    <circle cx="275" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="275" cy="320" r="4" fill="#c8102e"/>
+    <circle cx="405" cy="160" r="4" fill="#c8102e"/>
+    <circle cx="405" cy="320" r="4" fill="#c8102e"/>
+    <line x1="30" y1="90" x2="650" y2="90" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="150" x2="650" y2="150" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="340" x2="650" y2="340" stroke="#cde7f7" stroke-width="0.5"/>
+    <line x1="30" y1="400" x2="650" y2="400" stroke="#cde7f7" stroke-width="0.5"/>
+  </svg>
+  <div class="rink-lines"></div>
+  <div class="center-circle"></div>
+  <div class="red-line"></div>
+  <div class="blue-line-left"></div>
+  <div class="blue-line-right"></div>
+  <div class="hero-content">
+    <div class="site-name">We Need A Goalie<span class="dot-com"><svg style="display:inline-block;vertical-align:middle;margin:0 3px -4px 3px" width="0.3em" height="0.3em" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="30" cy="30" r="29" fill="#1a1a1a"/>
+  <circle cx="30" cy="30" r="29" fill="none" stroke="#444" stroke-width="2"/>
+  <circle cx="30" cy="26" r="20" fill="#2a2a2a"/>
+  <circle cx="30" cy="30" r="29" fill="none" stroke="#333" stroke-width="4" stroke-dasharray="7 5"/>
+</svg></span>com</div>
+    <div class="tagline">Matching Teams And Goalies</div>
+
+  </div>
+</div>
+
+
+
+<div class="section" style="margin-top:-120px;position:relative;z-index:10;">
+  <div class="two-col">
+    <div class="card">
+      <div class="card-icon" style="background:none;border:none;width:72px;height:72px;font-size:56px;display:flex;align-items:center;justify-content:center;">🥅</div>
+      <h3>I need a goalie</h3>
+      <p>Post your game details — rink, time, level — and we'll reach out to available goalies near you automatically. No account required.</p>
+      <a href="find-goalie.html" class="card-btn card-btn-red">Find a Goalie →</a>
+    </div>
+    <div class="card">
+      <div class="card-icon icon-blue" style="background:#fff;border:none;width:72px;height:72px;padding:0;overflow:hidden;">
+        <img src="goalie-mask.png" alt="Goalie mask" style="width:100%;height:100%;object-fit:contain;border-radius:0;"/>
+      </div>
+      <h3>I am a goalie</h3>
+      <p>Enter your zip code, pick rinks you'll play at, set your skill level and email — then wait for teams to find you.</p>
+      <a href="goalie-signup.html" class="card-btn card-btn-blue">Sign up as a goalie →</a>
+    </div>
+  </div>
+
+
+</div>
+
+
+
+<footer style="background:#060E1A;padding:1.2rem 24px;text-align:center;">
+  <button onclick="document.getElementById('privacyModal').style.display='flex'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Privacy — What Happens When I Sign Up?</button>
+</footer>
+
+<!-- Privacy Modal -->
+<div id="privacyModal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0d2e5e;border:1.5px solid rgba(255,255,255,0.15);border-radius:16px;padding:36px;max-width:480px;width:100%;position:relative;">
+    <button onclick="document.getElementById('privacyModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;">✕</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:16px;">What Happens When I Sign Up?</div>
+    <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0;">
+      We Need A Goalie is run by a hockey player, for hockey players.<br><br>
+      Your information — name, email, rinks, and skill level — is <strong style="color:#fff;">only used to match you with teams looking for a goalie.</strong> We don't sell your data, share it with third parties, or use it for anything else.<br><br>
+      We may occasionally send a site update if something significant changes. That's it.<br><br>
+      <span style="color:rgba(255,255,255,0.5);font-size:13px;">You can unsubscribe at any time from any email we send. 🏒</span>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
