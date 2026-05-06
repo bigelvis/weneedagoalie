@@ -1,0 +1,24 @@
+{
+  "name": "weneedagoalie",
+  "version": "1.0.0",
+  "description": "Hockey team ↔ goalie matchmaking for the DC metro area.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bigelvis/weneedagoalie.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/bigelvis/weneedagoalie/issues"
+  },
+  "homepage": "https://github.com/bigelvis/weneedagoalie#readme",
+  "dependencies": {
+    "firebase-admin": "^13.8.0"
+  }
+}

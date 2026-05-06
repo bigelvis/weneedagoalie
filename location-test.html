@@ -101,8 +101,7 @@
 
   <div class="test-note">
     <span>What this tests:</span> Type any city, region, or address ("Rockville, MD" / "Toronto, ON" / "London, England").
-    The request routes through your Netlify function (same path as production), geocodes it server-side,
-    finds nearby rinks, then queries your live Firestore to show how many goalies would match.
+    Both the geocoding and goalie lookup run server-side through Netlify functions — no auth required, same path as production.
   </div>
 
   <div class="card">
@@ -113,7 +112,7 @@
       <input type="text" id="locationInput" placeholder="e.g. Toronto, ON  /  London, England  /  Rockville, MD" />
       <button class="btn-search" id="searchBtn" onclick="runTest()">Test It →</button>
     </div>
-    <div class="hint">Geocoding runs server-side through your Netlify function — same path as production</div>
+    <div class="hint">All queries run server-side — no browser API keys, no auth needed</div>
     <div style="margin-top:16px">
       <div class="label" style="margin-bottom:8px">Search radius</div>
       <div class="radius-row">
@@ -146,21 +145,7 @@
 
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
-  authDomain: "weneedagoalie.firebaseapp.com",
-  projectId: "weneedagoalie",
-  storageBucket: "weneedagoalie.firebasestorage.app",
-  messagingSenderId: "151415451382",
-  appId: "1:151415451382:web:5a29a552ccd092682986d7"
-};
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
+<script>
 let searchRadiusMiles = 25;
 
 window.setRadius = (miles, btn) => {
@@ -168,13 +153,6 @@ window.setRadius = (miles, btn) => {
   document.querySelectorAll('.radius-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
 };
-
-function maskEmail(email) {
-  if (!email) return '—';
-  const [user, domain] = email.split('@');
-  if (!domain) return email;
-  return user.slice(0,2) + '***@' + domain;
-}
 
 window.runTest = async () => {
   const location = document.getElementById('locationInput').value.trim();
@@ -188,25 +166,28 @@ window.runTest = async () => {
   document.getElementById('results').style.display = 'none';
 
   try {
-    // Call rinks Netlify function with location param (server-side geocoding)
-    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}`);
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
+    // Run both fetches in parallel
+    const [rinksResp, goaliesResp] = await Promise.all([
+      fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}`),
+      fetch(`/.netlify/functions/goalie-count`)
+    ]);
 
-    const { rinks: allRinks, geocode } = data;
+    const rinksData = await rinksResp.json();
+    const goaliesData = await goaliesResp.json();
 
-    // Filter to chosen radius
+    if (rinksData.error) throw new Error(rinksData.error);
+    if (goaliesData.error) throw new Error(goaliesData.error);
+
+    const { rinks: allRinks, geocode } = rinksData;
+    const allGoalies = goaliesData.goalies;
+
+    // Filter rinks to chosen radius
     const nearbyRinks = allRinks.filter(r => r.miles <= searchRadiusMiles);
-
-    // Load goalies from Firestore
-    const snap = await getDocs(collection(db, 'goalies'));
-    const allGoalies = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-
-    // Match goalies whose saved rinks overlap with nearby rinks
     const rinkNames = nearbyRinks.map(r => r.name.toLowerCase());
 
+    // Match goalies whose saved rinks overlap with nearby rinks
     const matchedGoalies = allGoalies.filter(g => {
-      if (!g.rinks || !Array.isArray(g.rinks)) return false;
+      if (!g.rinks || !g.rinks.length) return false;
       return g.rinks.some(gr => {
         const grLower = gr.toLowerCase();
         return rinkNames.some(nr =>
@@ -271,7 +252,7 @@ window.runTest = async () => {
             <div class="rink-item">
               <div class="rink-info">
                 <div class="rink-name">${r.name}</div>
-                <div class="rink-addr">${r.address}${r.city?', '+r.city:''}</div>
+                <div class="rink-addr">${r.address}${r.city ? ', '+r.city : ''}</div>
               </div>
               <div class="rink-dist">${r.miles} mi</div>
               <span class="goalie-count-pill ${(rinkGoalieCounts[r.name]||0)>0?'pill-green':'pill-muted'}">
@@ -291,7 +272,7 @@ window.runTest = async () => {
             <div class="goalie-avatar">${(g.name||'?')[0].toUpperCase()}</div>
             <div style="flex:1">
               <div class="goalie-name">${g.name||'Unknown'}</div>
-              <div class="goalie-details">${maskEmail(g.email)} · ${(g.levels||[]).join(', ')||'no levels'}</div>
+              <div class="goalie-details">${g.email} · ${(g.levels||[]).join(', ')||'no levels'}</div>
               <div class="goalie-rink-tags">${(g.rinks||[]).map(r=>`<span class="rink-tag">${r}</span>`).join('')}</div>
             </div>
             <div class="dist-badge">${g.zip||g.location||'—'}</div>
