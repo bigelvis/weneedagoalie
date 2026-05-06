@@ -183,33 +183,23 @@ window.runTest = async () => {
 
     // Filter rinks to chosen radius
     const nearbyRinks = allRinks.filter(r => r.miles <= searchRadiusMiles);
-    const rinkNames = nearbyRinks.map(r => r.name.toLowerCase());
 
-    // Match goalies whose saved rinks overlap with nearby rinks
+    // EXACT match only — goalie must have the rink name exactly in their rinks[]
+    const nearbyRinkNames = new Set(nearbyRinks.map(r => r.name));
+
     const matchedGoalies = allGoalies.filter(g => {
       if (!g.rinks || !g.rinks.length) return false;
-      return g.rinks.some(gr => {
-        const grLower = gr.toLowerCase();
-        return rinkNames.some(nr =>
-          nr === grLower ||
-          nr.includes(grLower.split(' ')[0]) ||
-          grLower.includes(nr.split(' ')[0])
-        );
-      });
+      return g.rinks.some(gr => nearbyRinkNames.has(gr));
     });
 
-    // Per-rink goalie counts
+    // Per-rink goalie counts — exact match only
     const rinkGoalieCounts = {};
     nearbyRinks.forEach(r => { rinkGoalieCounts[r.name] = 0; });
     matchedGoalies.forEach(g => {
       (g.rinks || []).forEach(gr => {
-        const grLower = gr.toLowerCase();
-        nearbyRinks.forEach(r => {
-          const rLower = r.name.toLowerCase();
-          if (rLower === grLower || rLower.includes(grLower.split(' ')[0]) || grLower.includes(rLower.split(' ')[0])) {
-            rinkGoalieCounts[r.name] = (rinkGoalieCounts[r.name] || 0) + 1;
-          }
-        });
+        if (rinkGoalieCounts.hasOwnProperty(gr)) {
+          rinkGoalieCounts[gr] = (rinkGoalieCounts[gr] || 0) + 1;
+        }
       });
     });
 
