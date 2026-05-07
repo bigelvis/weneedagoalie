@@ -214,7 +214,7 @@
       <div id="reviewContent"></div>
     </div>
     <div class="err-msg" id="errMsg"></div>
-    <button class="btn-next" id="submitBtn" onclick="submitRequest()">Send My Confirmation Email →</button>
+    <button class="btn-next" id="submitBtn" onclick="submitRequest()" style="background:var(--green)">Send My Confirmation Email →</button>
   </div>
 
   <div class="confirm-card" id="confirmCard">
@@ -301,10 +301,10 @@ window.toggleWomens = () => {
   const toggle = document.getElementById('womensToggle');
   const check = document.getElementById('womensCheck');
   if (state.womens) {
-    toggle.style.borderColor = 'var(--red)';
-    toggle.style.background = 'var(--red-light)';
-    check.style.background = 'var(--red)';
-    check.style.borderColor = 'var(--red)';
+    toggle.style.borderColor = 'var(--green)';
+    toggle.style.background = 'var(--green-light)';
+    check.style.background = 'var(--green)';
+    check.style.borderColor = 'var(--green)';
     check.textContent = '✓';
     check.style.color = '#fff';
   } else {
@@ -480,7 +480,7 @@ window.goStep3 = () => {
       <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${fmtDate} at ${fmtTime}</td></tr>
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket}</td></tr>
-      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--red)">✓ Yes</td></tr>`:''}
+      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
       ${state.notes?`<tr><td class="rl">Notes</td><td style="color:var(--muted)">${state.notes}</td></tr>`:''}
       <tr><td class="rs" colspan="2">Contact info</td></tr>
       <tr><td class="rl">Contact</td><td style="font-weight:800">${state.contact}</td></tr>

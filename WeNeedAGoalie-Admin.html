@@ -133,6 +133,7 @@
   <div class="stat-card"><div class="stat-num green" id="statActive">—</div><div class="stat-label">Active</div></div>
   <div class="stat-card"><div class="stat-num red" id="statInactive">—</div><div class="stat-label">Inactive</div></div>
   <div class="stat-card"><div class="stat-num gold" id="statRinks">—</div><div class="stat-label">Unique Rinks</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#f9a8d4" id="statWomens">—</div><div class="stat-label">Women's</div></div>
 </div>
 
 <div class="toolbar">
@@ -153,6 +154,20 @@
     <option value="d">D – Beginner</option>
     <option value="rec">Rec / Pickup</option>
   </select>
+  <select class="filter-select" id="filterBracket" onchange="filterGoalies()">
+    <option value="all">All Age Brackets</option>
+    <option value="18+">18+</option>
+    <option value="30+">30+</option>
+    <option value="40+">40+</option>
+    <option value="50+">50+</option>
+    <option value="60+">60+</option>
+    <option value="70+">70+ 🏒</option>
+  </select>
+  <select class="filter-select" id="filterWomens" onchange="filterGoalies()">
+    <option value="all">All Leagues</option>
+    <option value="yes">Women's ✓</option>
+    <option value="no">Not Women's</option>
+  </select>
 </div>
 
 <div class="table-wrap">
@@ -172,8 +187,19 @@
       <input class="modal-input" id="editEmail" type="email"/>
     </div>
     <div class="modal-field">
-      <div class="modal-label">Age Range</div>
-      <input class="modal-input" id="editAge" type="text"/>
+      <div class="modal-label">Age Brackets</div>
+      <div class="checkbox-group" id="editBrackets">
+        ${['18+','30+','40+','50+','60+','70+'].map(b => `
+          <label class="checkbox-item" id="brkchk-${b.replace('+','p')}" onclick="toggleBracketCheck('${b}')">
+            <input type="checkbox"/> ${b}
+          </label>`).join('')}
+      </div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Women's League</div>
+      <label class="checkbox-item" id="womensChk" onclick="toggleWomensCheck()" style="width:fit-content">
+        <input type="checkbox"/> Available for women's leagues
+      </label>
     </div>
     <div class="modal-field">
       <div class="modal-label">Skill Levels</div>
@@ -252,16 +278,20 @@ window.loadGoalies = async () => {
 function updateStats() {
   const active = allGoalies.filter(g => g.active !== false).length;
   const rinks = new Set(allGoalies.flatMap(g => g.rinks || [])).size;
+  const womens = allGoalies.filter(g => g.womens === true).length;
   document.getElementById('statTotal').textContent = allGoalies.length;
   document.getElementById('statActive').textContent = active;
   document.getElementById('statInactive').textContent = allGoalies.length - active;
   document.getElementById('statRinks').textContent = rinks;
+  document.getElementById('statWomens').textContent = womens;
 }
 
 window.filterGoalies = () => {
   const q = document.getElementById('searchBox').value.toLowerCase();
   const status = document.getElementById('filterStatus').value;
   const level = document.getElementById('filterLevel').value;
+  const bracket = document.getElementById('filterBracket').value;
+  const womens = document.getElementById('filterWomens').value;
   let filtered = allGoalies.filter(g => {
     const matchQ = !q || (g.name||'').toLowerCase().includes(q) ||
       (g.email||'').toLowerCase().includes(q) ||
@@ -270,7 +300,11 @@ window.filterGoalies = () => {
       (status === 'active' && g.active !== false) ||
       (status === 'inactive' && g.active === false);
     const matchLevel = level === 'all' || (g.levels||[]).includes(level);
-    return matchQ && matchStatus && matchLevel;
+    const matchBracket = bracket === 'all' || (g.ageBrackets||[]).includes(bracket);
+    const matchWomens = womens === 'all' ||
+      (womens === 'yes' && g.womens === true) ||
+      (womens === 'no' && g.womens !== true);
+    return matchQ && matchStatus && matchLevel && matchBracket && matchWomens;
   });
   renderTable(filtered);
 };
@@ -290,6 +324,13 @@ function renderTable(goalies) {
     }).join('');
     const rinkBadges = (g.rinks||[]).map(r => `<span class="badge badge-rink">${r}</span>`).join('');
     const signedUp = g.createdAt ? new Date(g.createdAt).toLocaleDateString() : '—';
+    const ageBrackets = (g.ageBrackets||[]).length
+      ? (g.ageBrackets||[]).map(b => `<span class="badge" style="background:rgba(245,166,35,0.15);color:#F5A623;border:1px solid rgba(245,166,35,0.3)">${b}</span>`).join('')
+      : (g.age ? `<span style="font-size:12px;color:rgba(255,255,255,0.35)">${g.age} (legacy)</span>` : '—');
+    const womens = g.womens === true
+      ? `<span class="badge badge-active">✓ Yes</span>`
+      : `<span style="font-size:12px;color:rgba(255,255,255,0.25)">—</span>`;
+    const location = g.location || g.zip || '—';
 
     return `<tr>
       <td>
@@ -297,9 +338,11 @@ function renderTable(goalies) {
         <div class="goalie-email">${g.email || '—'}</div>
       </td>
       <td><span class="badge ${isActive ? 'badge-active' : 'badge-inactive'}">${isActive ? '● Active' : '○ Inactive'}</span></td>
-      <td>${g.age || '—'}</td>
+      <td>${ageBrackets}</td>
+      <td>${womens}</td>
       <td>${levelBadges || '—'}</td>
       <td class="rinks-cell">${rinkBadges || '—'}</td>
+      <td style="font-size:12px;color:rgba(255,255,255,0.5)">${location}</td>
       <td style="font-size:13px">${signedUp}</td>
       <td>
         <span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;
@@ -324,7 +367,7 @@ function renderTable(goalies) {
   document.getElementById('tableContent').innerHTML = `
     <table>
       <thead><tr>
-        <th>Goalie</th><th>Status</th><th>Age</th><th>Levels</th><th>Rinks</th><th>Signed Up</th><th>Login</th><th>Actions</th>
+        <th>Goalie</th><th>Status</th><th>Age Brackets</th><th>Women's</th><th>Levels</th><th>Rinks</th><th>Location</th><th>Signed Up</th><th>Login</th><th>Actions</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
@@ -347,7 +390,22 @@ window.openEdit = (id) => {
   editingId = id;
   document.getElementById('editName').value = g.name || '';
   document.getElementById('editEmail').value = g.email || '';
-  document.getElementById('editAge').value = g.age || '';
+
+  // Age brackets
+  ['18+','30+','40+','50+','60+','70+'].forEach(b => {
+    const el = document.getElementById('brkchk-' + b.replace('+','p'));
+    if (!el) return;
+    const checked = (g.ageBrackets||[]).includes(b);
+    el.classList.toggle('checked', checked);
+    el.querySelector('input').checked = checked;
+  });
+
+  // Women's
+  const wEl = document.getElementById('womensChk');
+  wEl.classList.toggle('checked', g.womens === true);
+  wEl.querySelector('input').checked = g.womens === true;
+
+  // Levels
   const levelsDiv = document.getElementById('editLevels');
   levelsDiv.innerHTML = SKILL_LEVELS.map(lv => `
     <label class="checkbox-item ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}" id="lvlchk-${lv.id}" onclick="toggleLevelCheck('${lv.id}')">
@@ -357,6 +415,18 @@ window.openEdit = (id) => {
   document.getElementById('editModal').classList.add('open');
 };
 
+window.toggleBracketCheck = (bracket) => {
+  const el = document.getElementById('brkchk-' + bracket.replace('+','p'));
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+};
+
+window.toggleWomensCheck = () => {
+  const el = document.getElementById('womensChk');
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+};
+
 window.toggleLevelCheck = (id) => {
   const el = document.getElementById('lvlchk-' + id);
   el.classList.toggle('checked');
@@ -364,12 +434,18 @@ window.toggleLevelCheck = (id) => {
 };
 
 window.saveEdit = async () => {
+  const ageBrackets = ['18+','30+','40+','50+','60+','70+'].filter(b => {
+    const el = document.getElementById('brkchk-' + b.replace('+','p'));
+    return el && el.classList.contains('checked');
+  });
+  const womens = document.getElementById('womensChk').classList.contains('checked');
   const levels = SKILL_LEVELS.filter(lv => document.getElementById('lvlchk-' + lv.id)?.classList.contains('checked')).map(lv => lv.id);
   try {
     const updates = {
       name: document.getElementById('editName').value.trim(),
       email: document.getElementById('editEmail').value.trim(),
-      age: document.getElementById('editAge').value.trim(),
+      ageBrackets,
+      womens,
       levels,
     };
     await API('update', editingId, 'POST', updates);
