@@ -131,23 +131,36 @@
     <div class="card">
       <div class="card-title">About you</div>
       <div class="card-desc">Basic info so teams can reach you when they need a goalie</div>
-      <div class="field"><label class="label">Full name <span class="req">*</span></label><input type="text" id="fname" placeholder="Ron Hextall" /></div>
+      <div class="field"><label class="label">Name or Alias <span class="req">*</span></label><input type="text" id="fname" placeholder="Ron Hextall" /></div>
       <div class="field">
         <label class="label">Email address <span class="req">*</span></label>
         <input type="email" id="femail" placeholder="ron@example.com" />
         <div class="hint">We'll email you when a team near you needs a goalie</div>
       </div>
       <div class="field">
-        <label class="label">Your age <span class="req">*</span></label>
+        <label class="label">Available for which age groups? <span class="req">*</span></label>
+        <div class="hint" style="margin-bottom:10px;margin-top:0">Select all that apply — you'll be notified for any league you opt into</div>
         <div class="age-grid">
-          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>18–25</button>
-          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>26–35</button>
-          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>36–45</button>
-          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>46–55</button>
-          <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>55+</button>
+          <button class="age-btn" id="bracket-18" onclick="toggleBracket(this,'18+')"><span class="corner-check">✓</span>18+</button>
+          <button class="age-btn" id="bracket-30" onclick="toggleBracket(this,'30+')"><span class="corner-check">✓</span>30+</button>
+          <button class="age-btn" id="bracket-40" onclick="toggleBracket(this,'40+')"><span class="corner-check">✓</span>40+</button>
+          <button class="age-btn" id="bracket-50" onclick="toggleBracket(this,'50+')"><span class="corner-check">✓</span>50+</button>
+          <button class="age-btn" id="bracket-60" onclick="toggleBracket(this,'60+')"><span class="corner-check">✓</span>60+</button>
+          <button class="age-btn" id="bracket-70" onclick="toggleBracket(this,'70+')"><span class="corner-check">✓</span>70+ 🏒</button>
         </div>
       </div>
-      <div class="field"><label class="label">Your zip code <span class="req">*</span></label><input type="text" id="fzip1" placeholder="20001" maxlength="5" /><div class="hint">Used to find rinks near you in the next step</div></div>
+      <div class="field">
+        <label class="label">Women's league</label>
+        <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;" id="womensToggle">
+          <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
+          <span style="font-size:15px;font-weight:700;color:var(--text)">Available for women's leagues</span>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Your location <span class="req">*</span></label>
+        <input type="text" id="flocation" placeholder="e.g. Rockville, MD  /  Toronto, ON  /  London, England" />
+        <div class="hint">Used to find rinks near you in the next step</div>
+      </div>
       <div class="field">
         <label class="label">Password <span class="req">*</span></label>
         <input type="password" id="fpassword" placeholder="Choose a password (min 6 characters)" />
@@ -162,12 +175,12 @@
       <div class="card-title">Rinks you'll play at</div>
       <div class="card-desc">Select all rinks you're willing to travel to</div>
       <div class="field">
-        <label class="label">Search by zip code</label>
+        <label class="label">Search by city or region</label>
         <div class="zip-row">
-          <input type="text" id="fzip2" placeholder="e.g. 20850" maxlength="5" />
+          <input type="text" id="flocation2" placeholder="e.g. Rockville, MD  /  Toronto, ON" />
           <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
         </div>
-        <div class="hint">Showing 10 nearest ice rinks sorted by distance</div>
+        <div class="hint">Showing nearest ice rinks sorted by distance</div>
       </div>
       <div id="rinkResults"></div>
       <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
@@ -253,7 +266,7 @@ const DC_RINKS = [
   {name:"Piney Orchard Ice Arena",    address:"8920 Piney Orchard Pkwy", city:"Odenton, MD",        miles:17.6},
 ];
 
-let state = {name:'',email:'',password:'',age:'',zip:'',rinks:[],levels:[]};
+let state = {name:'',email:'',password:'',ageBrackets:[],womens:false,location:'',lat:null,lng:null,rinks:[],levels:[]};
 
 // Build level buttons
 const grid = document.getElementById('levelGrid');
@@ -266,10 +279,33 @@ SKILL_LEVELS.forEach(lv => {
   grid.appendChild(b);
 });
 
-window.selectAge = btn => {
-  document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
-  state.age = btn.textContent.replace('✓','').trim();
+window.toggleBracket = (btn, bracket) => {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    if (!state.ageBrackets.includes(bracket)) state.ageBrackets.push(bracket);
+  } else {
+    state.ageBrackets = state.ageBrackets.filter(b => b !== bracket);
+  }
+};
+
+window.toggleWomens = () => {
+  state.womens = !state.womens;
+  const toggle = document.getElementById('womensToggle');
+  const check = document.getElementById('womensCheck');
+  if (state.womens) {
+    toggle.style.borderColor = 'var(--green)';
+    toggle.style.background = 'var(--green-light)';
+    check.style.background = 'var(--green)';
+    check.style.borderColor = 'var(--green)';
+    check.textContent = '✓';
+    check.style.color = '#fff';
+  } else {
+    toggle.style.borderColor = 'var(--border)';
+    toggle.style.background = '#fff';
+    check.style.background = '#fff';
+    check.style.borderColor = 'var(--border)';
+    check.textContent = '';
+  }
 };
 
 document.addEventListener('keydown', e => {
@@ -279,26 +315,27 @@ document.addEventListener('keydown', e => {
 window.goStep2 = () => {
   const n=document.getElementById('fname').value.trim();
   const e=document.getElementById('femail').value.trim();
-  const z=document.getElementById('fzip1').value.trim();
+  const loc=document.getElementById('flocation').value.trim();
   const p=document.getElementById('fpassword').value;
-  if (!n||!e||!state.age||z.length<5||!p) { alert('Please fill in all fields and select your age.'); return; }
+  if (!n||!e||!loc||!p) { alert('Please fill in all fields.'); return; }
+  if (state.ageBrackets.length === 0) { alert('Please select at least one age bracket.'); return; }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { alert('Please enter a valid email address.'); return; }
   if (p.length < 6) { alert('Password must be at least 6 characters.'); return; }
-  state.name=n; state.email=e; state.password=p; state.zip=z;
-  document.getElementById('fzip2').value=z;
+  state.name=n; state.email=e; state.password=p; state.location=loc;
+  document.getElementById('flocation2').value=loc;
   setStep(2); searchRinks();
 };
 
 let allRinks = [];
 let rinksShown = 0;
 let nextPageToken = null;
-let currentZip = '';
+let currentLocation = '';
 const RINKS_PER_PAGE = 5;
 
 window.searchRinks = async () => {
-  const zip=document.getElementById('fzip2').value.trim();
-  if (zip.length<5) { alert('Please enter a valid 5-digit zip code.'); return; }
-  state.zip=zip; state.rinks=[]; currentZip=zip;
+  const loc=document.getElementById('flocation2').value.trim();
+  if (!loc) { alert('Please enter a city or region.'); return; }
+  state.location=loc; state.rinks=[]; currentLocation=loc;
   allRinks=[]; rinksShown=0; nextPageToken=null;
   const btn=document.getElementById('searchBtn');
   document.getElementById('selectedCount').style.display='none';
@@ -306,17 +343,22 @@ window.searchRinks = async () => {
   document.getElementById('customRinkBox').style.display='none';
   document.getElementById('customRinkResults').innerHTML='';
   btn.disabled=true; btn.textContent='Searching...';
-  document.getElementById('rinkResults').innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${zip}…</div>`;
+  document.getElementById('rinkResults').innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${loc}…</div>`;
   try {
-    const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(loc)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     allRinks = data.rinks || [];
     nextPageToken = data.next_page_token || null;
+    // Store lat/lng from geocode for the goalie record
+    if (data.geocode) {
+      state.lat = data.geocode.lat;
+      state.lng = data.geocode.lng;
+    }
   } catch(err) {
-    const seed=parseInt(zip.slice(-2))||0;
-    allRinks = DC_RINKS.map(r=>({...r,miles:+(r.miles+seed*0.05).toFixed(1)}));
-    nextPageToken = null;
+    document.getElementById('rinkResults').innerHTML=`<div style="color:var(--red);font-size:14px;padding:1rem 0">Couldn't find that location. Try being more specific, e.g. "Toronto, ON, Canada".</div>`;
+    btn.disabled=false; btn.textContent='Find Rinks';
+    return;
   }
   document.getElementById('rinkResults').innerHTML = '<div class="rinks-list" id="rinksList"></div>';
   rinksShown = 0;
@@ -331,7 +373,7 @@ window.showMoreRinks = async function() {
     pr.innerHTML = `<button disabled style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--muted);cursor:not-allowed;">Loading more rinks...</button>`;
     await new Promise(r => setTimeout(r, 2000));
     try {
-      const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&pagetoken=${encodeURIComponent(nextPageToken)}`);
+      const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(currentLocation)}&pagetoken=${encodeURIComponent(nextPageToken)}`);
       const data = await resp.json();
       allRinks = allRinks.concat(data.rinks || []);
       nextPageToken = data.next_page_token || null;
@@ -365,7 +407,7 @@ window.searchCustomRink = async function() {
   btn.disabled=true; btn.textContent='Searching...';
   resultsDiv.innerHTML='';
   try {
-    const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&query=${encodeURIComponent(query)}`);
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(currentLocation)}&query=${encodeURIComponent(query)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const found = data.rinks || [];
@@ -430,7 +472,9 @@ window.goStep4 = () => {
     <table class="review-table">
       <tr><td class="rl">Name</td><td style="font-weight:800">${state.name}</td></tr>
       <tr><td class="rl">Email</td><td style="font-weight:800">${state.email}</td></tr>
-      <tr><td class="rl">Age</td><td style="font-weight:800">${state.age}</td></tr>
+      <tr><td class="rl">Location</td><td style="font-weight:800">${state.location}</td></tr>
+      <tr><td class="rl">Age brackets</td><td style="font-weight:800">${state.ageBrackets.join(', ')}</td></tr>
+      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Available</td></tr>`:''}
       <tr><td class="rl">Skill levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Rinks</td><td>${rinkBadges}</td></tr>
     </table>`;
@@ -449,8 +493,10 @@ window.submitSignup = async () => {
     const uid = userCred.user.uid;
     // Store goalie profile in Firestore using uid as doc ID
     await setDoc(doc(db,'goalies',uid),{
-      uid, name:state.name, email:state.email, age:state.age,
-      zip:state.zip, levels:state.levels, rinks:state.rinks,
+      uid, name:state.name, email:state.email,
+      ageBrackets:state.ageBrackets, womens:state.womens,
+      location:state.location, lat:state.lat, lng:state.lng,
+      levels:state.levels, rinks:state.rinks,
       active:true, createdAt:serverTimestamp()
     });
     document.getElementById('step4').style.display='none';
