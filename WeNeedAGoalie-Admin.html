@@ -187,21 +187,25 @@
       <input class="modal-input" id="editEmail" type="email"/>
     </div>
     <div class="modal-field">
+      <div class="modal-label">Legacy Age Range <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:600">(will clear when you save brackets)</span></div>
+      <div id="editLegacyAge" style="font-size:14px;color:rgba(255,255,255,0.5);padding:6px 0;font-weight:600">—</div>
+    </div>
+    <div class="modal-field">
       <div class="modal-label">Age Brackets</div>
       <div class="checkbox-group" id="editBrackets">
-        <label class="checkbox-item" id="brkchk-18p" onclick="toggleBracketCheck('18+')"><input type="checkbox"/> 18+</label>
-        <label class="checkbox-item" id="brkchk-30p" onclick="toggleBracketCheck('30+')"><input type="checkbox"/> 30+</label>
-        <label class="checkbox-item" id="brkchk-40p" onclick="toggleBracketCheck('40+')"><input type="checkbox"/> 40+</label>
-        <label class="checkbox-item" id="brkchk-50p" onclick="toggleBracketCheck('50+')"><input type="checkbox"/> 50+</label>
-        <label class="checkbox-item" id="brkchk-60p" onclick="toggleBracketCheck('60+')"><input type="checkbox"/> 60+</label>
-        <label class="checkbox-item" id="brkchk-70p" onclick="toggleBracketCheck('70+')"><input type="checkbox"/> 70+ 🏒</label>
+        <div class="checkbox-item" id="brkchk-18p" onclick="toggleBracketCheck('18+')">18+</div>
+        <div class="checkbox-item" id="brkchk-30p" onclick="toggleBracketCheck('30+')">30+</div>
+        <div class="checkbox-item" id="brkchk-40p" onclick="toggleBracketCheck('40+')">40+</div>
+        <div class="checkbox-item" id="brkchk-50p" onclick="toggleBracketCheck('50+')">50+</div>
+        <div class="checkbox-item" id="brkchk-60p" onclick="toggleBracketCheck('60+')">60+</div>
+        <div class="checkbox-item" id="brkchk-70p" onclick="toggleBracketCheck('70+')">70+ 🏒</div>
       </div>
     </div>
     <div class="modal-field">
       <div class="modal-label">Women's League</div>
-      <label class="checkbox-item" id="womensChk" onclick="toggleWomensCheck()" style="width:fit-content">
-        <input type="checkbox"/> Available for women's leagues
-      </label>
+      <div class="checkbox-item" id="womensChk" onclick="toggleWomensCheck()" style="width:fit-content">
+        Available for women's leagues
+      </div>
     </div>
     <div class="modal-field">
       <div class="modal-label">Skill Levels</div>
@@ -393,46 +397,40 @@ window.openEdit = (id) => {
   document.getElementById('editName').value = g.name || '';
   document.getElementById('editEmail').value = g.email || '';
 
+  // Legacy age — read only display
+  document.getElementById('editLegacyAge').textContent = g.age || '— not set';
+
   // Age brackets
   ['18+','30+','40+','50+','60+','70+'].forEach(b => {
     const el = document.getElementById('brkchk-' + b.replace('+','p'));
     if (!el) return;
-    const checked = (g.ageBrackets||[]).includes(b);
-    el.classList.toggle('checked', checked);
-    el.querySelector('input').checked = checked;
+    el.classList.toggle('checked', (g.ageBrackets||[]).includes(b));
   });
 
   // Women's
   const wEl = document.getElementById('womensChk');
   wEl.classList.toggle('checked', g.womens === true);
-  wEl.querySelector('input').checked = g.womens === true;
 
   // Levels
   const levelsDiv = document.getElementById('editLevels');
   levelsDiv.innerHTML = SKILL_LEVELS.map(lv => `
-    <label class="checkbox-item ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}" id="lvlchk-${lv.id}" onclick="toggleLevelCheck('${lv.id}')">
-      <input type="checkbox" ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}/>
+    <div class="checkbox-item ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}" id="lvlchk-${lv.id}" onclick="toggleLevelCheck('${lv.id}')">
       ${lv.label} – ${lv.name}
-    </label>`).join('');
+    </div>`).join('');
   document.getElementById('editModal').classList.add('open');
 };
 
 window.toggleBracketCheck = (bracket) => {
   const el = document.getElementById('brkchk-' + bracket.replace('+','p'));
   el.classList.toggle('checked');
-  el.querySelector('input').checked = el.classList.contains('checked');
 };
 
 window.toggleWomensCheck = () => {
-  const el = document.getElementById('womensChk');
-  el.classList.toggle('checked');
-  el.querySelector('input').checked = el.classList.contains('checked');
+  document.getElementById('womensChk').classList.toggle('checked');
 };
 
 window.toggleLevelCheck = (id) => {
-  const el = document.getElementById('lvlchk-' + id);
-  el.classList.toggle('checked');
-  el.querySelector('input').checked = el.classList.contains('checked');
+  document.getElementById('lvlchk-' + id).classList.toggle('checked');
 };
 
 window.saveEdit = async () => {
@@ -450,6 +448,8 @@ window.saveEdit = async () => {
       womens,
       levels,
     };
+    // If we're saving ageBrackets, clear the legacy age field
+    if (ageBrackets.length > 0) updates.age = '';
     await API('update', editingId, 'POST', updates);
     const g = allGoalies.find(x => x.id === editingId);
     if (g) Object.assign(g, updates);
