@@ -381,7 +381,6 @@ async function loadProfile(user) {
     document.getElementById('pName').value = data.name || '';
     document.getElementById('pEmail').value = data.email || '';
     document.getElementById('pZip').value = data.zip || '';
-    document.getElementById('rinkZip').value = data.zip || '';
     document.getElementById('heroTitle').textContent = data.name ? `Hey, ${data.name.split(' ')[0]}! 🥅` : 'My Profile';
     document.getElementById('heroSub').textContent = 'Manage your profile and availability';
 
