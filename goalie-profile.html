@@ -154,11 +154,11 @@
     <!-- Basic Info -->
     <div class="card">
       <div class="card-title">Your Info</div>
-      <div class="card-desc">Update your name, email, age, and zip code</div>
-      <div class="field"><label class="label">Full name</label><input type="text" id="pName" /></div>
+      <div class="card-desc">Update your name, email, and preferences</div>
+      <div class="field"><label class="label">Name or Alias</label><input type="text" id="pName" /></div>
       <div class="field"><label class="label">Email</label><input type="email" id="pEmail" /><div class="hint">Changing your email here updates where we send notifications</div></div>
       <div class="field">
-        <label class="label">Age range</label>
+        <label class="label">Age range <span style="font-size:11px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0">(legacy)</span></label>
         <div class="age-grid">
           <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>18–25</button>
           <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>26–35</button>
@@ -167,7 +167,26 @@
           <button class="age-btn" onclick="selectAge(this)"><span class="corner-check">✓</span>55+</button>
         </div>
       </div>
-      <div class="field"><label class="label">Zip code</label><input type="text" id="pZip" maxlength="5" /><div class="hint">Used to find rinks near you</div></div>
+      <div class="field">
+        <label class="label">Available for which age groups?</label>
+        <div class="hint" style="margin-bottom:10px;margin-top:0">Select all that apply — you'll be notified for leagues you opt into</div>
+        <div class="age-grid">
+          <button class="age-btn" id="bracket-18" onclick="toggleBracket(this,'18+')"><span class="corner-check">✓</span>18+</button>
+          <button class="age-btn" id="bracket-30" onclick="toggleBracket(this,'30+')"><span class="corner-check">✓</span>30+</button>
+          <button class="age-btn" id="bracket-40" onclick="toggleBracket(this,'40+')"><span class="corner-check">✓</span>40+</button>
+          <button class="age-btn" id="bracket-50" onclick="toggleBracket(this,'50+')"><span class="corner-check">✓</span>50+</button>
+          <button class="age-btn" id="bracket-60" onclick="toggleBracket(this,'60+')"><span class="corner-check">✓</span>60+</button>
+          <button class="age-btn" id="bracket-70" onclick="toggleBracket(this,'70+')"><span class="corner-check">✓</span>70+ 🏒</button>
+        </div>
+      </div>
+      <div class="field">
+        <label class="label">Women's league</label>
+        <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
+          <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
+          <span style="font-size:15px;font-weight:700;color:var(--text)">Available for women's leagues</span>
+        </div>
+      </div>
+      <div class="field"><label class="label">Zip code <span style="font-size:11px;font-weight:600;color:var(--muted);text-transform:none;letter-spacing:0">(legacy)</span></label><input type="text" id="pZip" maxlength="5" /><div class="hint">Used to find rinks near you</div></div>
     </div>
 
     <!-- Availability status -->
@@ -318,6 +337,8 @@ let goalieDocId = null;
 let profileData = {};
 let selectedRinks = [];
 let selectedLevels = [];
+let selectedAgeBrackets = [];
+let isWomens = false;
 let isActive = true;
 let allRinks = [], rinksShown = 0, nextPageToken = null, currentZip = '';
 const RINKS_PER_PAGE = 5;
@@ -404,6 +425,27 @@ async function loadProfile(user) {
       document.getElementById('rinkZip').value = data.zip;
     }
 
+    // Age brackets (new field)
+    selectedAgeBrackets = data.ageBrackets || [];
+    selectedAgeBrackets.forEach(bracket => {
+      const id = 'bracket-' + bracket.replace('+','');
+      const btn = document.getElementById(id);
+      if (btn) btn.classList.add('selected');
+    });
+
+    // Women's league (defaults to false if not set)
+    isWomens = data.womens === true;
+    if (isWomens) {
+      const toggle = document.getElementById('womensToggle');
+      const check = document.getElementById('womensCheck');
+      toggle.style.borderColor = 'var(--green)';
+      toggle.style.background = 'var(--green-light)';
+      check.style.background = 'var(--green)';
+      check.style.borderColor = 'var(--green)';
+      check.textContent = '✓';
+      check.style.color = '#fff';
+    }
+
     document.getElementById('loadingState').style.display='none';
     document.getElementById('profileContent').style.display='block';
   } catch(e) {
@@ -415,6 +457,35 @@ async function loadProfile(user) {
 window.selectAge = btn => {
   document.querySelectorAll('.age-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
+};
+
+window.toggleBracket = (btn, bracket) => {
+  btn.classList.toggle('selected');
+  if (btn.classList.contains('selected')) {
+    if (!selectedAgeBrackets.includes(bracket)) selectedAgeBrackets.push(bracket);
+  } else {
+    selectedAgeBrackets = selectedAgeBrackets.filter(b => b !== bracket);
+  }
+};
+
+window.toggleWomens = () => {
+  isWomens = !isWomens;
+  const toggle = document.getElementById('womensToggle');
+  const check = document.getElementById('womensCheck');
+  if (isWomens) {
+    toggle.style.borderColor = 'var(--green)';
+    toggle.style.background = 'var(--green-light)';
+    check.style.background = 'var(--green)';
+    check.style.borderColor = 'var(--green)';
+    check.textContent = '✓';
+    check.style.color = '#fff';
+  } else {
+    toggle.style.borderColor = 'var(--border)';
+    toggle.style.background = '#fff';
+    check.style.background = '#fff';
+    check.style.borderColor = 'var(--border)';
+    check.textContent = '';
+  }
 };
 
 window.setStatus = (active) => {
@@ -615,6 +686,8 @@ window.saveProfile = async () => {
     const docRef = doc(db,'goalies',goalieDocId);
     await updateDoc(docRef,{
       name, email, age, zip,
+      ageBrackets: selectedAgeBrackets,
+      womens: isWomens,
       levels:selectedLevels, rinks:selectedRinks, active:isActive
     });
     document.getElementById('heroTitle').textContent=`Hey, ${name.split(' ')[0]}! 🥅`;
