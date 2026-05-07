@@ -154,10 +154,23 @@ exports.handler = async (event) => {
     for (const row of goalieRows || []) {
       if (!row.document) continue;
       const g = parseDoc(row.document.fields);
+
       const rinkOk = Array.isArray(g.rinks) && g.rinks.includes(req.rink);
       const levelOk = Array.isArray(g.levels) && Array.isArray(req.levels) && g.levels.some(l => req.levels.includes(l));
-      console.log(`  Goalie ${g.name}: rinks=${JSON.stringify(g.rinks)}, rinkOk=${rinkOk}, levelOk=${levelOk}`);
-      if (rinkOk && levelOk && g.email) matched.push(g);
+
+      // Age bracket: goalie must have opted into this bracket.
+      // Legacy goalies with no ageBrackets are included for now (don't exclude them).
+      const ageBracketOk = !req.ageBracket ||
+        !Array.isArray(g.ageBrackets) ||
+        g.ageBrackets.length === 0 ||
+        g.ageBrackets.includes(req.ageBracket);
+
+      // Women's: if request is women's only, goalie must have opted in.
+      // If request is NOT women's, all goalies pass regardless.
+      const womensOk = !req.womens || g.womens === true;
+
+      console.log(`  Goalie ${g.name}: rinkOk=${rinkOk}, levelOk=${levelOk}, ageBracketOk=${ageBracketOk}, womensOk=${womensOk}`);
+      if (rinkOk && levelOk && ageBracketOk && womensOk && g.email) matched.push(g);
     }
     console.log('✓ Matched goalies:', matched.map(g => g.name));
 
@@ -187,6 +200,8 @@ exports.handler = async (event) => {
         <tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Date</td><td style="font-weight:800;color:#1a2340;">${fmtDate}</td></tr>
         <tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Time</td><td style="font-weight:800;color:#1a2340;">${fmtTime}</td></tr>
         <tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Level</td><td style="font-weight:800;color:#c8102e;">${levelNames}</td></tr>
+        ${req.ageBracket ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Age bracket</td><td style="font-weight:800;color:#1a2340;">${req.ageBracket} league</td></tr>` : ''}
+        ${req.womens ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">League type</td><td style="font-weight:800;color:#1A7A3E;">Women's league ✓</td></tr>` : ''}
         ${req.notes ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;vertical-align:top;">Notes</td><td style="color:#1a2340;">${req.notes}</td></tr>` : ''}
       </table>
     </div>
