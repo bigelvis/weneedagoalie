@@ -29,7 +29,8 @@
     .page-sub{font-size:16px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
     .steps-bar{display:flex;align-items:center;justify-content:center;padding:1.25rem 1rem;background:var(--white);border-bottom:1.5px solid var(--border);gap:0}
     .step-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:40px;font-size:13px;font-weight:800;color:var(--muted);transition:all 0.2s}
-    .step-pill.done{color:var(--green)}
+    .step-pill.done{color:var(--green);cursor:pointer}
+    .step-pill.done:hover{background:var(--green-light)}
     .step-pill.active{background:var(--red-light);color:var(--red)}
     .step-num-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--border);color:var(--muted);flex-shrink:0;transition:all 0.2s}
     .step-pill.active .step-num-circle{background:var(--red);color:#fff}
@@ -168,7 +169,26 @@
           <div class="field" style="margin-bottom:0"><label class="label">Game date <span class="req">*</span></label><input type="date" id="fdate" /></div>
           <div class="field" style="margin-bottom:0"><label class="label">Game time <span class="req">*</span></label><input type="time" id="ftime" /></div>
         </div>
-        <div class="field" style="margin-top:1.25rem;margin-bottom:0">
+        <div class="field" style="margin-top:1.25rem">
+          <label class="label">League age bracket <span class="req">*</span></label>
+          <div class="hint" style="margin-bottom:10px;margin-top:0">Select the age bracket for this league</div>
+          <div class="level-grid" style="grid-template-columns:repeat(auto-fill,minmax(90px,1fr))">
+            <button class="level-btn" id="ab-18" onclick="selectBracket('18+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">18+</div></button>
+            <button class="level-btn" id="ab-30" onclick="selectBracket('30+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">30+</div></button>
+            <button class="level-btn" id="ab-40" onclick="selectBracket('40+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">40+</div></button>
+            <button class="level-btn" id="ab-50" onclick="selectBracket('50+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">50+</div></button>
+            <button class="level-btn" id="ab-60" onclick="selectBracket('60+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">60+</div></button>
+            <button class="level-btn" id="ab-70" onclick="selectBracket('70+',this)"><span class="level-corner-check">✓</span><div class="level-letter" style="color:#1565C0;font-size:22px">70+🏒</div></button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Women's league</label>
+          <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
+            <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
+            <span style="font-size:15px;font-weight:700;color:var(--text)">This is a women's league</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:0">
           <label class="label">Notes for the goalie <span class="opt">optional</span></label>
           <textarea id="fnotes" placeholder="e.g. Rink 2, jerseys provided..."></textarea>
         </div>
@@ -235,7 +255,7 @@ const SKILL_LEVELS = [
   {id:'d',  label:'D',  name:'Beginner',   color:'#1565C0',bg:'#EBF4FE'},
   {id:'rec',label:'Rec',name:'Pickup/Rec', color:'#4A148C',bg:'#F3E5F5'},
 ];
-let state = {team:'',contact:'',cemail:'',cphone:'',location:'',rink:'',date:'',time:'',notes:'',levels:[]};
+let state = {team:'',contact:'',cemail:'',cphone:'',location:'',rink:'',date:'',time:'',notes:'',levels:[],ageBracket:'',womens:false};
 
 // Build level buttons
 const grid = document.getElementById('levelGrid');
@@ -263,10 +283,38 @@ function checkStep1() {
     document.getElementById('fcontact').value.trim() &&
     document.getElementById('fcemail').value.trim() &&
     state.rink &&
+    state.ageBracket &&
     document.getElementById('fdate').value &&
     document.getElementById('ftime').value
   );
 }
+
+window.selectBracket = (bracket, btn) => {
+  document.querySelectorAll('[id^="ab-"]').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.ageBracket = bracket;
+  checkStep1();
+};
+
+window.toggleWomens = () => {
+  state.womens = !state.womens;
+  const toggle = document.getElementById('womensToggle');
+  const check = document.getElementById('womensCheck');
+  if (state.womens) {
+    toggle.style.borderColor = 'var(--red)';
+    toggle.style.background = 'var(--red-light)';
+    check.style.background = 'var(--red)';
+    check.style.borderColor = 'var(--red)';
+    check.textContent = '✓';
+    check.style.color = '#fff';
+  } else {
+    toggle.style.borderColor = 'var(--border)';
+    toggle.style.background = '#fff';
+    check.style.background = '#fff';
+    check.style.borderColor = 'var(--border)';
+    check.textContent = '';
+  }
+};
 
 let allRinks = [];
 let rinksShown = 0;
@@ -431,6 +479,8 @@ window.goStep3 = () => {
       <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink}</td></tr>
       <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${fmtDate} at ${fmtTime}</td></tr>
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
+      <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket}</td></tr>
+      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--red)">✓ Yes</td></tr>`:''}
       ${state.notes?`<tr><td class="rl">Notes</td><td style="color:var(--muted)">${state.notes}</td></tr>`:''}
       <tr><td class="rs" colspan="2">Contact info</td></tr>
       <tr><td class="rl">Contact</td><td style="font-weight:800">${state.contact}</td></tr>
@@ -454,7 +504,8 @@ window.submitRequest = async () => {
     await addDoc(collection(db,'requests'),{
       team:state.team, contact:state.contact, cemail:state.cemail, cphone:state.cphone,
       location:state.location, rink:state.rink, date:state.date, time:state.time,
-      levels:state.levels, notes:state.notes,
+      levels:state.levels, ageBracket:state.ageBracket, womens:state.womens,
+      notes:state.notes,
       status:'pending', confirmToken,
       sentAt:serverTimestamp()
     });
@@ -500,6 +551,13 @@ function setStep(n) {
     const sp=document.getElementById('sp'+i), sc=document.getElementById('sc'+i);
     sp.className='step-pill'+(i===n?' active':i<n?' done':'');
     sc.textContent=i<n?'✓':i;
+    if (i < n) {
+      sp.style.cursor='pointer';
+      sp.onclick = () => setStep(i);
+    } else {
+      sp.style.cursor='default';
+      sp.onclick = null;
+    }
   });
 }
 </script>
