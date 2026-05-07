@@ -272,7 +272,8 @@
   <div class="overlay-card">
     <div class="overlay-title">Delete your account?</div>
     <div class="overlay-desc">This will permanently remove you from the goalie roster. Teams will no longer be able to contact you. This cannot be undone.<br><br>Type <strong>DELETE</strong> below to confirm.</div>
-    <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to confirm" style="margin-bottom:1rem" />
+    <input type="text" id="deleteConfirmInput" placeholder="Type DELETE to confirm" style="margin-bottom:0.75rem" />
+    <input type="password" id="deletePassword" placeholder="Enter your password to confirm" style="margin-bottom:1rem" />
     <div class="overlay-actions">
       <button class="btn-cancel-del" onclick="hideDeleteConfirm()">Cancel</button>
       <button class="btn-confirm-del" id="confirmDelBtn" onclick="doDelete()">Delete Account</button>
@@ -284,7 +285,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, doc, getDoc, updateDoc, deleteDoc, query, collection, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signOut, deleteUser, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
@@ -682,9 +683,9 @@ window.saveProfile = async () => {
   btn.disabled=false; btn.innerHTML='Save Changes ✓';
 };
 
-// ---- Delete ----
 window.showDeleteConfirm = () => {
   document.getElementById('deleteConfirmInput').value='';
+  document.getElementById('deletePassword').value='';
   document.getElementById('deleteErr').style.display='none';
   document.getElementById('deleteOverlay').classList.add('show');
 };
@@ -694,17 +695,33 @@ window.hideDeleteConfirm = () => {
 
 window.doDelete = async () => {
   const confirm=document.getElementById('deleteConfirmInput').value.trim();
+  const password=document.getElementById('deletePassword').value;
   const err=document.getElementById('deleteErr');
   const btn=document.getElementById('confirmDelBtn');
+
   if(confirm!=='DELETE'){err.style.display='block';err.textContent='Please type DELETE to confirm.';return;}
+  if(!password){err.style.display='block';err.textContent='Please enter your password to confirm deletion.';return;}
+
   btn.disabled=true; btn.textContent='Deleting...';
+
   try {
-    await deleteDoc(doc(db,'goalies',goalieDocId));
+    // Step 1: Reauthenticate to ensure we have a fresh session
+    const credential = EmailAuthProvider.credential(currentUser.email, password);
+    await reauthenticateWithCredential(currentUser, credential);
+
+    // Step 2: Delete Auth account first — if this fails, Firestore is untouched
     await deleteUser(currentUser);
+
+    // Step 3: Only delete Firestore doc after Auth succeeds
+    await deleteDoc(doc(db,'goalies',goalieDocId));
+
     window.location.href='index.html';
   } catch(e) {
+    let msg = 'Delete failed. Please try again.';
+    if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') msg = 'Incorrect password. Please try again.';
+    if (e.code === 'auth/too-many-requests') msg = 'Too many attempts. Please wait a moment and try again.';
     err.style.display='block';
-    err.textContent='Delete failed. You may need to log out and log back in first. ('+e.message+')';
+    err.textContent=msg;
     btn.disabled=false; btn.textContent='Delete Account';
   }
 };
