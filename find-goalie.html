@@ -144,9 +144,9 @@
       <div class="field"><label class="label">Contact phone <span class="opt">optional</span></label><input type="tel" id="fcphone" placeholder="(301) 555-0100" /></div>
       <hr class="card-divider">
       <div class="field">
-        <label class="label">Your zip code <span class="req">*</span></label>
+        <label class="label">Your location <span class="req">*</span></label>
         <div class="zip-row">
-          <input type="text" id="fzip" placeholder="20850" maxlength="5" />
+          <input type="text" id="flocation" placeholder="e.g. Rockville, MD  /  Toronto, ON  /  London, England" />
           <button class="btn-find" id="findBtn" onclick="findRinks()">Find Rinks</button>
         </div>
         <div class="hint">We'll show the nearest rinks sorted by distance — 5 at a time</div>
@@ -155,7 +155,7 @@
         <div class="field"><label class="label">Select your rink <span class="req">*</span></label><div id="rinkResults"></div></div>
         <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;">
           <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
-          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
+          <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your location.</div>
           <div class="zip-row">
             <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
             <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()" style="background:var(--blue);">Search</button>
@@ -235,20 +235,7 @@ const SKILL_LEVELS = [
   {id:'d',  label:'D',  name:'Beginner',   color:'#1565C0',bg:'#EBF4FE'},
   {id:'rec',label:'Rec',name:'Pickup/Rec', color:'#4A148C',bg:'#F3E5F5'},
 ];
-const DC_RINKS = [
-  {name:"Kettler Capitals Iceplex",  address:"627 N Glebe Rd",          city:"Arlington, VA",      miles:1.2},
-  {name:"Rockville Ice Arena",        address:"50 Southlawn Ln",         city:"Rockville, MD",      miles:3.4},
-  {name:"Fairfax Ice Arena",          address:"3779 Pickett Rd",         city:"Fairfax, VA",        miles:5.1},
-  {name:"SkateQuest",                 address:"1800 Michael Faraday Ct", city:"Reston, VA",         miles:6.8},
-  {name:"Cabin John Ice Rink",        address:"10610 Westlake Dr",       city:"Bethesda, MD",       miles:7.3},
-  {name:"Fort Dupont Ice Arena",      address:"3779 Ely Pl SE",          city:"Washington, DC",     miles:8.9},
-  {name:"Tucker Road Ice Rink",       address:"1770 Tucker Rd",          city:"Fort Washington, MD",miles:10.2},
-  {name:"Wheaton Ice Arena",          address:"11717 Orebaugh Ave",      city:"Wheaton, MD",        miles:11.5},
-  {name:"Prince William Ice Center",  address:"5180 Dale Blvd",          city:"Woodbridge, VA",     miles:14.1},
-  {name:"Piney Orchard Ice Arena",    address:"8920 Piney Orchard Pkwy", city:"Odenton, MD",        miles:17.6},
-];
-
-let state = {team:'',contact:'',cemail:'',cphone:'',zip:'',rink:'',date:'',time:'',notes:'',levels:[]};
+let state = {team:'',contact:'',cemail:'',cphone:'',location:'',rink:'',date:'',time:'',notes:'',levels:[]};
 
 // Build level buttons
 const grid = document.getElementById('levelGrid');
@@ -284,14 +271,14 @@ function checkStep1() {
 let allRinks = [];
 let rinksShown = 0;
 let nextPageToken = null;
-let currentZip = '';
+let currentLocation = '';
 const RINKS_PER_PAGE = 5;
 
 window.findRinks = async () => {
-  const zip = document.getElementById('fzip').value.trim();
-  if (zip.length < 5) { alert('Please enter a valid 5-digit zip code.'); return; }
-  currentZip = zip;
-  state.zip = zip; state.rink = '';
+  const location = document.getElementById('flocation').value.trim();
+  if (!location) { alert('Please enter a city or region.'); return; }
+  currentLocation = location;
+  state.location = location; state.rink = '';
   allRinks = []; rinksShown = 0; nextPageToken = null;
   const btn = document.getElementById('findBtn');
   btn.disabled = true; btn.textContent = 'Searching...';
@@ -299,17 +286,14 @@ window.findRinks = async () => {
   document.getElementById('gameTimeSection').style.display = 'none';
   checkStep1();
   try {
-    const resp = await fetch(`/.netlify/functions/rinks?zip=${zip}`);
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     allRinks = data.rinks;
     nextPageToken = data.next_page_token || null;
     initRinkList();
   } catch(e) {
-    const seed = parseInt(zip.slice(-2)) || 0;
-    allRinks = DC_RINKS.map(r => ({...r, miles: +(r.miles + seed * 0.04).toFixed(1)})).sort((a,b) => a.miles - b.miles);
-    nextPageToken = null;
-    initRinkList();
+    alert('Could not find rinks for that location. Try being more specific, e.g. "Toronto, ON, Canada".');
   }
   btn.disabled = false; btn.textContent = 'Find Rinks';
 };
@@ -328,7 +312,7 @@ window.showMoreRinks = async function() {
     // Google requires ~2s before page token is valid
     await new Promise(r => setTimeout(r, 2000));
     try {
-      const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&pagetoken=${encodeURIComponent(nextPageToken)}`);
+      const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(currentLocation)}&pagetoken=${encodeURIComponent(nextPageToken)}`);
       const data = await resp.json();
       allRinks = allRinks.concat(data.rinks || []);
       nextPageToken = data.next_page_token || null;
@@ -372,7 +356,7 @@ window.searchCustomRink = async function() {
   btn.disabled = true; btn.textContent = 'Searching...';
   resultsDiv.innerHTML = '';
   try {
-    const resp = await fetch(`/.netlify/functions/rinks?zip=${currentZip}&query=${encodeURIComponent(query)}`);
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(currentLocation)}&query=${encodeURIComponent(query)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const found = data.rinks || [];
@@ -469,7 +453,7 @@ window.submitRequest = async () => {
     // Save request to Firestore with pending status + token
     await addDoc(collection(db,'requests'),{
       team:state.team, contact:state.contact, cemail:state.cemail, cphone:state.cphone,
-      zip:state.zip, rink:state.rink, date:state.date, time:state.time,
+      location:state.location, rink:state.rink, date:state.date, time:state.time,
       levels:state.levels, notes:state.notes,
       status:'pending', confirmToken,
       sentAt:serverTimestamp()
