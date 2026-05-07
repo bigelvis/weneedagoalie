@@ -189,10 +189,12 @@
     <div class="modal-field">
       <div class="modal-label">Age Brackets</div>
       <div class="checkbox-group" id="editBrackets">
-        ${['18+','30+','40+','50+','60+','70+'].map(b => `
-          <label class="checkbox-item" id="brkchk-${b.replace('+','p')}" onclick="toggleBracketCheck('${b}')">
-            <input type="checkbox"/> ${b}
-          </label>`).join('')}
+        <label class="checkbox-item" id="brkchk-18p" onclick="toggleBracketCheck('18+')"><input type="checkbox"/> 18+</label>
+        <label class="checkbox-item" id="brkchk-30p" onclick="toggleBracketCheck('30+')"><input type="checkbox"/> 30+</label>
+        <label class="checkbox-item" id="brkchk-40p" onclick="toggleBracketCheck('40+')"><input type="checkbox"/> 40+</label>
+        <label class="checkbox-item" id="brkchk-50p" onclick="toggleBracketCheck('50+')"><input type="checkbox"/> 50+</label>
+        <label class="checkbox-item" id="brkchk-60p" onclick="toggleBracketCheck('60+')"><input type="checkbox"/> 60+</label>
+        <label class="checkbox-item" id="brkchk-70p" onclick="toggleBracketCheck('70+')"><input type="checkbox"/> 70+ 🏒</label>
       </div>
     </div>
     <div class="modal-field">
