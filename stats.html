@@ -106,10 +106,10 @@
       <div class="metric-label">Team requests</div>
       <div class="metric-val loading" id="statRequests">—</div>
     </div>
-    <div class="metric" id="matchRateCard">
+    <div class="metric" id="matchRateCard" style="display:none">
       <div class="metric-label">Match rate</div>
-      <div class="metric-val" id="statMatchRate" style="font-size:28px;color:var(--border)">—</div>
-      <div class="metric-sub" id="statMatchRateSub">Once email confirmation is live</div>
+      <div class="metric-val" id="statMatchRate"></div>
+      <div class="metric-sub" id="statMatchRateSub"></div>
     </div>
   </div>
 
@@ -167,19 +167,7 @@ async function loadStats() {
     document.getElementById('statRinks').classList.remove('loading');
     document.getElementById('statRequests').classList.remove('loading');
 
-    // Match rate — only show if we have real data
-    const mrEl = document.getElementById('statMatchRate');
-    const mrSub = document.getElementById('statMatchRateSub');
-    if (d.matchRate !== null) {
-      mrEl.style.fontSize = '';
-      mrEl.style.color = '';
-      animateCount('statMatchRate', d.matchRate);
-      mrEl.textContent = d.matchRate + '%';
-      mrSub.textContent = `${d.totalRequests} requests total`;
-    } else {
-      mrEl.textContent = 'Coming soon';
-      mrSub.textContent = 'Tracks once confirmations are live';
-    }
+
 
     // Level bars
     const maxCount = Math.max(...LEVEL_ORDER.map(l => d.byLevel[l] || 0), 1);
