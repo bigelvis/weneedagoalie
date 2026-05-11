@@ -91,6 +91,7 @@ async function patchDoc(token, docPath, updates) {
   for (const [k, v] of Object.entries(updates)) {
     if (typeof v === 'string') fields[k] = { stringValue: v };
     else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
+    else if (typeof v === 'number') fields[k] = { integerValue: v };
   }
   const mask = Object.keys(updates).map(k => `updateMask.fieldPaths=${k}`).join('&');
   await fetch(`${FIRESTORE_BASE}/${docPath}?${mask}`, {
@@ -235,8 +236,8 @@ exports.handler = async (event) => {
       }
     }
 
-    // Mark confirmed
-    await patchDoc(accessToken, `requests/${docId}`, { status: 'confirmed' });
+    // Mark confirmed + record how many goalies were notified
+    await patchDoc(accessToken, `requests/${docId}`, { status: 'confirmed', notifiedCount: matched.length });
 
     const n = matched.length;
     const body = n > 0

@@ -121,7 +121,11 @@ exports.handler = async (event) => {
       .slice(0, 10)
       .map(([name, count]) => ({ name, count }));
 
-    // --- Signups per month (last 6 months) ---
+    // --- Match rate: confirmed requests with at least 1 goalie notified ---
+    const confirmedWithGoalies = requests.filter(r => r.status === 'confirmed' && r.notifiedCount > 0).length;
+    const matchRate = requests.length > 0 ? Math.round(confirmedWithGoalies / requests.length * 100) : null;
+
+
     const now = new Date();
     const months = [];
     for (let i = 5; i >= 0; i--) {
@@ -149,6 +153,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         totalGoalies: goalies.length,
         totalRequests: requests.length,
+        matchRate,
         uniqueRinks,
         byLevel,
         topRinks,
