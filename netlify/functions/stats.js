@@ -84,12 +84,26 @@ exports.handler = async (event) => {
     ]);
 
     // --- Goalies by skill level ---
+    // levels is stored as an array of IDs: 'a','ub','lb','uc','lc','ud','d','rec'
+    const LEVEL_MAP = {
+      'a':   'A',
+      'ub':  'Upper B',
+      'lb':  'Lower B',
+      'uc':  'Upper C',
+      'lc':  'Lower C',
+      'ud':  'Upper D',
+      'd':   'Beginner',
+      'rec': 'Pickup/Rec',
+    };
     const LEVELS = ['A', 'Upper B', 'Lower B', 'Upper C', 'Lower C', 'Upper D', 'Beginner', 'Pickup/Rec'];
     const byLevel = {};
     LEVELS.forEach(l => byLevel[l] = 0);
     goalies.forEach(g => {
-      const lvl = g.skillLevel || g.level || '';
-      if (byLevel[lvl] !== undefined) byLevel[lvl]++;
+      const lvls = Array.isArray(g.levels) ? g.levels : [];
+      lvls.forEach(id => {
+        const name = LEVEL_MAP[id];
+        if (name) byLevel[name]++;
+      });
     });
 
     // --- Top 10 rinks by number of goalies who listed them ---
