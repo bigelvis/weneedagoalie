@@ -185,18 +185,18 @@
           <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
 
             <!-- Women's League -->
-            <div>
+            <div style="display:flex;flex-direction:column;">
               <label class="label" style="margin-bottom:6px;display:block;">Women's League?</label>
-              <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
+              <div id="womensToggle" onclick="toggleWomens()" style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;height:66px;">
                 <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
-                <span style="font-size:15px;font-weight:700;color:var(--text)">This is a women's league</span>
+                <span style="font-size:15px;font-weight:700;color:var(--text)">Require a Woman Goalie</span>
               </div>
             </div>
 
             <!-- Official Registration Required -->
             <div style="flex:1;min-width:220px;">
               <label class="label" style="margin-bottom:6px;display:block;">Official Registration # Required? <span style="color:#CC2200;">*</span></label>
-              <div style="display:flex;gap:8px;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:#fff;">
+              <div style="display:flex;gap:8px;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:#fff;height:66px;align-items:center;">
                 <div id="regYesBtn" onclick="setRegRequired(true)" style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:2px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none;">
                   <div id="regYesRadio" style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"></div>
                   <span style="font-size:14px;font-weight:700;color:var(--text)">Yes</span>
@@ -222,8 +222,8 @@
 
   <div id="step2" style="display:none">
     <div class="card">
-      <div class="card-title">Goalie skill level</div>
-      <div class="card-desc">Select all levels you'd accept — goalies matching any of these will be contacted</div>
+      <div class="card-title">Your league's skill level</div>
+      <div class="card-desc">Select your league skill level (up to 4). Matching goalies will be contacted.</div>
       <div class="level-grid" id="levelGrid"></div>
       <div class="level-note" id="levelNote"></div>
     </div>
@@ -499,6 +499,7 @@ window.goStep2 = () => {
 };
 
 function toggleLevel(lv, btn) {
+  if (!btn.classList.contains('selected') && state.levels.length >= 4) return;
   btn.classList.toggle('selected');
   if (btn.classList.contains('selected')) {
     btn.style.cssText=`border-color:${lv.color};background:${lv.bg};border-width:2px`;
