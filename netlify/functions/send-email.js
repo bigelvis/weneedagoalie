@@ -74,6 +74,7 @@ exports.handler = async (event) => {
           <tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Level(s)</td><td style="font-weight:800;color:#c8102e;">${levelNames}</td></tr>
           ${request.ageBracket ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Age bracket</td><td style="font-weight:800;color:#1a2340;">${request.ageBracket} league</td></tr>` : ''}
           ${request.womens ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">League type</td><td style="font-weight:800;color:#1A7A3E;">Women's league ✓</td></tr>` : ''}
+          ${request.regRequired ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Registration #</td><td style="font-weight:800;color:#856900;background:#FFFDE7;padding:6px 8px;border-radius:4px;">⚠️ Required (e.g. USA Hockey or HCR Number)</td></tr>` : ''}
           ${request.notes ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;vertical-align:top;">Notes</td><td style="color:#1a2340;">${request.notes}</td></tr>` : ''}
         </table>
       </div>

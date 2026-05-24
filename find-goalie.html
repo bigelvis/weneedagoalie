@@ -182,10 +182,33 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">Women's league</label>
-          <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
-            <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
-            <span style="font-size:15px;font-weight:700;color:var(--text)">This is a women's league</span>
+          <div style="display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;">
+
+            <!-- Women's League -->
+            <div>
+              <label class="label" style="margin-bottom:6px;display:block;">Women's League?</label>
+              <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:12px 16px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
+                <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
+                <span style="font-size:15px;font-weight:700;color:var(--text)">This is a women's league</span>
+              </div>
+            </div>
+
+            <!-- Official Registration Required -->
+            <div style="flex:1;min-width:220px;">
+              <label class="label" style="margin-bottom:6px;display:block;">Official Registration # Required? <span style="color:#CC2200;">*</span></label>
+              <div style="display:flex;gap:8px;padding:10px 14px;border-radius:10px;border:2px solid var(--border);background:#fff;">
+                <div id="regYesBtn" onclick="setRegRequired(true)" style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:2px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none;">
+                  <div id="regYesRadio" style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"></div>
+                  <span style="font-size:14px;font-weight:700;color:var(--text)">Yes</span>
+                </div>
+                <div id="regNoBtn" onclick="setRegRequired(false)" style="flex:1;display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;border:2px solid var(--border);cursor:pointer;transition:all 0.15s;user-select:none;">
+                  <div id="regNoRadio" style="width:20px;height:20px;border-radius:50%;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all 0.15s;"></div>
+                  <span style="font-size:14px;font-weight:700;color:var(--text)">No</span>
+                </div>
+              </div>
+              <div style="font-size:12px;color:var(--muted);margin-top:5px;padding-left:2px;">e.g. USA Hockey or HCR Number</div>
+            </div>
+
           </div>
         </div>
         <div class="field" style="margin-bottom:0">
@@ -255,7 +278,7 @@ const SKILL_LEVELS = [
   {id:'d',  label:'D',  name:'Beginner',   color:'#1565C0',bg:'#EBF4FE'},
   {id:'rec',label:'Rec',name:'Pickup/Rec', color:'#4A148C',bg:'#F3E5F5'},
 ];
-let state = {team:'',contact:'',cemail:'',cphone:'',location:'',rink:'',date:'',time:'',notes:'',levels:[],ageBracket:'',womens:false};
+let state = {team:'',contact:'',cemail:'',cphone:'',location:'',rink:'',date:'',time:'',notes:'',levels:[],ageBracket:'',womens:false,regRequired:null};
 
 // Build level buttons
 const grid = document.getElementById('levelGrid');
@@ -285,7 +308,8 @@ function checkStep1() {
     state.rink &&
     state.ageBracket &&
     document.getElementById('fdate').value &&
-    document.getElementById('ftime').value
+    document.getElementById('ftime').value &&
+    state.regRequired !== null
   );
 }
 
@@ -314,6 +338,27 @@ window.toggleWomens = () => {
     check.style.borderColor = 'var(--border)';
     check.textContent = '';
   }
+};
+
+window.setRegRequired = (val) => {
+  state.regRequired = val;
+  const yesBtn = document.getElementById('regYesBtn');
+  const noBtn = document.getElementById('regNoBtn');
+  const yesRadio = document.getElementById('regYesRadio');
+  const noRadio = document.getElementById('regNoRadio');
+  const dot = '<div style="width:8px;height:8px;border-radius:50%;background:#fff;"></div>';
+  if (val) {
+    yesBtn.style.borderColor = 'var(--green)'; yesBtn.style.background = 'var(--green-light)';
+    yesRadio.style.background = 'var(--green)'; yesRadio.style.borderColor = 'var(--green)'; yesRadio.innerHTML = dot;
+    noBtn.style.borderColor = 'var(--border)'; noBtn.style.background = '#fff';
+    noRadio.style.background = '#fff'; noRadio.style.borderColor = 'var(--border)'; noRadio.innerHTML = '';
+  } else {
+    noBtn.style.borderColor = '#888'; noBtn.style.background = '#f4f4f4';
+    noRadio.style.background = '#888'; noRadio.style.borderColor = '#888'; noRadio.innerHTML = dot;
+    yesBtn.style.borderColor = 'var(--border)'; yesBtn.style.background = '#fff';
+    yesRadio.style.background = '#fff'; yesRadio.style.borderColor = 'var(--border)'; yesRadio.innerHTML = '';
+  }
+  checkStep1();
 };
 
 let allRinks = [];
@@ -481,6 +526,7 @@ window.goStep3 = () => {
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket}</td></tr>
       ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
+      ${state.regRequired?`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:#C8940A;">⚠️ Yes</td></tr>`:`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:var(--muted)">No</td></tr>`}
       ${state.notes?`<tr><td class="rl">Notes</td><td style="color:var(--muted)">${state.notes}</td></tr>`:''}
       <tr><td class="rs" colspan="2">Contact info</td></tr>
       <tr><td class="rl">Contact</td><td style="font-weight:800">${state.contact}</td></tr>
@@ -505,6 +551,7 @@ window.submitRequest = async () => {
       team:state.team, contact:state.contact, cemail:state.cemail, cphone:state.cphone,
       location:state.location, rink:state.rink, date:state.date, time:state.time,
       levels:state.levels, ageBracket:state.ageBracket, womens:state.womens,
+      regRequired:state.regRequired,
       notes:state.notes,
       status:'pending', confirmToken,
       sentAt:serverTimestamp()
@@ -521,6 +568,8 @@ window.submitRequest = async () => {
           team:state.team, contact:state.contact, cemail:state.cemail,
           cphone:state.cphone, rink:state.rink, date:state.date,
           time:state.time, notes:state.notes, levels:state.levels,
+          womens:state.womens, ageBracket:state.ageBracket,
+          regRequired:state.regRequired,
         }
       })
     });

@@ -175,6 +175,13 @@ exports.handler = async (event) => {
     }
     console.log('✓ Matched goalies:', matched.map(g => g.name));
 
+    // TEST MODE: if notes contain "TEST", send only to admin
+    const isTest = typeof req.notes === 'string' && req.notes.toUpperCase().includes('TEST');
+    if (isTest) {
+      console.log('🧪 TEST MODE — overriding recipients, sending only to rhuskey@gmail.com');
+      matched.length = 0;
+      matched.push({ name: 'Ron (TEST)', email: 'rhuskey@gmail.com' });
+    }
     // Format date/time
     const dt = new Date(req.date + 'T' + req.time);
     const fmtDate = dt.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
@@ -203,6 +210,7 @@ exports.handler = async (event) => {
         <tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Level</td><td style="font-weight:800;color:#c8102e;">${levelNames}</td></tr>
         ${req.ageBracket ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">Age bracket</td><td style="font-weight:800;color:#1a2340;">${req.ageBracket} league</td></tr>` : ''}
         ${req.womens ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;">League type</td><td style="font-weight:800;color:#1A7A3E;">Women's league ✓</td></tr>` : ''}
+        ${req.regRequired ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;vertical-align:middle;">Reg # Required</td><td style="background:#FFFDE7;border:1px solid #F9C825;border-radius:6px;padding:8px 10px;font-weight:800;color:#856900;">⚠️ Official registration number required — please have your USA Hockey or HCR Number ready before confirming.</td></tr>` : ''}
         ${req.notes ? `<tr><td style="color:#5a6480;font-weight:700;padding:6px 0;vertical-align:top;">Notes</td><td style="color:#1a2340;">${req.notes}</td></tr>` : ''}
       </table>
     </div>
