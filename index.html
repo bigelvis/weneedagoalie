@@ -142,7 +142,11 @@
 
 
 <footer style="background:#060E1A;padding:1.2rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-  <button onclick="document.getElementById('privacyModal').style.display='flex'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Privacy — What Happens When I Sign Up?</button>
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <button onclick="document.getElementById('privacyModal').style.display='flex'" style="background:none;border:none;color:rgba(255,255,255,0.4);font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;">Privacy — What Happens When I Sign Up?</button>
+    <span style="color:rgba(255,255,255,0.2);font-size:13px;">·</span>
+    <span style="color:rgba(255,255,255,0.6);font-size:13px;font-weight:600;">By using We Need a Goalie, you agree to our <button onclick="document.getElementById('tosModal').style.display='flex'" style="background:none;border:none;color:rgba(255,255,255,0.85);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;text-decoration:underline;padding:0;">Terms of Service</button>.</span>
+  </div>
   <span style="font-size:13px;color:rgba(255,255,255,0.5);">Questions? Email support@</span>
 </footer>
 
@@ -160,5 +164,45 @@
   </div>
 </div>
 
-</body>
-</html>
+<!-- Terms of Service Modal -->
+<div id="tosModal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#F5F0E8;border-radius:16px;max-width:760px;width:100%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 8px 48px rgba(0,0,0,0.3);">
+    <button onclick="document.getElementById('tosModal').style.display='none'" style="position:sticky;top:12px;float:right;margin:12px 12px 0 0;background:#1A7A3E;border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:16px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;">✕</button>
+    <div id="tosContent" style="padding:32px 36px 36px;">
+      <div style="text-align:center;color:#1A7A3E;font-family:'Nunito',sans-serif;font-size:15px;padding:40px;">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.getElementById('tosModal').addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+document.querySelector('[onclick*="tosModal"]') && (() => {
+  let loaded = false;
+  document.querySelectorAll('[onclick*="tosModal"]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (loaded) return;
+      try {
+        const res = await fetch('terms-of-service.html');
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        // Pull just the inner card content + footer link
+        const container = doc.querySelector('.container');
+        const footer = doc.querySelector('footer');
+        if (container) {
+          document.getElementById('tosContent').innerHTML =
+            '<h1 style="font-family:\'Nunito\',sans-serif;font-size:28px;font-weight:900;color:#1A7A3E;text-align:center;margin-bottom:8px;">Terms of Service</h1>' +
+            '<p style="text-align:center;font-size:13px;color:#888;font-weight:600;margin-bottom:24px;">weneedagoalie.com</p>' +
+            container.innerHTML;
+        }
+        loaded = true;
+      } catch(e) {
+        document.getElementById('tosContent').innerHTML = '<p style="color:#CC2200;text-align:center;">Could not load Terms of Service. <a href="terms-of-service.html" target="_blank">Open in new tab →</a></p>';
+      }
+    });
+  });
+})();
+</script>
