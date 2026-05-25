@@ -89,6 +89,9 @@
       <div class="field">
         <label class="label">Password <span class="req">*</span></label>
         <input type="password" id="loginPassword" placeholder="Your password" />
+        <div style="text-align:right;margin-top:6px;">
+          <a href="#" onclick="showForgotPassword(event)" style="font-size:13px;font-weight:700;color:var(--blue);text-decoration:none;">Forgot password?</a>
+        </div>
       </div>
       <div class="err-msg" id="loginErr"></div>
       <button class="btn-primary" id="loginBtn" onclick="doLogin()" style="margin-top:1.25rem">Sign In →</button>
@@ -119,12 +122,28 @@
     <div class="bottom-link"><a href="#" onclick="showLogin()">← Back to login</a></div>
   </div>
 
+  <!-- Forgot password panel -->
+  <div id="forgotPanel" style="display:none;">
+    <div class="card">
+      <div class="card-title">Reset your password 🔑</div>
+      <div class="card-desc">Enter your email and we'll send you a link to reset your password.</div>
+      <div class="field">
+        <label class="label">Email <span class="req">*</span></label>
+        <input type="email" id="resetEmail" placeholder="The email you signed up with" />
+      </div>
+      <div class="err-msg" id="resetErr"></div>
+      <div class="success-msg-box" id="resetSuccess"></div>
+      <button class="btn-primary" id="resetBtn" onclick="doResetPassword()" style="margin-top:1.25rem">Send Reset Link →</button>
+    </div>
+    <div class="bottom-link"><a href="#" onclick="showLogin()">← Back to login</a></div>
+  </div>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, query, where, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDOvPnszOEGHnj2sqzLVn7ccMHRGIs6OZU",
@@ -146,7 +165,39 @@ window.showFirstTime = () => {
 window.showLogin = (e) => {
   if(e) e.preventDefault();
   document.getElementById('firstTimePanel').style.display='none';
+  document.getElementById('forgotPanel').style.display='none';
   document.getElementById('loginPanel').style.display='block';
+};
+
+window.showForgotPassword = (e) => {
+  if(e) e.preventDefault();
+  document.getElementById('loginPanel').style.display='none';
+  document.getElementById('forgotPanel').style.display='block';
+  // Pre-fill email if they already typed it
+  const loginEmail = document.getElementById('loginEmail').value.trim();
+  if (loginEmail) document.getElementById('resetEmail').value = loginEmail;
+};
+
+window.doResetPassword = async () => {
+  const email = document.getElementById('resetEmail').value.trim();
+  const err = document.getElementById('resetErr');
+  const success = document.getElementById('resetSuccess');
+  const btn = document.getElementById('resetBtn');
+  err.style.display='none'; success.style.display='none';
+  if (!email) { err.style.display='block'; err.textContent='Please enter your email address.'; return; }
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>Sending...';
+  try {
+    await sendPasswordResetEmail(auth, email);
+    success.style.display='block';
+    success.innerHTML='✓ Reset link sent! Check your email inbox (and spam folder just in case).';
+    btn.style.display='none';
+  } catch(e) {
+    let msg = 'Something went wrong. Please try again.';
+    if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-email') msg = 'No account found for that email address.';
+    if (e.code === 'auth/too-many-requests') msg = 'Too many attempts. Please wait a moment and try again.';
+    err.style.display='block'; err.textContent=msg;
+    btn.disabled=false; btn.innerHTML='Send Reset Link →';
+  }
 };
 
 window.doLogin = async () => {
@@ -231,6 +282,7 @@ document.addEventListener('keydown', e => {
   const active = document.activeElement.id;
   if (['loginEmail','loginPassword'].includes(active)) doLogin();
   if (['migrateEmail','migratePassword'].includes(active)) doMigrate();
+  if (active === 'resetEmail') doResetPassword();
 });
 </script>
 <footer style="background:#060E1A;padding:1rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
