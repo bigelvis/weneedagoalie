@@ -28,7 +28,7 @@ async function makeJWT() {
     iss: clientEmail, sub: clientEmail,
     aud: 'https://oauth2.googleapis.com/token',
     iat: now, exp: now + 3600,
-    scope: 'https://www.googleapis.com/auth/datastore.readonly',
+    scope: 'https://www.googleapis.com/auth/datastore',
   };
   const enc = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
   const signingInput = `${enc(header)}.${enc(payload)}`;
@@ -54,13 +54,14 @@ function parseDoc(fields) {
   return out;
 }
 
-exports.handler = async () => {
+exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
     'Cache-Control': 'public, max-age=300', // 5 min edge cache — this number changes rarely
   };
+  const debug = event.queryStringParameters?.debug === '1';
 
   try {
     const token = await getAccessToken();
@@ -69,8 +70,11 @@ exports.handler = async () => {
     });
 
     if (!res.ok) {
-      // Doc doesn't exist yet (e.g. before first admin save) — return sane defaults
-      return { statusCode: 200, headers, body: JSON.stringify({ amountRaised: 0, goal: 20 }) };
+      const errText = await res.text();
+      console.error('donation-status Firestore read failed:', res.status, errText);
+      const fallback = { amountRaised: 0, goal: 20 };
+      if (debug) fallback.debug = { status: res.status, body: errText };
+      return { statusCode: 200, headers, body: JSON.stringify(fallback) };
     }
 
     const data = await res.json();
@@ -81,7 +85,8 @@ exports.handler = async () => {
     };
   } catch (e) {
     console.error('donation-status error:', e);
-    // Fail soft — homepage meter just falls back to defaults, never shows an error to visitors
-    return { statusCode: 200, headers, body: JSON.stringify({ amountRaised: 0, goal: 20 }) };
+    const fallback = { amountRaised: 0, goal: 20 };
+    if (debug) fallback.debug = { error: e.message };
+    return { statusCode: 200, headers, body: JSON.stringify(fallback) };
   }
 };
