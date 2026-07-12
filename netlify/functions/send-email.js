@@ -86,7 +86,12 @@ exports.handler = async (event) => {
         <p style="font-size:13px;color:#aab4c8;margin-top:12px;">This link expires after use. If you didn't submit this request, just ignore this email.</p>
       </div>
 
-      <p style="font-size:13px;color:#5a6480;margin:0;">If the button doesn't work, copy and paste this link:<br><a href="${confirmUrl}" style="color:#2a5298;word-break:break-all;">${confirmUrl}</a></p>
+      <p style="font-size:13px;color:#5a6480;margin:0 0 24px;">If the button doesn't work, copy and paste this link:<br><a href="${confirmUrl}" style="color:#2a5298;word-break:break-all;">${confirmUrl}</a></p>
+
+      <div style="border-top:1px solid #d0d8e8;padding-top:20px;text-align:center;">
+        <p style="font-size:13px;color:#5a6480;margin:0 0 10px;">Wish to donate? Running this platform costs real money each month — if it's helped you find a goalie, a few dollars goes a long way.</p>
+        <a href="https://ko-fi.com/weneedagoalie" style="display:inline-block;padding:10px 22px;background:#1A7A3E;color:#fff;border-radius:8px;font-weight:800;font-size:13px;text-decoration:none;">☕ Support us on Ko-fi</a>
+      </div>
     </div>
     <div style="background:#f8fafc;border-top:1.5px solid #d0d8e8;padding:16px 32px;text-align:center;">
       <p style="font-size:12px;color:#aab4c8;margin:0;">weneedagoalie.com · Matching Teams And Goalies</p>
