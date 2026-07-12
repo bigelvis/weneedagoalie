@@ -22,6 +22,12 @@
     .nav-link{color:#fff;font-size:13px;font-weight:800;padding:9px 16px;border-radius:8px;border:2px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.1);transition:all 0.15s;text-transform:uppercase;letter-spacing:0.5px;text-decoration:none}
     .nav-link:hover{background:rgba(255,255,255,0.22);border-color:rgba(255,255,255,0.6)}
     .nav-link.red{background:var(--red);border-color:var(--red)}
+    .nav-link.donate{background:rgba(26,122,62,0.25);border-color:rgba(46,159,94,0.6);cursor:pointer}
+    .nav-link.donate:hover{background:rgba(26,122,62,0.4);border-color:rgba(46,159,94,0.9)}
+    @media (max-width:480px){
+      .nav-links{flex-wrap:wrap;justify-content:flex-end}
+      .nav-link{padding:8px 12px;font-size:12px}
+    }
 
     .hero{background:#c8dff0;padding:0;overflow:hidden;position:relative;min-height:360px;display:flex;flex-direction:column;align-items:center;justify-content:center}
     .rink-bg{position:absolute;inset:0;width:100%;height:100%;opacity:0.5}
@@ -93,6 +99,7 @@
 <nav class="nav">
   <a href="index.html" class="nav-logo">WENeedAGoalie<span>.</span>com</a>
   <div class="nav-links">
+    <button onclick="openDonateModal()" class="nav-link donate">💚 Donate</button>
     <a href="goalie-login.html" class="nav-link">Goalie Login</a>
   </div>
 </nav>
@@ -164,6 +171,27 @@
   </div>
 </div>
 
+<!-- Donate Modal -->
+<div id="donateModal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#0d2e5e;border:1.5px solid rgba(255,255,255,0.15);border-radius:16px;padding:36px;max-width:440px;width:100%;position:relative;">
+    <button onclick="document.getElementById('donateModal').style.display='none'" style="position:absolute;top:14px;right:16px;background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;">✕</button>
+    <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:#fff;margin-bottom:16px;">Help Cover Our Costs 🥅</div>
+    <p style="font-size:15px;color:rgba(255,255,255,0.8);line-height:1.7;margin:0 0 20px;">
+      We Need A Goalie sends every goalie-match notification through email. With hundreds of goalies and still growing, we outgrew our free email plan and now pay <strong style="color:#fff;">$20/month</strong> just to keep notifications going out reliably.<br><br>
+      We'll never charge you to use the platform. But if it's helped you find a game — or fill a net — a few dollars toward the email bill goes a long way.
+    </p>
+    <div style="display:flex;justify-content:space-between;font-size:12px;font-weight:800;color:#90D4A8;margin-bottom:6px;">
+      <span>THIS MONTH'S EMAIL BILL</span>
+      <span id="donateMeterText">$0 / $20</span>
+    </div>
+    <div style="background:rgba(255,255,255,0.12);border-radius:999px;height:14px;overflow:hidden;margin-bottom:22px;">
+      <div id="donateMeterFill" style="background:#2ECC71;height:100%;width:0%;border-radius:999px 0 0 999px;"></div>
+    </div>
+    <a href="https://ko-fi.com/weneedagoalie" target="_blank" style="display:block;text-align:center;background:#2ECC71;color:#06331a;font-size:15px;font-weight:800;padding:14px;border-radius:10px;text-decoration:none;">☕ Support us on Ko-fi</a>
+    <p style="font-size:11.5px;color:rgba(255,255,255,0.4);margin-top:12px;text-align:center;">100% goes to hosting &amp; email costs. No ads, no data selling, ever.</p>
+  </div>
+</div>
+
 <!-- Terms of Service Modal -->
 <div id="tosModal" onclick="if(event.target===this)this.style.display='none'" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:20px;">
   <div style="background:#F5F0E8;border-radius:16px;max-width:760px;width:100%;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 8px 48px rgba(0,0,0,0.3);">
@@ -175,6 +203,21 @@
 </div>
 
 <script>
+async function openDonateModal() {
+  document.getElementById('donateModal').style.display = 'flex';
+  try {
+    const res = await fetch('/.netlify/functions/donation-status');
+    const data = await res.json();
+    const raised = data.amountRaised ?? 0;
+    const goal = data.goal ?? 20;
+    const pct = Math.max(0, Math.min(100, Math.round((raised / goal) * 100)));
+    document.getElementById('donateMeterText').textContent = `$${raised} / $${goal}`;
+    document.getElementById('donateMeterFill').style.width = pct + '%';
+  } catch (e) {
+    // Fetch failed — leave the placeholder values already in the HTML rather than showing an error
+  }
+}
+
 document.getElementById('tosModal').addEventListener('click', function(e) {
   if (e.target === this) this.style.display = 'none';
 });

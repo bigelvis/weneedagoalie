@@ -47,6 +47,7 @@ function parseDoc(fields) {
     if (v.stringValue !== undefined) out[k] = v.stringValue;
     else if (v.booleanValue !== undefined) out[k] = v.booleanValue;
     else if (v.integerValue !== undefined) out[k] = parseInt(v.integerValue);
+    else if (v.doubleValue !== undefined) out[k] = v.doubleValue;
     else if (v.timestampValue !== undefined) out[k] = v.timestampValue;
     else if (v.arrayValue) out[k] = (v.arrayValue.values || []).map(i => i.stringValue ?? i.integerValue ?? i.booleanValue ?? null);
     else out[k] = null;
@@ -74,6 +75,29 @@ async function updateGoalie(token, id, updates) {
   }
   const mask = Object.keys(updates).map(k => `updateMask.fieldPaths=${k}`).join('&');
   await fetch(`${FIRESTORE_BASE}/goalies/${id}?${mask}`, {
+    method: 'PATCH',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ fields })
+  });
+}
+
+async function getDoc(token, path) {
+  const res = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  if (!res.ok) return {}; // doc doesn't exist yet — treat as empty
+  const data = await res.json();
+  return parseDoc(data.fields);
+}
+
+async function setDoc(token, path, values) {
+  const fields = {};
+  for (const [k, v] of Object.entries(values)) {
+    if (typeof v === 'string') fields[k] = { stringValue: v };
+    else if (typeof v === 'boolean') fields[k] = { booleanValue: v };
+    else if (typeof v === 'number') fields[k] = { doubleValue: v };
+  }
+  await fetch(`${FIRESTORE_BASE}/${path}`, {
     method: 'PATCH',
     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ fields })
@@ -120,6 +144,23 @@ exports.handler = async (event) => {
     if (event.httpMethod === 'POST' && action === 'toggle') {
       const body = JSON.parse(event.body || '{}');
       await updateGoalie(token, id, { active: body.active });
+      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
+    }
+
+    if (event.httpMethod === 'GET' && action === 'getDonation') {
+      const doc = await getDoc(token, 'config/donations');
+      return {
+        statusCode: 200, headers,
+        body: JSON.stringify({ amountRaised: doc.amountRaised ?? 0, goal: doc.goal ?? 20 })
+      };
+    }
+
+    if (event.httpMethod === 'POST' && action === 'setDonation') {
+      const body = JSON.parse(event.body || '{}');
+      await setDoc(token, 'config/donations', {
+        amountRaised: Number(body.amountRaised) || 0,
+        goal: Number(body.goal) || 20,
+      });
       return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
     }
 
