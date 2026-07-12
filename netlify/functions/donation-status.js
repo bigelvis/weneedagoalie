@@ -54,14 +54,13 @@ function parseDoc(fields) {
   return out;
 }
 
-exports.handler = async (event) => {
+exports.handler = async () => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'Content-Type',
     'Content-Type': 'application/json',
     'Cache-Control': 'public, max-age=300', // 5 min edge cache — this number changes rarely
   };
-  const debug = event.queryStringParameters?.debug === '1';
 
   try {
     const token = await getAccessToken();
@@ -72,9 +71,7 @@ exports.handler = async (event) => {
     if (!res.ok) {
       const errText = await res.text();
       console.error('donation-status Firestore read failed:', res.status, errText);
-      const fallback = { amountRaised: 0, goal: 20 };
-      if (debug) fallback.debug = { status: res.status, body: errText };
-      return { statusCode: 200, headers, body: JSON.stringify(fallback) };
+      return { statusCode: 200, headers, body: JSON.stringify({ amountRaised: 0, goal: 20 }) };
     }
 
     const data = await res.json();
@@ -85,8 +82,6 @@ exports.handler = async (event) => {
     };
   } catch (e) {
     console.error('donation-status error:', e);
-    const fallback = { amountRaised: 0, goal: 20 };
-    if (debug) fallback.debug = { error: e.message };
-    return { statusCode: 200, headers, body: JSON.stringify(fallback) };
+    return { statusCode: 200, headers, body: JSON.stringify({ amountRaised: 0, goal: 20 }) };
   }
 };
