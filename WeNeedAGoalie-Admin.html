@@ -121,6 +121,7 @@
   <div class="topbar-logo">WENeedAGoalie<span>.</span>COM <span style="font-size:16px;color:rgba(255,255,255,0.4);letter-spacing:1px">ADMIN</span></div>
   <div style="display:flex;gap:10px;align-items:center">
     <span id="lastRefresh" style="font-size:12px;color:rgba(255,255,255,0.3);font-weight:600"></span>
+    <button class="btn btn-outline" onclick="openDonationModal()">💚 This Month's Donations</button>
     <button class="btn btn-outline" onclick="loadGoalies()">↻ Refresh</button>
     <button class="btn btn-green" onclick="exportGoalies()">⬇ Export JSON</button>
     <button class="btn btn-danger" onclick="confirmClearAll()">⚠ Clear All Goalies</button>
@@ -214,6 +215,25 @@
     <div class="modal-row">
       <button class="btn btn-green" style="flex:1" onclick="saveEdit()">Save Changes</button>
       <button class="btn btn-outline" onclick="closeEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Donation Modal -->
+<div class="modal-overlay" id="donationModal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-title" style="font-size:22px">This Month's Donations</div>
+    <div class="modal-field">
+      <div class="modal-label">Amount Raised ($)</div>
+      <input class="modal-input" id="donationAmount" type="number" min="0" step="1" placeholder="0"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Monthly Goal ($)</div>
+      <input class="modal-input" id="donationGoal" type="number" min="0" step="1" placeholder="20"/>
+    </div>
+    <div class="modal-row">
+      <button class="btn btn-green" style="flex:1" onclick="saveDonation()">Save</button>
+      <button class="btn btn-outline" onclick="closeDonationModal()">Cancel</button>
     </div>
   </div>
 </div>
@@ -378,6 +398,34 @@ function renderTable(goalies) {
       <tbody>${rows}</tbody>
     </table>`;
 }
+
+window.openDonationModal = async () => {
+  try {
+    const data = await API('getDonation');
+    document.getElementById('donationAmount').value = data.amountRaised ?? 0;
+    document.getElementById('donationGoal').value = data.goal ?? 20;
+  } catch(e) {
+    document.getElementById('donationAmount').value = 0;
+    document.getElementById('donationGoal').value = 20;
+  }
+  document.getElementById('donationModal').classList.add('open');
+};
+
+window.closeDonationModal = () => {
+  document.getElementById('donationModal').classList.remove('open');
+};
+
+window.saveDonation = async () => {
+  const amountRaised = parseFloat(document.getElementById('donationAmount').value);
+  const goal = parseFloat(document.getElementById('donationGoal').value);
+  if (isNaN(amountRaised) || amountRaised < 0) { showToast('Enter a valid donation amount', true); return; }
+  if (isNaN(goal) || goal <= 0) { showToast('Enter a valid goal amount', true); return; }
+  try {
+    await API('setDonation', '', 'POST', { amountRaised, goal });
+    closeDonationModal();
+    showToast('Donation total updated ✓');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
 
 window.toggleActive = async (id, currentlyActive) => {
   try {
