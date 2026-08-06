@@ -318,6 +318,25 @@ function checkStep1() {
   );
 }
 
+function makeKeyboardAccessible(el) {
+  if (!el) return;
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  const nativelyKeyboardable = ['BUTTON','A','INPUT','SELECT','TEXTAREA'].includes(el.tagName);
+  if (!nativelyKeyboardable && !el.dataset.kbdBound) {
+    el.dataset.kbdBound = '1';
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    });
+  }
+}
+// Safari (default settings) only includes text inputs/selects/textareas in the
+// Tab order — buttons and custom divs get silently skipped. Explicit tabindex
+// forces inclusion regardless of that setting. Re-run after any dynamic render.
+function fixTabOrder() {
+  document.querySelectorAll('button, .rink-item, #womensToggle, #regYesBtn, #regNoBtn').forEach(makeKeyboardAccessible);
+}
+fixTabOrder();
+
 window.selectBracket = (bracket, btn) => {
   document.querySelectorAll('[id^="ab-"]').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
@@ -443,6 +462,7 @@ window.showMoreRinks = async function() {
   } else {
     paginationRow.innerHTML = '';
   }
+  fixTabOrder();
 }
 
 window.searchCustomRink = async function() {
@@ -476,6 +496,7 @@ window.searchCustomRink = async function() {
         list.appendChild(div);
       });
       resultsDiv.appendChild(list);
+      fixTabOrder();
     }
   } catch(e) {
     resultsDiv.innerHTML = `<div style="font-size:13px;color:var(--red);padding:8px 0;">Search failed. Please try again.</div>`;
