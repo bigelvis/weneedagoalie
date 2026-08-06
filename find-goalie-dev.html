@@ -169,7 +169,10 @@
       <div id="gameTimeSection" style="margin-top:1.25rem">
         <div class="two-col">
           <div class="field" style="margin-bottom:0"><label class="label">Game date <span class="req">*</span></label><input type="date" id="fdate" /></div>
-          <div class="field" style="margin-bottom:0"><label class="label">Game time <span class="req">*</span></label><input type="time" id="ftime" /></div>
+          <div class="field" style="margin-bottom:0">
+            <label class="label">Game time <span class="req">*</span></label>
+            <input type="text" id="ftime" placeholder="e.g. 7:30 PM, 10, 6:45" />
+          </div>
         </div>
         <div class="field" style="margin-top:1.25rem">
           <label class="label">League age bracket <span class="req">*</span></label>
@@ -296,8 +299,8 @@ SKILL_LEVELS.forEach(lv => {
 // Set today as min date
 const d=new Date(), pad=n=>String(n).padStart(2,'0');
 document.getElementById('fdate').min=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-['fdate','ftime'].forEach(id=>document.getElementById(id).addEventListener('change',checkStep1));
-['fteam','fcontact','fcemail'].forEach(id=>document.getElementById(id).addEventListener('input',checkStep1));
+document.getElementById('fdate').addEventListener('change', checkStep1);
+['fteam','fcontact','fcemail','ftime'].forEach(id=>document.getElementById(id).addEventListener('input',checkStep1));
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'customRinkSearch') searchCustomRink();
 });
@@ -516,16 +519,15 @@ function toggleLevel(lv, btn) {
 }
 
 window.goStep3 = () => {
-  const dt=new Date(state.date+'T'+state.time);
+  const dt=new Date(state.date+'T00:00:00');
   const fmtDate=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  const fmtTime=dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
   const lvlBadges=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-red">${l.label} – ${l.name}</span>`).join('');
   document.getElementById('reviewContent').innerHTML=`
     <table class="review-table">
       <tr><td class="rs" colspan="2">Game info</td></tr>
       <tr><td class="rl">Team</td><td style="font-weight:800">${state.team}</td></tr>
       <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink}</td></tr>
-      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${fmtDate} at ${fmtTime}</td></tr>
+      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${fmtDate} at ${state.time}</td></tr>
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket}</td></tr>
       ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
@@ -579,15 +581,14 @@ window.submitRequest = async () => {
 
     // Show confirmation screen
     document.getElementById('step3').style.display='none';
-    const dt=new Date(state.date+'T'+state.time);
+    const dt=new Date(state.date+'T00:00:00');
     const fmtDate=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
-    const fmtTime=dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
 
     document.getElementById('confirmCard').style.display='block';
     document.getElementById('confirmCard').scrollIntoView({behavior:'smooth', block:'start'});
     document.getElementById('confirmMsg').innerHTML=
       `We sent a confirmation email to <strong>${state.cemail}</strong>.<br><br>
-      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${fmtDate} at ${fmtTime}</strong> at <strong>${state.rink}</strong>.<br><br>
+      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${fmtDate} at ${state.time}</strong> at <strong>${state.rink}</strong>.<br><br>
       <span style="font-size:14px;color:#5A6480;">Check your spam folder if you don't see it in a minute.</span>`;
 
   } catch(e) {
