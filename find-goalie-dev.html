@@ -151,7 +151,7 @@
       </div>
       <div id="gameTimeSection" style="margin-top:1.25rem">
         <div class="two-col">
-          <div class="field" style="margin-bottom:0"><label class="label">Game date <span class="req">*</span></label><input type="date" id="fdate" /></div>
+          <div class="field" style="margin-bottom:0"><label class="label">Game date <span class="req">*</span></label><input type="text" id="fdate" placeholder="e.g. Friday, Aug 15" /></div>
           <div class="field" style="margin-bottom:0">
             <label class="label">Game time <span class="req">*</span></label>
             <input type="text" id="ftime" placeholder="e.g. 7:30 PM, 10, 6:45" />
@@ -277,11 +277,7 @@ SKILL_LEVELS.forEach(lv => {
   grid.appendChild(b);
 });
 
-// Set today as min date
-const d=new Date(), pad=n=>String(n).padStart(2,'0');
-document.getElementById('fdate').min=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-document.getElementById('fdate').addEventListener('change', updateForm);
-['fteam','fcontact','fcemail','fcphone','ftime','fnotes'].forEach(id=>document.getElementById(id).addEventListener('input',updateForm));
+['fteam','fcontact','fcemail','fcphone','fdate','ftime','fnotes'].forEach(id=>document.getElementById(id).addEventListener('input',updateForm));
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'customRinkSearch') searchCustomRink();
 });
@@ -293,7 +289,7 @@ function isFormComplete() {
     document.getElementById('fcemail').value.trim() &&
     state.rink &&
     state.ageBracket &&
-    document.getElementById('fdate').value &&
+    document.getElementById('fdate').value.trim() &&
     document.getElementById('ftime').value.trim() &&
     state.regRequired !== null &&
     state.levels.length > 0
@@ -305,17 +301,12 @@ function syncState() {
   state.contact=document.getElementById('fcontact').value.trim();
   state.cemail=document.getElementById('fcemail').value.trim();
   state.cphone=document.getElementById('fcphone').value.trim();
-  state.date=document.getElementById('fdate').value;
+  state.date=document.getElementById('fdate').value.trim();
   state.time=document.getElementById('ftime').value.trim();
   state.notes=document.getElementById('fnotes').value.trim();
 }
 
 function renderReview() {
-  let dateLine = '—';
-  if (state.date) {
-    const dt = new Date(state.date+'T00:00:00');
-    if (!isNaN(dt)) dateLine = dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  }
   const lvlBadges = SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-red">${l.label} – ${l.name}</span>`).join('')
     || '<span style="color:var(--muted)">None selected yet</span>';
   document.getElementById('reviewContent').innerHTML = `
@@ -323,7 +314,7 @@ function renderReview() {
       <tr><td class="rs" colspan="2">Game info</td></tr>
       <tr><td class="rl">Team</td><td style="font-weight:800">${state.team || '—'}</td></tr>
       <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink || '—'}</td></tr>
-      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${dateLine}${state.time?' at '+state.time:''}</td></tr>
+      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${state.date || '—'}${state.time?' at '+state.time:''}</td></tr>
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket || '—'}</td></tr>
       ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
@@ -598,14 +589,12 @@ window.submitRequest = async () => {
 
     // Show confirmation screen
     document.getElementById('step3').style.display='none';
-    const dt=new Date(state.date+'T00:00:00');
-    const fmtDate=dt.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
 
     document.getElementById('confirmCard').style.display='block';
     document.getElementById('confirmCard').scrollIntoView({behavior:'smooth', block:'start'});
     document.getElementById('confirmMsg').innerHTML=
       `We sent a confirmation email to <strong>${state.cemail}</strong>.<br><br>
-      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${fmtDate} at ${state.time}</strong> at <strong>${state.rink}</strong>.<br><br>
+      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${state.date} at ${state.time}</strong> at <strong>${state.rink}</strong>.<br><br>
       <span style="font-size:14px;color:#5A6480;">Check your spam folder if you don't see it in a minute.</span>`;
 
   } catch(e) {
