@@ -222,7 +222,6 @@
         </div>
       </div>
     </div>
-    <button class="btn-next" id="next1" onclick="goStep2()" disabled>Continue to Skill Level →</button>
   </div>
 
   <div id="step2" class="page-section">
@@ -232,7 +231,6 @@
       <div class="level-grid" id="levelGrid"></div>
       <div class="level-note" id="levelNote"></div>
     </div>
-    <button class="btn-next" id="next2" onclick="goStep3()" disabled>Review Request →</button>
   </div>
 
   <div id="step3" class="page-section">
@@ -242,7 +240,7 @@
       <div id="reviewContent"></div>
     </div>
     <div class="err-msg" id="errMsg"></div>
-    <button class="btn-next" id="submitBtn" onclick="submitRequest()" style="background:var(--green)">Send My Confirmation Email →</button>
+    <button class="btn-next" id="submitBtn" onclick="submitRequest()" disabled>Send My Confirmation Email →</button>
   </div>
 
   <div class="confirm-card" id="confirmCard">
@@ -299,23 +297,70 @@ SKILL_LEVELS.forEach(lv => {
 // Set today as min date
 const d=new Date(), pad=n=>String(n).padStart(2,'0');
 document.getElementById('fdate').min=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-document.getElementById('fdate').addEventListener('change', checkStep1);
-['fteam','fcontact','fcemail','ftime'].forEach(id=>document.getElementById(id).addEventListener('input',checkStep1));
+document.getElementById('fdate').addEventListener('change', updateForm);
+['fteam','fcontact','fcemail','fcphone','ftime','fnotes'].forEach(id=>document.getElementById(id).addEventListener('input',updateForm));
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'customRinkSearch') searchCustomRink();
 });
 
-function checkStep1() {
-  document.getElementById('next1').disabled = !(
+function isFormComplete() {
+  return !!(
     document.getElementById('fteam').value.trim() &&
     document.getElementById('fcontact').value.trim() &&
     document.getElementById('fcemail').value.trim() &&
     state.rink &&
     state.ageBracket &&
     document.getElementById('fdate').value &&
-    document.getElementById('ftime').value &&
-    state.regRequired !== null
+    document.getElementById('ftime').value.trim() &&
+    state.regRequired !== null &&
+    state.levels.length > 0
   );
+}
+
+function syncState() {
+  state.team=document.getElementById('fteam').value.trim();
+  state.contact=document.getElementById('fcontact').value.trim();
+  state.cemail=document.getElementById('fcemail').value.trim();
+  state.cphone=document.getElementById('fcphone').value.trim();
+  state.date=document.getElementById('fdate').value;
+  state.time=document.getElementById('ftime').value.trim();
+  state.notes=document.getElementById('fnotes').value.trim();
+}
+
+function renderReview() {
+  let dateLine = '—';
+  if (state.date) {
+    const dt = new Date(state.date+'T00:00:00');
+    if (!isNaN(dt)) dateLine = dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  }
+  const lvlBadges = SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-red">${l.label} – ${l.name}</span>`).join('')
+    || '<span style="color:var(--muted)">None selected yet</span>';
+  document.getElementById('reviewContent').innerHTML = `
+    <table class="review-table">
+      <tr><td class="rs" colspan="2">Game info</td></tr>
+      <tr><td class="rl">Team</td><td style="font-weight:800">${state.team || '—'}</td></tr>
+      <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink || '—'}</td></tr>
+      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${dateLine}${state.time?' at '+state.time:''}</td></tr>
+      <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
+      <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket || '—'}</td></tr>
+      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
+      ${state.regRequired===true?`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:#C8940A;">⚠️ Yes</td></tr>`:''}
+      ${state.regRequired===false?`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:var(--muted)">No</td></tr>`:''}
+      <tr><td class="rl">Notes for the goalie</td><td style="color:var(--muted)">${state.notes || '—'}</td></tr>
+      <tr><td class="rs" colspan="2">Contact info</td></tr>
+      <tr><td class="rl">Contact</td><td style="font-weight:800">${state.contact || '—'}</td></tr>
+      <tr><td class="rl">Email</td><td style="font-weight:800">${state.cemail || '—'}</td></tr>
+      ${state.cphone?`<tr><td class="rl">Phone</td><td style="font-weight:800">${state.cphone}</td></tr>`:''}
+    </table>`;
+}
+
+function updateForm() {
+  syncState();
+  renderReview();
+  const btn = document.getElementById('submitBtn');
+  const ready = isFormComplete();
+  btn.disabled = !ready;
+  btn.style.background = ready ? 'var(--green)' : '';
 }
 
 function makeKeyboardAccessible(el) {
@@ -336,12 +381,13 @@ function fixTabOrder() {
   document.querySelectorAll('button, .rink-item, #womensToggle, #regYesBtn, #regNoBtn').forEach(makeKeyboardAccessible);
 }
 fixTabOrder();
+updateForm();
 
 window.selectBracket = (bracket, btn) => {
   document.querySelectorAll('[id^="ab-"]').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   state.ageBracket = bracket;
-  checkStep1();
+  updateForm();
 };
 
 window.toggleWomens = () => {
@@ -382,7 +428,7 @@ window.setRegRequired = (val) => {
     yesBtn.style.borderColor = 'var(--border)'; yesBtn.style.background = '#fff';
     yesRadio.style.background = '#fff'; yesRadio.style.borderColor = 'var(--border)'; yesRadio.innerHTML = '';
   }
-  checkStep1();
+  updateForm();
 };
 
 let allRinks = [];
@@ -401,7 +447,7 @@ window.findRinks = async () => {
   btn.disabled = true; btn.textContent = 'Searching...';
   document.getElementById('rinkResults').innerHTML = '';
   document.querySelectorAll('.rink-item').forEach(el => el.classList.remove('selected'));
-  checkStep1();
+  updateForm();
   try {
     const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}`);
     const data = await resp.json();
@@ -508,19 +554,8 @@ window.selectRink = (i, name) => {
   document.querySelectorAll('.rink-item').forEach(el => el.classList.remove('selected'));
   document.getElementById('rink'+i).classList.add('selected');
   state.rink=name;
-  checkStep1();
+  updateForm();
   document.getElementById('gameTimeSection').scrollIntoView({behavior:'smooth', block:'nearest'});
-};
-
-window.goStep2 = () => {
-  state.team=document.getElementById('fteam').value.trim();
-  state.contact=document.getElementById('fcontact').value.trim();
-  state.cemail=document.getElementById('fcemail').value.trim();
-  state.cphone=document.getElementById('fcphone').value.trim();
-  state.date=document.getElementById('fdate').value;
-  state.time=document.getElementById('ftime').value;
-  state.notes=document.getElementById('fnotes').value.trim();
-  setStep(2);
 };
 
 function toggleLevel(lv, btn) {
@@ -533,34 +568,10 @@ function toggleLevel(lv, btn) {
     btn.style.cssText=`border-color:${lv.color}55`;
     state.levels=state.levels.filter(x=>x!==lv.id);
   }
-  document.getElementById('next2').disabled=state.levels.length===0;
   const sel=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
   document.getElementById('levelNote').textContent=sel.length?'Accepting: '+sel.join(', '):'';
-  scheduleAutoAdvance(() => state.levels.length > 0, () => window.goStep3());
+  updateForm();
 }
-
-window.goStep3 = () => {
-  const dt=new Date(state.date+'T00:00:00');
-  const fmtDate=dt.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-  const lvlBadges=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-red">${l.label} – ${l.name}</span>`).join('');
-  document.getElementById('reviewContent').innerHTML=`
-    <table class="review-table">
-      <tr><td class="rs" colspan="2">Game info</td></tr>
-      <tr><td class="rl">Team</td><td style="font-weight:800">${state.team}</td></tr>
-      <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink}</td></tr>
-      <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${fmtDate} at ${state.time}</td></tr>
-      <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
-      <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket}</td></tr>
-      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Yes</td></tr>`:''}
-      ${state.regRequired?`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:#C8940A;">⚠️ Yes</td></tr>`:`<tr><td class="rl">Reg # Req'd</td><td style="font-weight:800;color:var(--muted)">No</td></tr>`}
-      ${state.notes?`<tr><td class="rl">Notes</td><td style="color:var(--muted)">${state.notes}</td></tr>`:''}
-      <tr><td class="rs" colspan="2">Contact info</td></tr>
-      <tr><td class="rl">Contact</td><td style="font-weight:800">${state.contact}</td></tr>
-      <tr><td class="rl">Email</td><td style="font-weight:800">${state.cemail}</td></tr>
-      ${state.cphone?`<tr><td class="rl">Phone</td><td style="font-weight:800">${state.cphone}</td></tr>`:''}
-    </table>`;
-  setStep(3);
-};
 
 window.submitRequest = async () => {
   const btn=document.getElementById('submitBtn');
@@ -633,14 +644,8 @@ function updateActivePill(n) {
   });
 }
 
-// Kept as the entry point used by goStep2/goStep3/submitRequest — now
-// scrolls to the section instead of toggling display:none/block.
-function setStep(n) {
-  updateActivePill(n);
-  scrollToStep(n);
-}
-
-// Every section is always in the DOM now, so every pill is clickable
+// Every section is always in the DOM and freely editable — pills are just
+// a scroll-position indicator/shortcut now, not a gate
 [1,2,3].forEach(i=>{
   const sp=document.getElementById('sp'+i);
   sp.style.cursor='pointer';
@@ -657,14 +662,6 @@ const stepObserver = new IntersectionObserver((entries)=>{
   });
 }, {threshold:[0.5]});
 sectionEls.forEach(el => el && stepObserver.observe(el));
-
-// Debounced auto-advance for selection-driven steps (skill level)
-let autoAdvanceTimer = null;
-function scheduleAutoAdvance(readyFn, advanceFn) {
-  if (autoAdvanceTimer) clearTimeout(autoAdvanceTimer);
-  if (!readyFn()) return;
-  autoAdvanceTimer = setTimeout(() => { if (readyFn()) advanceFn(); }, 900);
-}
 </script>
 <footer style="background:#060E1A;padding:1rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
   <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:2px;">WENeedAGoalie<span style="color:#F5A623;">.</span>com</span>
