@@ -513,7 +513,9 @@ window.captureRink = function(r) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ place_id: r.place_id }),
-  }).catch(() => {});
+  }).then(async res => {
+    if (!res.ok) console.error('captureRink failed:', res.status, await res.text());
+  }).catch(err => console.error('captureRink network error:', err));
 };
 
 window.searchCustomRink = async function() {

@@ -9,118 +9,118 @@
     *{box-sizing:border-box;margin:0;padding:0}
     :root{
       --navy:#0A1628;--navy2:#0d2e5e;--red:#C8102E;--red-light:#FFE8E4;
-      --blue:#2a5298;--ice:#e8f4fd;--border:#D0D8E8;--muted:#5A6480;
+      --blue:#2a5298;--ice:#e8f4fd;--border:#D8DEE9;--muted:#5A6480;
       --green:#1A7A3E;--green-light:#E6F4EC;--white:#fff;--text:#1A2340;
-      --gold:#F5A623;--radius:12px;
+      --gold:#F5A623;--radius:12px;--bg:#F5F7FA;--card:#fff;
     }
-    body{font-family:'Nunito',sans-serif;background:var(--navy);color:var(--white);min-height:100vh}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
     /* LOGIN SCREEN */
     .login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
-    .login-card{background:rgba(255,255,255,0.06);border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center}
-    .login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff;margin-bottom:4px}
+    .login-card{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:2.5rem;width:100%;max-width:380px;text-align:center;box-shadow:0 4px 24px rgba(10,22,40,0.06)}
+    .login-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--text);margin-bottom:4px}
     .login-logo span{color:var(--red)}
-    .login-sub{font-size:13px;color:rgba(255,255,255,0.4);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2rem}
-    .login-input{width:100%;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);border-radius:10px;padding:14px 16px;color:#fff;font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;margin-bottom:12px}
-    .login-input:focus{border-color:rgba(255,255,255,0.4)}
+    .login-sub{font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:2rem}
+    .login-input{width:100%;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:16px;font-weight:600;outline:none;margin-bottom:12px}
+    .login-input:focus{border-color:var(--blue)}
     .login-btn{width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-size:16px;font-weight:800;cursor:pointer;transition:all 0.15s}
     .login-btn:hover{background:#a00f24}
-    .login-err{font-size:13px;color:#f87171;margin-top:10px;font-weight:700;display:none}
+    .login-err{font-size:13px;color:var(--red);margin-top:10px;font-weight:700;display:none}
 
     /* TOP BAR */
-    .topbar{background:var(--navy2);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid rgba(255,255,255,0.08)}
-    .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:#fff}
+    .topbar{background:var(--card);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;border-bottom:1.5px solid var(--border)}
+    .topbar-logo{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:3px;color:var(--text)}
     .topbar-logo span{color:var(--red)}
     .topbar-badge{background:var(--red);color:#fff;font-size:11px;font-weight:800;padding:4px 10px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
 
     /* STATS ROW */
     .stats-row{display:flex;gap:16px;padding:24px 32px 0;flex-wrap:wrap}
-    .stat-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:18px 24px;flex:1;min-width:140px}
-    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;color:#fff}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px 24px;flex:1;min-width:140px}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:42px;line-height:1;color:var(--text)}
     .stat-num.red{color:var(--red)}
-    .stat-num.gold{color:var(--gold)}
-    .stat-num.green{color:#4ade80}
-    .stat-label{font-size:12px;font-weight:700;color:rgba(255,255,255,0.5);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
+    .stat-num.gold{color:#B8790E}
+    .stat-num.green{color:var(--green)}
+    .stat-label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-top:4px}
 
     /* TOOLBAR */
     .toolbar{padding:20px 32px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-    .search-box{flex:1;min-width:200px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 16px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
-    .search-box::placeholder{color:rgba(255,255,255,0.3)}
-    .search-box:focus{border-color:rgba(255,255,255,0.4);background:rgba(255,255,255,0.12)}
-    .filter-select{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;outline:none}
-    .filter-select option{background:#1a2340;color:#fff}
+    .search-box{flex:1;min-width:200px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 16px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
+    .search-box::placeholder{color:#A8B0C4}
+    .search-box:focus{border-color:var(--blue)}
+    .filter-select{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;cursor:pointer;outline:none}
+    .filter-select option{background:#fff;color:var(--text)}
     .btn{padding:10px 20px;border-radius:8px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;border:none;transition:all 0.15s;letter-spacing:0.3px}
     .btn-danger{background:var(--red);color:#fff}
     .btn-danger:hover{background:#a00f24}
-    .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,0.3)}
-    .btn-outline:hover{background:rgba(255,255,255,0.08)}
+    .btn-outline{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+    .btn-outline:hover{background:var(--bg)}
     .btn-green{background:var(--green);color:#fff}
     .btn-green:hover{background:#155f30}
 
     /* TABLE */
     .table-wrap{padding:0 32px 32px;overflow-x:auto}
-    table{width:100%;border-collapse:collapse;font-size:14px}
-    thead tr{border-bottom:1px solid rgba(255,255,255,0.1)}
-    th{text-align:left;padding:12px 14px;font-size:11px;font-weight:800;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap}
-    tbody tr{border-bottom:1px solid rgba(255,255,255,0.05);transition:background 0.1s}
-    tbody tr:hover{background:rgba(255,255,255,0.04)}
+    table{width:100%;border-collapse:collapse;font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius)}
+    thead tr{border-bottom:1px solid var(--border)}
+    th{text-align:left;padding:12px 14px;font-size:11px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:0.8px;white-space:nowrap}
+    tbody tr{border-bottom:1px solid var(--border);transition:background 0.1s}
+    tbody tr:hover{background:var(--bg)}
     td{padding:14px 14px;vertical-align:top}
-    .goalie-name{font-weight:800;font-size:15px}
-    .goalie-email{font-size:13px;color:rgba(255,255,255,0.5);margin-top:2px}
+    .goalie-name{font-weight:800;font-size:15px;color:var(--text)}
+    .goalie-email{font-size:13px;color:var(--muted);margin-top:2px}
     .badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;margin:2px}
-    .badge-active{background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3)}
-    .badge-inactive{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4);border:1px solid rgba(255,255,255,0.1)}
-    .badge-level{background:rgba(200,16,46,0.15);color:#f87171;border:1px solid rgba(200,16,46,0.2)}
-    .badge-rink{background:rgba(42,82,152,0.3);color:#93c5fd;border:1px solid rgba(42,82,152,0.4);font-size:10px}
+    .badge-active{background:rgba(26,122,62,0.10);color:var(--green);border:1px solid rgba(26,122,62,0.25)}
+    .badge-inactive{background:#F0F2F5;color:var(--muted);border:1px solid var(--border)}
+    .badge-level{background:rgba(200,16,46,0.08);color:var(--red);border:1px solid rgba(200,16,46,0.2)}
+    .badge-rink{background:rgba(42,82,152,0.10);color:var(--blue);border:1px solid rgba(42,82,152,0.25);font-size:10px}
     .rinks-cell{max-width:260px}
     .action-btns{display:flex;gap:8px;align-items:center}
     .icon-btn{width:32px;height:32px;border-radius:8px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all 0.15s}
-    .icon-btn-toggle{background:rgba(74,222,128,0.1);color:#4ade80}
-    .icon-btn-toggle:hover{background:rgba(74,222,128,0.25)}
-    .icon-btn-toggle.inactive{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)}
-    .icon-btn-delete{background:rgba(200,16,46,0.1);color:#f87171}
-    .icon-btn-delete:hover{background:rgba(200,16,46,0.25)}
-    .icon-btn-edit{background:rgba(42,82,152,0.2);color:#93c5fd}
-    .icon-btn-edit:hover{background:rgba(42,82,152,0.4)}
-    .empty-state{text-align:center;padding:60px;color:rgba(255,255,255,0.3)}
+    .icon-btn-toggle{background:rgba(26,122,62,0.08);color:var(--green)}
+    .icon-btn-toggle:hover{background:rgba(26,122,62,0.18)}
+    .icon-btn-toggle.inactive{background:#F0F2F5;color:var(--muted)}
+    .icon-btn-delete{background:rgba(200,16,46,0.08);color:var(--red)}
+    .icon-btn-delete:hover{background:rgba(200,16,46,0.18)}
+    .icon-btn-edit{background:rgba(42,82,152,0.10);color:var(--blue)}
+    .icon-btn-edit:hover{background:rgba(42,82,152,0.22)}
+    .empty-state{text-align:center;padding:60px;color:#A8B0C4}
     .empty-state div{font-size:48px;margin-bottom:12px}
-    .loading{text-align:center;padding:60px;color:rgba(255,255,255,0.4);font-size:16px;font-weight:600}
+    .loading{text-align:center;padding:60px;color:var(--muted);font-size:16px;font-weight:600}
 
     /* MODAL */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
+    .modal-overlay{position:fixed;inset:0;background:rgba(10,22,40,0.5);z-index:100;display:none;align-items:center;justify-content:center;padding:20px}
     .modal-overlay.open{display:flex}
-    .modal{background:#1a2340;border:1.5px solid rgba(255,255,255,0.12);border-radius:16px;padding:32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto}
-    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:20px;color:#fff}
+    .modal{background:var(--card);border:1.5px solid var(--border);border-radius:16px;padding:32px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 8px 40px rgba(10,22,40,0.2)}
+    .modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;margin-bottom:20px;color:var(--text)}
     .modal-field{margin-bottom:16px}
-    .modal-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.5);margin-bottom:6px}
-    .modal-input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:10px 14px;color:#fff;font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
-    .modal-input:focus{border-color:rgba(255,255,255,0.4)}
+    .modal-label{font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;color:var(--muted);margin-bottom:6px}
+    .modal-input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'Nunito',sans-serif;font-size:14px;font-weight:600;outline:none}
+    .modal-input:focus{border-color:var(--blue)}
     .modal-row{display:flex;gap:12px;margin-top:20px}
-    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:none;align-items:center;justify-content:center}
+    .confirm-overlay{position:fixed;inset:0;background:rgba(10,22,40,0.6);z-index:200;display:none;align-items:center;justify-content:center}
     .confirm-overlay.open{display:flex}
-    .confirm-box{background:#1a2340;border:1.5px solid rgba(200,16,46,0.4);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center}
+    .confirm-box{background:var(--card);border:1.5px solid rgba(200,16,46,0.3);border-radius:16px;padding:32px;width:100%;max-width:400px;text-align:center;box-shadow:0 8px 40px rgba(10,22,40,0.2)}
     .confirm-box h3{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:2px;color:var(--red);margin-bottom:12px}
-    .confirm-box p{color:rgba(255,255,255,0.6);font-size:14px;line-height:1.6;margin-bottom:20px}
+    .confirm-box p{color:var(--muted);font-size:14px;line-height:1.6;margin-bottom:20px}
     .confirm-row{display:flex;gap:12px;justify-content:center}
 
     /* TOAST */
-    .toast{position:fixed;bottom:24px;right:24px;background:#1a2340;border:1.5px solid rgba(74,222,128,0.4);border-radius:10px;padding:14px 20px;font-size:14px;font-weight:700;color:#4ade80;z-index:300;transform:translateY(80px);opacity:0;transition:all 0.3s}
+    .toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1.5px solid rgba(26,122,62,0.3);border-radius:10px;padding:14px 20px;font-size:14px;font-weight:700;color:var(--green);z-index:300;transform:translateY(80px);opacity:0;transition:all 0.3s;box-shadow:0 4px 20px rgba(10,22,40,0.12)}
     .toast.show{transform:translateY(0);opacity:1}
-    .toast.error{border-color:rgba(200,16,46,0.4);color:#f87171}
+    .toast.error{border-color:rgba(200,16,46,0.3);color:var(--red)}
 
     .checkbox-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-    .checkbox-item{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.15s}
-    .checkbox-item:hover{background:rgba(255,255,255,0.1)}
-    .checkbox-item.checked{background:rgba(42,82,152,0.3);border-color:rgba(42,82,152,0.5);color:#93c5fd}
+    .checkbox-item{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:7px 12px;cursor:pointer;font-size:13px;font-weight:700;transition:all 0.15s;color:var(--text)}
+    .checkbox-item:hover{background:#EAEEF4}
+    .checkbox-item.checked{background:rgba(42,82,152,0.10);border-color:rgba(42,82,152,0.35);color:var(--blue)}
     .checkbox-item input{display:none}
   </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="topbar-logo">WENeedAGoalie<span>.</span>COM <span style="font-size:16px;color:rgba(255,255,255,0.4);letter-spacing:1px">ADMIN</span></div>
+  <div class="topbar-logo">WENeedAGoalie<span>.</span>COM <span style="font-size:16px;color:var(--muted);letter-spacing:1px">ADMIN</span></div>
   <div style="display:flex;gap:10px;align-items:center">
-    <span id="lastRefresh" style="font-size:12px;color:rgba(255,255,255,0.3);font-weight:600"></span>
+    <span id="lastRefresh" style="font-size:12px;color:#A8B0C4;font-weight:600"></span>
     <button class="btn btn-outline" onclick="openDonationModal()">💚 This Month's Donations</button>
     <button class="btn btn-outline" onclick="toggleRinksPanel()">🏒 Manage Rinks</button>
     <button class="btn btn-outline" onclick="loadGoalies()">↻ Refresh</button>
@@ -139,14 +139,15 @@
 </div>
 
 <div id="rinksPanel" style="display:none;padding:0 32px;">
-  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:20px;margin-bottom:8px;">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:8px;">
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
       <div>
         <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;">🏒 Manually Added Rinks</div>
-        <div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">Auto-added whenever someone picks a rink from "Can't find your rink?" — review and remove anything bad here</div>
+        <div style="font-size:12px;color:var(--muted);font-weight:600;margin-top:2px;">Auto-added whenever someone picks a rink from "Can't find your rink?" — review and remove anything bad here</div>
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <input class="search-box" id="rinkSearchBox" placeholder="🔍 Search by name or address..." oninput="filterRinks()" style="min-width:220px;"/>
+        <button class="btn btn-green" onclick="openRinkAdd()">+ Add Rink</button>
         <button class="btn btn-outline" onclick="loadRinks()">↻ Refresh</button>
       </div>
     </div>
@@ -205,8 +206,8 @@
       <input class="modal-input" id="editEmail" type="email"/>
     </div>
     <div class="modal-field">
-      <div class="modal-label">Legacy Age Range <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:600">(will clear when you save brackets)</span></div>
-      <div id="editLegacyAge" style="font-size:14px;color:rgba(255,255,255,0.5);padding:6px 0;font-weight:600">—</div>
+      <div class="modal-label">Legacy Age Range <span style="font-size:10px;color:#A8B0C4;font-weight:600">(will clear when you save brackets)</span></div>
+      <div id="editLegacyAge" style="font-size:14px;color:var(--muted);padding:6px 0;font-weight:600">—</div>
     </div>
     <div class="modal-field">
       <div class="modal-label">Age Brackets</div>
@@ -228,6 +229,10 @@
     <div class="modal-field">
       <div class="modal-label">Skill Levels</div>
       <div class="checkbox-group" id="editLevels"></div>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Rinks <span style="font-size:10px;color:#A8B0C4;font-weight:600">(one per line)</span></div>
+      <textarea class="modal-input" id="editRinks" rows="4" style="resize:vertical;font-family:'Nunito',sans-serif;"></textarea>
     </div>
     <div class="modal-row">
       <button class="btn btn-green" style="flex:1" onclick="saveEdit()">Save Changes</button>
@@ -253,12 +258,36 @@
       <input class="modal-input" id="rinkEditCity" type="text"/>
     </div>
     <div class="modal-field">
-      <div class="modal-label">Coordinates <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:600">(reference only — not editable here)</span></div>
-      <div id="rinkEditCoords" style="font-size:14px;color:rgba(255,255,255,0.5);padding:6px 0;font-weight:600">—</div>
+      <div class="modal-label">Coordinates <span style="font-size:10px;color:#A8B0C4;font-weight:600">(reference only — not editable here)</span></div>
+      <div id="rinkEditCoords" style="font-size:14px;color:var(--muted);padding:6px 0;font-weight:600">—</div>
     </div>
     <div class="modal-row">
       <button class="btn btn-green" style="flex:1" onclick="saveRinkEdit()">Save Changes</button>
       <button class="btn btn-outline" onclick="closeRinkEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Rink Modal -->
+<div class="modal-overlay" id="rinkAddModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title" style="font-size:22px">Add Rink</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">We'll look up the exact coordinates from the address automatically.</div>
+    <div class="modal-field">
+      <div class="modal-label">Rink Name</div>
+      <input class="modal-input" id="rinkAddName" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Address</div>
+      <input class="modal-input" id="rinkAddAddress" type="text" placeholder="e.g. 627 N Glebe Rd"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">City <span style="font-size:10px;color:#A8B0C4;font-weight:600">(optional, improves accuracy)</span></div>
+      <input class="modal-input" id="rinkAddCity" type="text" placeholder="e.g. Arlington, VA"/>
+    </div>
+    <div class="modal-row">
+      <button class="btn btn-green" style="flex:1" id="rinkAddSaveBtn" onclick="saveRinkAdd()">Add Rink</button>
+      <button class="btn btn-outline" onclick="closeRinkAdd()">Cancel</button>
     </div>
   </div>
 </div>
@@ -301,7 +330,7 @@ const STORAGE_KEY = 'wng_admin_secret';
 let ADMIN_SECRET = localStorage.getItem(STORAGE_KEY);
 if (!ADMIN_SECRET) {
   ADMIN_SECRET = prompt('Enter admin password:');
-  if (!ADMIN_SECRET) { document.body.innerHTML = '<div style="color:#fff;padding:2rem;font-size:1.5rem">Access denied.</div>'; throw new Error('No password'); }
+  if (!ADMIN_SECRET) { document.body.innerHTML = '<div style="color:#1A2340;padding:2rem;font-size:1.5rem">Access denied.</div>'; throw new Error('No password'); }
   localStorage.setItem(STORAGE_KEY, ADMIN_SECRET);
 }
 
@@ -402,11 +431,11 @@ function renderTable(goalies) {
     const rinkBadges = (g.rinks||[]).map(r => `<span class="badge badge-rink">${r}</span>`).join('');
     const signedUp = g.createdAt ? new Date(g.createdAt).toLocaleDateString() : '—';
     const ageBrackets = (g.ageBrackets||[]).length
-      ? (g.ageBrackets||[]).map(b => `<span class="badge" style="background:rgba(245,166,35,0.15);color:#F5A623;border:1px solid rgba(245,166,35,0.3)">${b}</span>`).join('')
-      : (g.age ? `<span style="font-size:12px;color:rgba(255,255,255,0.35)">${g.age} (legacy)</span>` : '—');
+      ? (g.ageBrackets||[]).map(b => `<span class="badge" style="background:rgba(184,121,14,0.10);color:#B8790E;border:1px solid rgba(184,121,14,0.25)">${b}</span>`).join('')
+      : (g.age ? `<span style="font-size:12px;color:#A8B0C4">${g.age} (legacy)</span>` : '—');
     const womens = g.womens === true
       ? `<span class="badge badge-active">✓ Yes</span>`
-      : `<span style="font-size:12px;color:rgba(255,255,255,0.25)">—</span>`;
+      : `<span style="font-size:12px;color:#C5CBDA">—</span>`;
     const location = g.location || g.zip || '—';
 
     return `<tr>
@@ -419,13 +448,13 @@ function renderTable(goalies) {
       <td>${womens}</td>
       <td>${levelBadges || '—'}</td>
       <td class="rinks-cell">${rinkBadges || '—'}</td>
-      <td style="font-size:12px;color:rgba(255,255,255,0.5)">${location}</td>
+      <td style="font-size:12px;color:var(--muted)">${location}</td>
       <td style="font-size:13px">${signedUp}</td>
       <td>
         <span style="display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:800;
-          background:${hasLogin ? 'rgba(74,222,128,0.15)' : 'rgba(255,255,255,0.06)'};
-          color:${hasLogin ? '#4ade80' : 'rgba(255,255,255,0.35)'};
-          border:1px solid ${hasLogin ? 'rgba(74,222,128,0.3)' : 'rgba(255,255,255,0.1)'}">
+          background:${hasLogin ? 'rgba(26,122,62,0.10)' : '#F0F2F5'};
+          color:${hasLogin ? 'var(--green)' : 'var(--muted)'};
+          border:1px solid ${hasLogin ? 'rgba(26,122,62,0.25)' : 'var(--border)'}">
           ${hasLogin ? '✓ Set up' : '— Not set up'}
         </span>
       </td>
@@ -516,6 +545,10 @@ window.openEdit = (id) => {
     <div class="checkbox-item ${(g.levels||[]).includes(lv.id) ? 'checked' : ''}" id="lvlchk-${lv.id}" onclick="toggleLevelCheck('${lv.id}')">
       ${lv.label} – ${lv.name}
     </div>`).join('');
+
+  // Rinks
+  document.getElementById('editRinks').value = (g.rinks||[]).join('\n');
+
   document.getElementById('editModal').classList.add('open');
 };
 
@@ -539,6 +572,9 @@ window.saveEdit = async () => {
   });
   const womens = document.getElementById('womensChk').classList.contains('checked');
   const levels = SKILL_LEVELS.filter(lv => document.getElementById('lvlchk-' + lv.id)?.classList.contains('checked')).map(lv => lv.id);
+  const rinks = [...new Set(
+    document.getElementById('editRinks').value.split('\n').map(r => r.trim()).filter(Boolean)
+  )];
   try {
     const updates = {
       name: document.getElementById('editName').value.trim(),
@@ -546,6 +582,7 @@ window.saveEdit = async () => {
       ageBrackets,
       womens,
       levels,
+      rinks,
     };
     // If we're saving ageBrackets, clear the legacy age field
     if (ageBrackets.length > 0) updates.age = '';
@@ -662,12 +699,12 @@ function renderRinksTable(rinks) {
   const rows = rinks.map(r => {
     const captured = r.capturedAt ? new Date(r.capturedAt).toLocaleDateString() : '—';
     const source = r.source === 'manual'
-      ? `<span class="badge" style="background:rgba(245,166,35,0.15);color:#F5A623;border:1px solid rgba(245,166,35,0.3)">Manual</span>`
+      ? `<span class="badge" style="background:rgba(184,121,14,0.10);color:#B8790E;border:1px solid rgba(184,121,14,0.25)">Manual</span>`
       : `<span class="badge badge-active">Auto</span>`;
     return `<tr>
       <td><div class="goalie-name">${escapeHtml(r.name) || '—'}</div></td>
-      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${escapeHtml(r.address) || '—'}</td>
-      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${escapeHtml(r.city) || '—'}</td>
+      <td style="font-size:13px;color:var(--muted)">${escapeHtml(r.address) || '—'}</td>
+      <td style="font-size:13px;color:var(--muted)">${escapeHtml(r.city) || '—'}</td>
       <td>${source}</td>
       <td style="font-size:13px">${captured}</td>
       <td>
@@ -685,6 +722,36 @@ function renderRinksTable(rinks) {
       <tbody>${rows}</tbody>
     </table>`;
 }
+
+window.openRinkAdd = () => {
+  document.getElementById('rinkAddName').value = '';
+  document.getElementById('rinkAddAddress').value = '';
+  document.getElementById('rinkAddCity').value = '';
+  document.getElementById('rinkAddModal').classList.add('open');
+};
+
+window.closeRinkAdd = () => {
+  document.getElementById('rinkAddModal').classList.remove('open');
+};
+
+window.saveRinkAdd = async () => {
+  const name = document.getElementById('rinkAddName').value.trim();
+  const address = document.getElementById('rinkAddAddress').value.trim();
+  const city = document.getElementById('rinkAddCity').value.trim();
+  if (!name || !address) { showToast('Name and address are required', true); return; }
+  const btn = document.getElementById('rinkAddSaveBtn');
+  btn.disabled = true; btn.textContent = 'Looking up address...';
+  try {
+    const data = await RINKS_API('add', '', 'POST', { name, address, city });
+    if (data.error) throw new Error(data.error);
+    closeRinkAdd();
+    showToast('Rink added ✓');
+    loadRinks();
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+  btn.disabled = false; btn.textContent = 'Add Rink';
+};
 
 window.openRinkEdit = (id) => {
   const r = allRinks.find(x => x.id === id);
