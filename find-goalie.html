@@ -325,7 +325,7 @@ function renderReview() {
     <table class="review-table">
       <tr><td class="rs" colspan="2">Game info</td></tr>
       <tr><td class="rl">Team</td><td style="font-weight:800">${state.team || '—'}</td></tr>
-      <tr><td class="rl">Rink</td><td style="font-weight:800">${state.rink || '—'}</td></tr>
+      <tr><td class="rl">Rink</td><td style="font-weight:800">${escapeHtml(state.rink) || '—'}</td></tr>
       <tr><td class="rl">Date &amp; time</td><td style="font-weight:800">${state.date || '—'}${state.time?' at '+state.time:''}</td></tr>
       <tr><td class="rl">Levels</td><td>${lvlBadges}</td></tr>
       <tr><td class="rl">Age bracket</td><td style="font-weight:800">${state.ageBracket || '—'}</td></tr>
@@ -481,7 +481,7 @@ window.showMoreRinks = async function() {
     div.onclick = () => selectRink(i, r.name);
     div.innerHTML = `<span class="rink-corner-check">✓</span>
       <div class="rink-dot"></div>
-      <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+      <div class="rink-info"><div class="rink-name">${escapeHtml(r.name)}</div><div class="rink-addr">${escapeHtml(r.address)}, ${escapeHtml(r.city)}</div></div>
       <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
     list.appendChild(div);
   });
@@ -496,6 +496,25 @@ window.showMoreRinks = async function() {
   }
   fixTabOrder();
 }
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s ?? '';
+  return div.innerHTML;
+}
+
+window.captureRink = function(r) {
+  // Send only place_id — the server re-fetches verified details from Google
+  // rather than trusting anything else about this object. If there's no
+  // place_id (e.g. this result already came from a previously-captured
+  // manual rink), there's nothing new to capture.
+  if (!r.place_id) return;
+  fetch('/.netlify/functions/manage-rinks?action=capture', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ place_id: r.place_id }),
+  }).catch(() => {});
+};
 
 window.searchCustomRink = async function() {
   const query = document.getElementById('customRinkSearch').value.trim();
@@ -522,10 +541,10 @@ window.searchCustomRink = async function() {
         div.className = 'rink-item';
         div.id = 'rink' + idx;
         div.setAttribute('data-name', r.name);
-        div.onclick = () => selectRink(idx, r.name);
+        div.onclick = () => { selectRink(idx, r.name); captureRink(r); };
         div.innerHTML = `<span class="rink-corner-check">✓</span>
           <div class="rink-dot"></div>
-          <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+          <div class="rink-info"><div class="rink-name">${escapeHtml(r.name)}</div><div class="rink-addr">${escapeHtml(r.address)}, ${escapeHtml(r.city)}</div></div>
           <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
         list.appendChild(div);
       });
@@ -606,7 +625,7 @@ window.submitRequest = async () => {
     document.getElementById('confirmCard').scrollIntoView({behavior:'smooth', block:'start'});
     document.getElementById('confirmMsg').innerHTML=
       `We sent a confirmation email to <strong>${state.cemail}</strong>.<br><br>
-      Just click the button in that email to notify matching goalies about <strong>${state.team}</strong>'s game on <strong>${state.date} at ${state.time}</strong> at <strong>${state.rink}</strong>.<br><br>
+      Just click the button in that email to notify matching goalies about <strong>${escapeHtml(state.team)}</strong>'s game on <strong>${escapeHtml(state.date)} at ${escapeHtml(state.time)}</strong> at <strong>${escapeHtml(state.rink)}</strong>.<br><br>
       <span style="font-size:14px;color:#5A6480;">Check your spam folder if you don't see it in a minute.</span>`;
 
   } catch(e) {

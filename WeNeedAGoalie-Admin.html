@@ -122,6 +122,7 @@
   <div style="display:flex;gap:10px;align-items:center">
     <span id="lastRefresh" style="font-size:12px;color:rgba(255,255,255,0.3);font-weight:600"></span>
     <button class="btn btn-outline" onclick="openDonationModal()">💚 This Month's Donations</button>
+    <button class="btn btn-outline" onclick="toggleRinksPanel()">🏒 Manage Rinks</button>
     <button class="btn btn-outline" onclick="loadGoalies()">↻ Refresh</button>
     <button class="btn btn-green" onclick="exportGoalies()">⬇ Export JSON</button>
     <button class="btn btn-danger" onclick="confirmClearAll()">⚠ Clear All Goalies</button>
@@ -135,6 +136,22 @@
   <div class="stat-card"><div class="stat-num red" id="statInactive">—</div><div class="stat-label">Inactive</div></div>
   <div class="stat-card"><div class="stat-num gold" id="statRinks">—</div><div class="stat-label">Unique Rinks</div></div>
   <div class="stat-card"><div class="stat-num" style="color:#f9a8d4" id="statWomens">—</div><div class="stat-label">Women's</div></div>
+</div>
+
+<div id="rinksPanel" style="display:none;padding:0 32px;">
+  <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:var(--radius);padding:20px;margin-bottom:8px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:1px;">🏒 Manually Added Rinks</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.4);font-weight:600;margin-top:2px;">Auto-added whenever someone picks a rink from "Can't find your rink?" — review and remove anything bad here</div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input class="search-box" id="rinkSearchBox" placeholder="🔍 Search by name or address..." oninput="filterRinks()" style="min-width:220px;"/>
+        <button class="btn btn-outline" onclick="loadRinks()">↻ Refresh</button>
+      </div>
+    </div>
+    <div id="rinksTableContent" class="loading">Loading rinks...</div>
+  </div>
 </div>
 
 <div class="toolbar">
@@ -219,7 +236,32 @@
   </div>
 </div>
 
-<!-- Donation Modal -->
+<!-- Edit Rink Modal -->
+<div class="modal-overlay" id="rinkEditModal">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-title" style="font-size:22px">Edit Rink</div>
+    <div class="modal-field">
+      <div class="modal-label">Rink Name</div>
+      <input class="modal-input" id="rinkEditName" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Address</div>
+      <input class="modal-input" id="rinkEditAddress" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">City</div>
+      <input class="modal-input" id="rinkEditCity" type="text"/>
+    </div>
+    <div class="modal-field">
+      <div class="modal-label">Coordinates <span style="font-size:10px;color:rgba(255,255,255,0.3);font-weight:600">(reference only — not editable here)</span></div>
+      <div id="rinkEditCoords" style="font-size:14px;color:rgba(255,255,255,0.5);padding:6px 0;font-weight:600">—</div>
+    </div>
+    <div class="modal-row">
+      <button class="btn btn-green" style="flex:1" onclick="saveRinkEdit()">Save Changes</button>
+      <button class="btn btn-outline" onclick="closeRinkEdit()">Cancel</button>
+    </div>
+  </div>
+</div>
 <div class="modal-overlay" id="donationModal">
   <div class="modal" style="max-width:380px">
     <div class="modal-title" style="font-size:22px">This Month's Donations</div>
@@ -282,6 +324,15 @@ const SKILL_LEVELS = [
   {id:'d',  label:'D',  name:'Beginner'},
   {id:'rec',label:'Rec',name:'Pickup/Rec'},
 ];
+
+const RINKS_API = (action='', id='', method='GET', body=null) => {
+  const url = `/.netlify/functions/manage-rinks?secret=${encodeURIComponent(ADMIN_SECRET)}${action ? '&action='+action : ''}${id ? '&id='+id : ''}`;
+  return fetch(url, {
+    method,
+    headers: body ? { 'Content-Type': 'application/json' } : {},
+    body: body ? JSON.stringify(body) : null,
+  }).then(r => r.json());
+};
 
 let allGoalies = [];
 let editingId = null;
@@ -564,6 +615,123 @@ window.exportGoalies = () => {
   a.download = `weneedagoalie-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   showToast(`Exported ${allGoalies.length} goalies ✓`);
+};
+
+let allRinks = [];
+let editingRinkId = null;
+let rinksPanelLoaded = false;
+
+window.toggleRinksPanel = () => {
+  const panel = document.getElementById('rinksPanel');
+  const isOpen = panel.style.display !== 'none';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen && !rinksPanelLoaded) { rinksPanelLoaded = true; loadRinks(); }
+};
+
+window.loadRinks = async () => {
+  document.getElementById('rinksTableContent').innerHTML = '<div class="loading">Loading rinks...</div>';
+  try {
+    const data = await RINKS_API();
+    if (data.error) throw new Error(data.error);
+    allRinks = data.rinks || [];
+    filterRinks();
+  } catch(e) {
+    document.getElementById('rinksTableContent').innerHTML = `<div class="empty-state"><div>⚠️</div>Error loading: ${e.message}</div>`;
+  }
+};
+
+window.filterRinks = () => {
+  const q = (document.getElementById('rinkSearchBox').value || '').toLowerCase();
+  const filtered = allRinks.filter(r =>
+    !q || (r.name||'').toLowerCase().includes(q) || (r.address||'').toLowerCase().includes(q) || (r.city||'').toLowerCase().includes(q)
+  );
+  renderRinksTable(filtered);
+};
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s ?? '';
+  return div.innerHTML;
+}
+
+function renderRinksTable(rinks) {
+  if (!rinks.length) {
+    document.getElementById('rinksTableContent').innerHTML = '<div class="empty-state"><div>🏒</div>No manually added rinks yet</div>';
+    return;
+  }
+  const rows = rinks.map(r => {
+    const captured = r.capturedAt ? new Date(r.capturedAt).toLocaleDateString() : '—';
+    const source = r.source === 'manual'
+      ? `<span class="badge" style="background:rgba(245,166,35,0.15);color:#F5A623;border:1px solid rgba(245,166,35,0.3)">Manual</span>`
+      : `<span class="badge badge-active">Auto</span>`;
+    return `<tr>
+      <td><div class="goalie-name">${escapeHtml(r.name) || '—'}</div></td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${escapeHtml(r.address) || '—'}</td>
+      <td style="font-size:13px;color:rgba(255,255,255,0.6)">${escapeHtml(r.city) || '—'}</td>
+      <td>${source}</td>
+      <td style="font-size:13px">${captured}</td>
+      <td>
+        <div class="action-btns">
+          <button class="icon-btn icon-btn-edit" title="Edit" onclick="openRinkEdit('${r.id}')">✏️</button>
+          <button class="icon-btn icon-btn-delete" title="Delete" onclick="confirmDeleteRink('${r.id}', '${(r.name||'').replace(/'/g,"\\'")}')">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('rinksTableContent').innerHTML = `
+    <table>
+      <thead><tr><th>Rink Name</th><th>Address</th><th>City</th><th>Source</th><th>Added</th><th>Actions</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+window.openRinkEdit = (id) => {
+  const r = allRinks.find(x => x.id === id);
+  if (!r) return;
+  editingRinkId = id;
+  document.getElementById('rinkEditName').value = r.name || '';
+  document.getElementById('rinkEditAddress').value = r.address || '';
+  document.getElementById('rinkEditCity').value = r.city || '';
+  document.getElementById('rinkEditCoords').textContent = (r.lat && r.lng) ? `${r.lat.toFixed(5)}, ${r.lng.toFixed(5)}` : '—';
+  document.getElementById('rinkEditModal').classList.add('open');
+};
+
+window.closeRinkEdit = () => {
+  document.getElementById('rinkEditModal').classList.remove('open');
+  editingRinkId = null;
+};
+
+window.saveRinkEdit = async () => {
+  const name = document.getElementById('rinkEditName').value.trim();
+  const address = document.getElementById('rinkEditAddress').value.trim();
+  if (!name || !address) { showToast('Name and address are required', true); return; }
+  try {
+    const updates = { name, address, city: document.getElementById('rinkEditCity').value.trim() };
+    await RINKS_API('update', editingRinkId, 'POST', updates);
+    const r = allRinks.find(x => x.id === editingRinkId);
+    if (r) Object.assign(r, updates);
+    closeRinkEdit(); filterRinks();
+    showToast('Rink updated ✓');
+  } catch(e) { showToast('Error: ' + e.message, true); }
+};
+
+window.confirmDeleteRink = (id, name) => {
+  document.getElementById('confirmTitle').textContent = 'Delete Rink?';
+  document.getElementById('confirmMsg').textContent = `This removes "${name}" from the manually added rinks list — it just won't show up in future searches. Doesn't affect any goalies or requests.`;
+  document.getElementById('confirmYes').textContent = 'Yes, Delete';
+  document.getElementById('confirmYes').onclick = () => deleteRink(id);
+  document.getElementById('confirmModal').classList.add('open');
+};
+
+window.deleteRink = async (id) => {
+  closeConfirm();
+  try {
+    await RINKS_API('delete', id, 'POST');
+    allRinks = allRinks.filter(r => r.id !== id);
+    filterRinks();
+    showToast('Rink deleted');
+  } catch(e) { showToast('Error: ' + e.message, true); }
 };
 
 loadGoalies();

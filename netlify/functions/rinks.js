@@ -1,3 +1,65 @@
+const FIRESTORE_BASE = `https://firestore.googleapis.com/v1/projects/${process.env.FIREBASE_PROJECT_ID}/databases/(default)/documents`;
+
+async function getAccessToken() {
+  const jwt = await makeJWT();
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `grant_type=urn%3Aietf%3Aparams%3Aoauth%3Agrant-type%3Ajwt-bearer&assertion=${jwt}`,
+  });
+  const data = await res.json();
+  if (!data.access_token) throw new Error('OAuth failed: ' + JSON.stringify(data));
+  return data.access_token;
+}
+
+async function makeJWT() {
+  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKeyRaw = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+  const pemBody = privateKeyRaw.replace(/-----BEGIN PRIVATE KEY-----|-----END PRIVATE KEY-----|\n/g, '');
+  const keyData = Buffer.from(pemBody, 'base64');
+  const now = Math.floor(Date.now() / 1000);
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const payload = {
+    iss: clientEmail, sub: clientEmail,
+    aud: 'https://oauth2.googleapis.com/token',
+    iat: now, exp: now + 3600,
+    scope: 'https://www.googleapis.com/auth/datastore',
+  };
+  const enc = (obj) => Buffer.from(JSON.stringify(obj)).toString('base64url');
+  const signingInput = `${enc(header)}.${enc(payload)}`;
+  const cryptoKey = await crypto.subtle.importKey(
+    'pkcs8', keyData,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false, ['sign']
+  );
+  const sig = await crypto.subtle.sign('RSASSA-PKCS1-v1_5', cryptoKey, Buffer.from(signingInput));
+  return `${signingInput}.${Buffer.from(sig).toString('base64url')}`;
+}
+
+function parseRinkDoc(fields) {
+  if (!fields) return {};
+  const out = {};
+  for (const [k, v] of Object.entries(fields)) {
+    if (v.stringValue !== undefined) out[k] = v.stringValue;
+    else if (v.doubleValue !== undefined) out[k] = v.doubleValue;
+    else if (v.integerValue !== undefined) out[k] = parseInt(v.integerValue);
+    else out[k] = null;
+  }
+  return out;
+}
+
+// Rinks that Google Places missed but a real user found via custom search.
+// Failure here should never break the main rink search, so this is wrapped
+// in try/catch by the caller and just returns [] on any problem.
+async function getManualRinks() {
+  const token = await getAccessToken();
+  const res = await fetch(`${FIRESTORE_BASE}/manualRinks?pageSize=300`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+  });
+  const data = await res.json();
+  return (data.documents || []).map(d => parseRinkDoc(d.fields));
+}
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -94,9 +156,46 @@ exports.handler = async (event) => {
           city: parts.slice(1, 3).join(',').trim() || '',
           miles: Math.round(miles * 10) / 10,
           place_id: place.place_id,
+          lat: pLat,
+          lng: pLng,
         };
-      })
-      .sort((a, b) => a.miles - b.miles);
+      });
+
+    // Merge in rinks that Google Places missed but a real user previously
+    // found via "Can't find your rink?" and we auto-captured. Skipped on
+    // pagetoken continuations so they don't reappear duplicated across pages.
+    // Never let a Firestore hiccup break the main rink search.
+    if (!pagetoken) {
+      try {
+        const manualRinks = await getManualRinks();
+        const norm = s => (s || '').toLowerCase().trim().replace(/\s+/g, ' ');
+        const radiusMiles = isCustomSearch ? 49.7 : 31.1; // matches the 80km/50km Places radius above
+        const already = new Set(rinks.map(r => norm(r.name) + '|' + norm(r.address)));
+
+        manualRinks
+          .filter(r => typeof r.lat === 'number' && typeof r.lng === 'number')
+          .filter(r => distanceMiles(lat, lng, r.lat, r.lng) <= radiusMiles)
+          .filter(r => !isCustomSearch || norm(r.name).includes(norm(query)))
+          .forEach(r => {
+            const key = norm(r.name) + '|' + norm(r.address);
+            if (already.has(key)) return;
+            already.add(key);
+            rinks.push({
+              name: r.name,
+              address: r.address,
+              city: r.city || '',
+              miles: Math.round(distanceMiles(lat, lng, r.lat, r.lng) * 10) / 10,
+              place_id: null,
+              lat: r.lat,
+              lng: r.lng,
+            });
+          });
+      } catch (e) {
+        console.error('manualRinks merge skipped:', e.message);
+      }
+    }
+
+    rinks.sort((a, b) => a.miles - b.miles);
 
     return {
       statusCode: 200,

@@ -14,6 +14,7 @@
       --text:#1A2340;--muted:#5A6480;--border:#D0D8E8;--white:#FFFFFF;
       --radius:14px;--green:#1A7A3E;--green-light:#E6F4EC;--green-border:#7BC99A;
     }
+    html{scroll-behavior:smooth}
     body{font-family:'Nunito',sans-serif;background:var(--ice);color:var(--text)}
     .nav{background:var(--navy);display:flex;align-items:center;justify-content:space-between;padding:14px 24px;border-bottom:2px solid rgba(255,255,255,0.08)}
     .nav-logo{font-family:'Bebas Neue',sans-serif;font-size:26px;color:#fff;letter-spacing:2px;text-decoration:none}
@@ -27,15 +28,7 @@
     .page-hero-content{position:relative;z-index:1}
     .page-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,7vw,64px);color:#fff;letter-spacing:3px;line-height:1}
     .page-sub{font-size:16px;color:rgba(255,255,255,0.65);margin-top:8px;font-weight:600}
-    .steps-bar{display:flex;align-items:center;justify-content:center;padding:1.25rem 1rem;background:var(--white);border-bottom:1.5px solid var(--border);gap:0}
-    .step-pill{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:40px;font-size:13px;font-weight:800;color:var(--muted);transition:all 0.2s}
-    .step-pill.done{color:var(--green);cursor:pointer}
-    .step-pill.done:hover{background:var(--green-light)}
-    .step-pill.active{background:var(--blue-light);color:var(--blue)}
-    .step-num-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;background:var(--border);color:var(--muted);flex-shrink:0;transition:all 0.2s}
-    .step-pill.active .step-num-circle{background:var(--blue);color:#fff}
-    .step-pill.done .step-num-circle{background:var(--green);color:#fff}
-    .step-arrow{color:var(--border);font-size:18px;margin:0 2px}
+    .page-section{scroll-margin-top:16px;padding-top:0.5rem}
     .form-wrap{max-width:640px;margin:0 auto;padding:2rem 1.5rem}
     .card{background:var(--white);border-radius:var(--radius);border:1.5px solid var(--border);padding:2rem;margin-bottom:1.5rem}
     .card-title{font-size:20px;font-weight:800;margin-bottom:4px}
@@ -116,18 +109,8 @@
   </div>
 </div>
 
-<div class="steps-bar">
-  <div class="step-pill active" id="sp1"><div class="step-num-circle" id="sc1">1</div>Your Info</div>
-  <div class="step-arrow">›</div>
-  <div class="step-pill" id="sp2"><div class="step-num-circle" id="sc2">2</div>Rinks</div>
-  <div class="step-arrow">›</div>
-  <div class="step-pill" id="sp3"><div class="step-num-circle" id="sc3">3</div>Skill Level</div>
-  <div class="step-arrow">›</div>
-  <div class="step-pill" id="sp4"><div class="step-num-circle" id="sc4">4</div>Review</div>
-</div>
-
 <div class="form-wrap">
-  <div id="step1">
+  <div id="step1" class="page-section">
     <div class="card">
       <div class="card-title">About you</div>
       <div class="card-desc">Basic info so teams can reach you when they need a goalie</div>
@@ -137,6 +120,18 @@
         <input type="email" id="femail" placeholder="ron@example.com" />
         <div class="hint">We'll email you when a team near you needs a goalie</div>
       </div>
+      <div class="field" style="margin-bottom:0">
+        <label class="label">Password <span class="req">*</span></label>
+        <input type="password" id="fpassword" placeholder="Choose a password (min 6 characters)" />
+        <div class="hint">You'll use this to log in and manage your profile</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="step1b" class="page-section">
+    <div class="card">
+      <div class="card-title">Availability</div>
+      <div class="card-desc">Which leagues should we notify you about?</div>
       <div class="field">
         <label class="label">Available for which age groups? <span class="req">*</span></label>
         <div class="hint" style="margin-bottom:10px;margin-top:0">Select all that apply — you'll be notified for any league you opt into</div>
@@ -149,35 +144,24 @@
           <button class="age-btn" id="bracket-70" onclick="toggleBracket(this,'70+')"><span class="corner-check">✓</span>70+ 🏒</button>
         </div>
       </div>
-      <div class="field">
+      <div class="field" style="margin-bottom:0">
         <label class="label">Women's league</label>
-        <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;" id="womensToggle">
+        <div id="womensToggle" onclick="toggleWomens()" style="display:inline-flex;align-items:center;gap:12px;padding:14px 18px;border-radius:10px;border:2px solid var(--border);background:#fff;cursor:pointer;transition:all 0.15s;user-select:none;">
           <div id="womensCheck" style="width:24px;height:24px;border-radius:6px;border:2px solid var(--border);background:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:all 0.15s;flex-shrink:0"></div>
-          <span style="font-size:15px;font-weight:700;color:var(--text)">Available for women's leagues</span>
+          <span style="font-size:15px;font-weight:700;color:var(--text)">Available for women-only leagues</span>
         </div>
       </div>
-      <div class="field">
-        <label class="label">Your location <span class="req">*</span></label>
-        <input type="text" id="flocation" placeholder="e.g. Rockville, MD  /  Toronto, ON  /  London, England" />
-        <div class="hint">Used to find rinks near you in the next step</div>
-      </div>
-      <div class="field">
-        <label class="label">Password <span class="req">*</span></label>
-        <input type="password" id="fpassword" placeholder="Choose a password (min 6 characters)" />
-        <div class="hint">You'll use this to log in and manage your profile</div>
-      </div>
     </div>
-    <button class="btn-next" onclick="goStep2()">Continue to Rink Selection →</button>
   </div>
 
-  <div id="step2" style="display:none">
+  <div id="step1c" class="page-section">
     <div class="card">
       <div class="card-title">Rinks you'll play at</div>
       <div class="card-desc">Select all rinks you're willing to travel to</div>
       <div class="field">
-        <label class="label">Search by city or region</label>
+        <label class="label">Your location <span class="req">*</span></label>
         <div class="zip-row">
-          <input type="text" id="flocation2" placeholder="e.g. Rockville, MD  /  Toronto, ON" />
+          <input type="text" id="flocation2" placeholder="e.g. Rockville, MD  /  Toronto, ON  /  London, England" />
           <button class="btn-find" id="searchBtn" onclick="searchRinks()">Find Rinks</button>
         </div>
         <div class="hint">Showing nearest ice rinks sorted by distance</div>
@@ -186,7 +170,7 @@
       <div id="rinkPaginationRow" style="margin-top:10px;text-align:center;"></div>
       <div style="margin-top:14px;padding:14px 16px;background:var(--blue-light);border:1.5px solid var(--border);border-radius:10px;display:none" id="customRinkBox">
         <div style="font-size:13px;font-weight:800;color:var(--blue);margin-bottom:8px;">🔍 Can't find your rink?</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your zip.</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:10px;">Type any part of the rink name and we'll search near your location.</div>
         <div class="zip-row">
           <input type="text" id="customRinkSearch" placeholder="e.g. Skate Quest, Dave's Barn..." style="font-size:14px;" />
           <button class="btn-find" id="customSearchBtn" onclick="searchCustomRink()">Search</button>
@@ -195,27 +179,25 @@
       </div>
       <div id="selectedCount" class="selected-count" style="display:none"></div>
     </div>
-    <button class="btn-next" id="next2" onclick="goStep3()" disabled>Continue to Skill Level →</button>
   </div>
 
-  <div id="step3" style="display:none">
+  <div id="step2" class="page-section">
     <div class="card">
       <div class="card-title">Your skill level</div>
       <div class="card-desc">Select all levels you're comfortable playing at</div>
       <div class="level-grid" id="levelGrid"></div>
       <div class="level-note" id="levelNote"></div>
     </div>
-    <button class="btn-next" id="next3" onclick="goStep4()" disabled>Review My Profile →</button>
   </div>
 
-  <div id="step4" style="display:none">
+  <div id="step3" class="page-section">
     <div class="card">
       <div class="card-title">Review your profile</div>
       <div class="card-desc">Double-check everything before we add you to the roster</div>
       <div id="reviewContent"></div>
     </div>
     <div class="err-msg" id="errMsg"></div>
-    <button class="btn-next" id="submitBtn" onclick="submitSignup()" style="background:var(--green)">Add Me to the Roster ✓</button>
+    <button class="btn-next" id="submitBtn" onclick="submitSignup()" disabled>Add Me to the Roster ✓</button>
   </div>
 
   <div class="success-card" id="successCard">
@@ -279,6 +261,25 @@ SKILL_LEVELS.forEach(lv => {
   grid.appendChild(b);
 });
 
+function makeKeyboardAccessible(el) {
+  if (!el) return;
+  if (!el.hasAttribute('tabindex')) el.setAttribute('tabindex', '0');
+  const nativelyKeyboardable = ['BUTTON','A','INPUT','SELECT','TEXTAREA'].includes(el.tagName);
+  if (!nativelyKeyboardable && !el.dataset.kbdBound) {
+    el.dataset.kbdBound = '1';
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
+    });
+  }
+}
+// Safari (default settings) only includes text inputs/selects/textareas in the
+// Tab order — buttons and custom divs get silently skipped. Explicit tabindex
+// forces inclusion regardless of that setting. Re-run after any dynamic render.
+function fixTabOrder() {
+  document.querySelectorAll('button, .rink-item, #womensToggle').forEach(makeKeyboardAccessible);
+}
+fixTabOrder();
+
 window.toggleBracket = (btn, bracket) => {
   btn.classList.toggle('selected');
   if (btn.classList.contains('selected')) {
@@ -286,6 +287,7 @@ window.toggleBracket = (btn, bracket) => {
   } else {
     state.ageBrackets = state.ageBrackets.filter(b => b !== bracket);
   }
+  updateForm();
 };
 
 window.toggleWomens = () => {
@@ -306,31 +308,69 @@ window.toggleWomens = () => {
     check.style.borderColor = 'var(--border)';
     check.textContent = '';
   }
+  updateForm();
 };
 
 document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && document.activeElement.id === 'customRinkSearch') searchCustomRink();
 });
 
-window.goStep2 = () => {
-  const n=document.getElementById('fname').value.trim();
-  const e=document.getElementById('femail').value.trim();
-  const loc=document.getElementById('flocation').value.trim();
-  const p=document.getElementById('fpassword').value;
-  if (!n||!e||!loc||!p) { alert('Please fill in all fields.'); return; }
-  if (state.ageBrackets.length === 0) { alert('Please select at least one age bracket.'); return; }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) { alert('Please enter a valid email address.'); return; }
-  if (p.length < 6) { alert('Password must be at least 6 characters.'); return; }
-  state.name=n; state.email=e; state.password=p; state.location=loc;
-  document.getElementById('flocation2').value=loc;
-  setStep(2); searchRinks();
-};
+['fname','femail','fpassword'].forEach(id=>document.getElementById(id).addEventListener('input',updateForm));
+
+function isFormComplete() {
+  const name = document.getElementById('fname').value.trim();
+  const email = document.getElementById('femail').value.trim();
+  const password = document.getElementById('fpassword').value;
+  return !!(
+    name &&
+    email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) &&
+    password && password.length >= 6 &&
+    state.ageBrackets.length > 0 &&
+    state.location &&
+    state.rinks.length > 0 &&
+    state.levels.length > 0
+  );
+}
+
+function syncState() {
+  state.name = document.getElementById('fname').value.trim();
+  state.email = document.getElementById('femail').value.trim();
+  state.password = document.getElementById('fpassword').value;
+}
+
+function renderReview() {
+  const lvlBadges = SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-blue">${l.label} – ${l.name}</span>`).join('')
+    || '<span style="color:var(--muted)">None selected yet</span>';
+  const rinkBadges = state.rinks.map(r=>`<span class="tag tag-green">${escapeHtml(r)}</span>`).join('')
+    || '<span style="color:var(--muted)">None selected yet</span>';
+  document.getElementById('reviewContent').innerHTML = `
+    <table class="review-table">
+      <tr><td class="rl">Name</td><td style="font-weight:800">${escapeHtml(state.name) || '—'}</td></tr>
+      <tr><td class="rl">Email</td><td style="font-weight:800">${escapeHtml(state.email) || '—'}</td></tr>
+      <tr><td class="rl">Location</td><td style="font-weight:800">${escapeHtml(state.location) || '—'}</td></tr>
+      <tr><td class="rl">Age brackets</td><td style="font-weight:800">${state.ageBrackets.length ? state.ageBrackets.join(', ') : '—'}</td></tr>
+      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Available</td></tr>`:''}
+      <tr><td class="rl">Skill levels</td><td>${lvlBadges}</td></tr>
+      <tr><td class="rl">Rinks</td><td>${rinkBadges}</td></tr>
+    </table>`;
+}
+
+function updateForm() {
+  syncState();
+  renderReview();
+  const btn = document.getElementById('submitBtn');
+  const ready = isFormComplete();
+  btn.disabled = !ready;
+  btn.style.background = ready ? 'var(--green)' : '';
+}
 
 let allRinks = [];
 let rinksShown = 0;
 let nextPageToken = null;
 let currentLocation = '';
 const RINKS_PER_PAGE = 5;
+
+document.getElementById('flocation2').addEventListener('input', () => { state.location = document.getElementById('flocation2').value.trim(); updateForm(); });
 
 window.searchRinks = async () => {
   const loc=document.getElementById('flocation2').value.trim();
@@ -339,11 +379,10 @@ window.searchRinks = async () => {
   allRinks=[]; rinksShown=0; nextPageToken=null;
   const btn=document.getElementById('searchBtn');
   document.getElementById('selectedCount').style.display='none';
-  document.getElementById('next2').disabled=true;
   document.getElementById('customRinkBox').style.display='none';
   document.getElementById('customRinkResults').innerHTML='';
   btn.disabled=true; btn.textContent='Searching...';
-  document.getElementById('rinkResults').innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${loc}…</div>`;
+  document.getElementById('rinkResults').innerHTML=`<div style="color:var(--muted);font-size:14px;padding:1rem 0">Finding rinks near ${escapeHtml(loc)}…</div>`;
   try {
     const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(loc)}`);
     const data = await resp.json();
@@ -358,6 +397,7 @@ window.searchRinks = async () => {
   } catch(err) {
     document.getElementById('rinkResults').innerHTML=`<div style="color:var(--red);font-size:14px;padding:1rem 0">Couldn't find that location. Try being more specific, e.g. "Toronto, ON, Canada".</div>`;
     btn.disabled=false; btn.textContent='Find Rinks';
+    updateForm();
     return;
   }
   document.getElementById('rinkResults').innerHTML = '<div class="rinks-list" id="rinksList"></div>';
@@ -365,6 +405,7 @@ window.searchRinks = async () => {
   showMoreRinks();
   document.getElementById('customRinkBox').style.display='block';
   btn.disabled=false; btn.textContent='Find Rinks';
+  updateForm();
 };
 
 window.showMoreRinks = async function() {
@@ -388,7 +429,7 @@ window.showMoreRinks = async function() {
     div.onclick = () => toggleRink(i);
     div.innerHTML = `<span class="rink-corner-check">✓</span>
       <div class="rink-dot"></div>
-      <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+      <div class="rink-info"><div class="rink-name">${escapeHtml(r.name)}</div><div class="rink-addr">${escapeHtml(r.address)}, ${escapeHtml(r.city)}</div></div>
       <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
     list.appendChild(div);
   });
@@ -397,17 +438,37 @@ window.showMoreRinks = async function() {
   pr.innerHTML = (rinksShown < allRinks.length || nextPageToken)
     ? `<button onclick="showMoreRinks()" style="background:none;border:1.5px solid var(--border);border-radius:8px;padding:10px 20px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:var(--blue);cursor:pointer;">Show more rinks ↓</button>`
     : '';
+  fixTabOrder();
+};
+
+function escapeHtml(s) {
+  const div = document.createElement('div');
+  div.textContent = s ?? '';
+  return div.innerHTML;
+}
+
+window.captureRink = function(r) {
+  // Send only place_id — the server re-fetches verified details from Google
+  // rather than trusting anything else about this object.
+  if (!r.place_id) return;
+  fetch('/.netlify/functions/manage-rinks?action=capture', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ place_id: r.place_id }),
+  }).catch(() => {});
 };
 
 window.searchCustomRink = async function() {
   const query = document.getElementById('customRinkSearch').value.trim();
   if (!query) { alert('Please type a rink name to search.'); return; }
+  const location = document.getElementById('flocation2').value.trim() || currentLocation;
+  if (!location) { alert('Please enter your location above first, so we know where to search.'); return; }
   const btn = document.getElementById('customSearchBtn');
   const resultsDiv = document.getElementById('customRinkResults');
   btn.disabled=true; btn.textContent='Searching...';
   resultsDiv.innerHTML='';
   try {
-    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(currentLocation)}&query=${encodeURIComponent(query)}`);
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}&query=${encodeURIComponent(query)}`);
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
     const found = data.rinks || [];
@@ -421,14 +482,15 @@ window.searchCustomRink = async function() {
         const div=document.createElement('div');
         div.className='rink-item'; div.id='rink'+idx;
         div.setAttribute('data-name', r.name);
-        div.onclick=()=>toggleRink(idx);
+        div.onclick=()=>{ toggleRink(idx); if (div.classList.contains('selected')) captureRink(r); };
         div.innerHTML=`<span class="rink-corner-check">✓</span>
           <div class="rink-dot"></div>
-          <div class="rink-info"><div class="rink-name">${r.name}</div><div class="rink-addr">${r.address}, ${r.city}</div></div>
+          <div class="rink-info"><div class="rink-name">${escapeHtml(r.name)}</div><div class="rink-addr">${escapeHtml(r.address)}, ${escapeHtml(r.city)}</div></div>
           <div class="rink-dist">${Number(r.miles).toFixed(1)} mi</div>`;
         list.appendChild(div);
       });
       resultsDiv.appendChild(list);
+      fixTabOrder();
     }
   } catch(e) {
     resultsDiv.innerHTML=`<div style="font-size:13px;color:var(--red);padding:8px 0;">Search failed. Please try again.</div>`;
@@ -446,10 +508,8 @@ window.toggleRink = i => {
   const cnt=document.getElementById('selectedCount');
   cnt.style.display=state.rinks.length?'block':'none';
   if (state.rinks.length) cnt.textContent=`✓ ${state.rinks.length} rink${state.rinks.length>1?'s':''} selected`;
-  document.getElementById('next2').disabled=state.rinks.length===0;
+  updateForm();
 };
-
-window.goStep3 = () => setStep(3);
 
 function toggleLevel(lv, btn) {
   btn.classList.toggle('selected');
@@ -460,28 +520,13 @@ function toggleLevel(lv, btn) {
     btn.style.cssText=`border-color:${lv.color}55`;
     state.levels=state.levels.filter(x=>x!==lv.id);
   }
-  document.getElementById('next3').disabled=state.levels.length===0;
   const sel=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
   document.getElementById('levelNote').textContent=sel.length?'Selected: '+sel.join(', '):'';
+  updateForm();
 }
 
-window.goStep4 = () => {
-  const lvlBadges=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>`<span class="tag tag-blue">${l.label} – ${l.name}</span>`).join('');
-  const rinkBadges=state.rinks.map(r=>`<span class="tag tag-green">${r}</span>`).join('');
-  document.getElementById('reviewContent').innerHTML=`
-    <table class="review-table">
-      <tr><td class="rl">Name</td><td style="font-weight:800">${state.name}</td></tr>
-      <tr><td class="rl">Email</td><td style="font-weight:800">${state.email}</td></tr>
-      <tr><td class="rl">Location</td><td style="font-weight:800">${state.location}</td></tr>
-      <tr><td class="rl">Age brackets</td><td style="font-weight:800">${state.ageBrackets.join(', ')}</td></tr>
-      ${state.womens?`<tr><td class="rl">Women's</td><td style="font-weight:800;color:var(--green)">✓ Available</td></tr>`:''}
-      <tr><td class="rl">Skill levels</td><td>${lvlBadges}</td></tr>
-      <tr><td class="rl">Rinks</td><td>${rinkBadges}</td></tr>
-    </table>`;
-  setStep(4);
-};
-
 window.submitSignup = async () => {
+  if (!isFormComplete()) return;
   const btn=document.getElementById('submitBtn');
   const err=document.getElementById('errMsg');
   err.style.display='none';
@@ -499,8 +544,10 @@ window.submitSignup = async () => {
       levels:state.levels, rinks:state.rinks,
       active:true, createdAt:serverTimestamp()
     });
-    document.getElementById('step4').style.display='none';
-    document.getElementById('successCard').style.display='block';
+    document.getElementById('step3').style.display='none';
+    const successCard=document.getElementById('successCard');
+    successCard.style.display='block';
+    successCard.scrollIntoView({behavior:'smooth', block:'start'});
     const lvls=SKILL_LEVELS.filter(l=>state.levels.includes(l.id)).map(l=>l.label+' – '+l.name);
     document.getElementById('successMsg').innerHTML=
       `<strong>${state.name}</strong>, you're now on the goalie roster!<br><br>
@@ -518,20 +565,7 @@ window.submitSignup = async () => {
   }
 };
 
-function setStep(n) {
-  [1,2,3,4].forEach(i=>{
-    document.getElementById('step'+i).style.display=i===n?'block':'none';
-    const sp=document.getElementById('sp'+i), sc=document.getElementById('sc'+i);
-    sp.className='step-pill'+(i===n?' active':i<n?' done':'');
-    sc.textContent=i<n?'✓':i;
-    // Make completed steps clickable to go back
-    if (i < n) {
-      sp.onclick = () => setStep(i);
-    } else {
-      sp.onclick = null;
-    }
-  });
-}
+updateForm();
 </script>
 <footer style="background:#060E1A;padding:1rem 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
   <span style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:#fff;letter-spacing:2px;">WENeedAGoalie<span style="color:#F5A623;">.</span>com</span>
