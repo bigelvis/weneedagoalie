@@ -113,6 +113,8 @@
     .checkbox-item:hover{background:#EAEEF4}
     .checkbox-item.checked{background:rgba(42,82,152,0.10);border-color:rgba(42,82,152,0.35);color:var(--blue)}
     .checkbox-item input{display:none}
+    .rink-add-result{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;border:1.5px solid var(--border);background:var(--bg);cursor:pointer;margin-top:10px;transition:all 0.15s}
+    .rink-add-result:hover{border-color:var(--blue);background:var(--card);box-shadow:0 2px 8px rgba(10,22,40,0.06)}
   </style>
 </head>
 <body>
@@ -270,24 +272,23 @@
 
 <!-- Add Rink Modal -->
 <div class="modal-overlay" id="rinkAddModal">
-  <div class="modal" style="max-width:440px">
+  <div class="modal" style="max-width:480px">
     <div class="modal-title" style="font-size:22px">Add Rink</div>
-    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">We'll look up the exact coordinates from the address automatically.</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;">Searches Google Places — same lookup as "Can't find your rink?" on the public site.</div>
     <div class="modal-field">
-      <div class="modal-label">Rink Name</div>
-      <input class="modal-input" id="rinkAddName" type="text"/>
+      <div class="modal-label">Search near (city/region)</div>
+      <input class="modal-input" id="rinkAddLocation" type="text" placeholder="e.g. Arlington, VA"/>
     </div>
     <div class="modal-field">
-      <div class="modal-label">Address</div>
-      <input class="modal-input" id="rinkAddAddress" type="text" placeholder="e.g. 627 N Glebe Rd"/>
+      <div class="modal-label">Rink name</div>
+      <div style="display:flex;gap:8px;">
+        <input class="modal-input" id="rinkAddQuery" type="text" placeholder="e.g. Skate Quest, Dave's Barn..." style="flex:1;"/>
+        <button class="btn btn-outline" id="rinkAddSearchBtn" onclick="searchRinkAdd()" style="white-space:nowrap;">Search</button>
+      </div>
     </div>
-    <div class="modal-field">
-      <div class="modal-label">City <span style="font-size:10px;color:#A8B0C4;font-weight:600">(optional, improves accuracy)</span></div>
-      <input class="modal-input" id="rinkAddCity" type="text" placeholder="e.g. Arlington, VA"/>
-    </div>
+    <div id="rinkAddResults"></div>
     <div class="modal-row">
-      <button class="btn btn-green" style="flex:1" id="rinkAddSaveBtn" onclick="saveRinkAdd()">Add Rink</button>
-      <button class="btn btn-outline" onclick="closeRinkAdd()">Cancel</button>
+      <button class="btn btn-outline" style="flex:1" onclick="closeRinkAdd()">Close</button>
     </div>
   </div>
 </div>
@@ -723,10 +724,13 @@ function renderRinksTable(rinks) {
     </table>`;
 }
 
+let rinkAddResults = [];
+
 window.openRinkAdd = () => {
-  document.getElementById('rinkAddName').value = '';
-  document.getElementById('rinkAddAddress').value = '';
-  document.getElementById('rinkAddCity').value = '';
+  document.getElementById('rinkAddLocation').value = '';
+  document.getElementById('rinkAddQuery').value = '';
+  document.getElementById('rinkAddResults').innerHTML = '';
+  rinkAddResults = [];
   document.getElementById('rinkAddModal').classList.add('open');
 };
 
@@ -734,23 +738,55 @@ window.closeRinkAdd = () => {
   document.getElementById('rinkAddModal').classList.remove('open');
 };
 
-window.saveRinkAdd = async () => {
-  const name = document.getElementById('rinkAddName').value.trim();
-  const address = document.getElementById('rinkAddAddress').value.trim();
-  const city = document.getElementById('rinkAddCity').value.trim();
-  if (!name || !address) { showToast('Name and address are required', true); return; }
-  const btn = document.getElementById('rinkAddSaveBtn');
-  btn.disabled = true; btn.textContent = 'Looking up address...';
+window.searchRinkAdd = async () => {
+  const location = document.getElementById('rinkAddLocation').value.trim();
+  const query = document.getElementById('rinkAddQuery').value.trim();
+  if (!location) { showToast('Enter a city or region to search near', true); return; }
+  if (!query) { showToast('Enter a rink name to search', true); return; }
+  const btn = document.getElementById('rinkAddSearchBtn');
+  const resultsDiv = document.getElementById('rinkAddResults');
+  btn.disabled = true; btn.textContent = 'Searching...';
+  resultsDiv.innerHTML = '';
   try {
-    const data = await RINKS_API('add', '', 'POST', { name, address, city });
+    const resp = await fetch(`/.netlify/functions/rinks?location=${encodeURIComponent(location)}&query=${encodeURIComponent(query)}`);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    rinkAddResults = data.rinks || [];
+    if (!rinkAddResults.length) {
+      resultsDiv.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:10px 0;">No results found. Try a different name or location.</div>';
+    } else {
+      resultsDiv.innerHTML = rinkAddResults.map((r, i) => `
+        <div class="rink-add-result" onclick="selectRinkAddResult(${i})">
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:800;font-size:14px;">${escapeHtml(r.name)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;">${escapeHtml(r.address)}, ${escapeHtml(r.city)}</div>
+          </div>
+          <div style="font-size:12px;font-weight:800;color:var(--blue);white-space:nowrap;">${Number(r.miles).toFixed(1)} mi</div>
+        </div>`).join('');
+    }
+  } catch(e) {
+    resultsDiv.innerHTML = `<div style="font-size:13px;color:var(--red);padding:10px 0;">${e.message}</div>`;
+  }
+  btn.disabled = false; btn.textContent = 'Search';
+};
+
+window.selectRinkAddResult = async (i) => {
+  const r = rinkAddResults[i];
+  if (!r || !r.place_id) { showToast('This result has no verifiable Google place ID', true); return; }
+  try {
+    const resp = await fetch('/.netlify/functions/manage-rinks?action=capture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ place_id: r.place_id }),
+    });
+    const data = await resp.json();
     if (data.error) throw new Error(data.error);
     closeRinkAdd();
-    showToast('Rink added ✓');
+    showToast(data.duplicate ? 'Already in the list' : data.skipped ? 'Skipped — looks like a non-rink business' : 'Rink added ✓', !!data.skipped);
     loadRinks();
   } catch(e) {
     showToast('Error: ' + e.message, true);
   }
-  btn.disabled = false; btn.textContent = 'Add Rink';
 };
 
 window.openRinkEdit = (id) => {

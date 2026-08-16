@@ -185,28 +185,6 @@ exports.handler = async (event) => {
 
     const token = await getAccessToken();
 
-    if (event.httpMethod === 'POST' && action === 'add') {
-      const body = JSON.parse(event.body || '{}');
-      const name = (body.name || '').trim();
-      const address = (body.address || '').trim();
-      const city = (body.city || '').trim();
-      if (!name || !address) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: 'name and address are required' }) };
-      }
-
-      const apiKey = process.env.GOOGLE_PLACES_API_KEY;
-      const fullAddress = [address, city].filter(Boolean).join(', ');
-      const geoRes = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(fullAddress)}&key=${apiKey}`);
-      const geoData = await geoRes.json();
-      if (!geoData.results || !geoData.results.length) {
-        return { statusCode: 400, headers, body: JSON.stringify({ error: `Could not find coordinates for "${fullAddress}". Try a more specific address.` }) };
-      }
-      const { lat, lng } = geoData.results[0].geometry.location;
-
-      await addRink(token, { name, address, city, lat, lng, source: 'manual', capturedAt: new Date().toISOString() });
-      return { statusCode: 200, headers, body: JSON.stringify({ ok: true }) };
-    }
-
     if (event.httpMethod === 'POST' && action === 'update') {
       const body = JSON.parse(event.body || '{}');
       const updates = {};
