@@ -182,10 +182,9 @@ exports.handler = async (event) => {
       matched.length = 0;
       matched.push({ name: 'Ron (TEST)', email: 'rhuskey@gmail.com' });
     }
-    // Format date/time
-    const dt = new Date(req.date + 'T' + req.time);
-    const fmtDate = dt.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
-    const fmtTime = dt.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+    // req.date and req.time are freeform text (not ISO values) — display as typed
+    const fmtDate = req.date || '';
+    const fmtTime = req.time || '';
     const levelNames = (req.levels || []).map(l => SKILL_LEVELS[l] || l).join(', ');
 
     // Send goalie emails sequentially to avoid Resend rate limits

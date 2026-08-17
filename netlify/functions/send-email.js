@@ -40,9 +40,9 @@ exports.handler = async (event) => {
     d:'D – Beginner', rec:'Rec / Pickup'
   };
 
-  const dt = new Date(request.date + 'T' + request.time);
-  const fmtDate = dt.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
-  const fmtTime = dt.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' });
+  // request.date and request.time are freeform text (not ISO values) — display as typed
+  const fmtDate = request.date || '';
+  const fmtTime = request.time || '';
   const levelNames = (request.levels || []).map(l => SKILL_LEVELS[l] || l).join(', ');
 
   // ---- Team confirmation email ----
