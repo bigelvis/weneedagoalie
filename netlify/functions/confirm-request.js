@@ -247,9 +247,10 @@ exports.handler = async (event) => {
     await patchDoc(accessToken, `requests/${docId}`, { status: 'confirmed', notifiedCount: matched.length });
 
     const n = matched.length;
-    const body = n > 0
-      ? `<strong>${n} goalie${n>1?'s':''}</strong> at <strong>${req.rink}</strong> have been notified about <strong>${req.team}</strong>'s game on ${fmtDate} at ${fmtTime}.<br><br>They'll reply to <strong>${req.cemail}</strong> to confirm.`
-      : `No goalies are currently registered at <strong>${req.rink}</strong> for those skill levels. You may want to post in your league group as a backup.`;
+const body = n > 0
+  ? `<div class="stat"><div class="stat-num">${n}</div><div class="stat-label">Goalie${n>1?'s':''} Notified</div></div>
+     at <strong>${req.rink}</strong> for <strong>${req.team}</strong>'s game on ${fmtDate} at ${fmtTime}.<br><br>They'll reply to <strong>${req.cemail}</strong> to confirm.`
+  : `No goalies are currently registered at <strong>${req.rink}</strong> for those skill levels. You may want to post in your league group as a backup.`;
 
     return {
       statusCode: 200, headers: HTML,
