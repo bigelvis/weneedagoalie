@@ -56,14 +56,19 @@ function parseDoc(fields) {
 }
 
 async function getCollection(token, col) {
-  const res = await fetch(`${FIRESTORE_BASE}/${col}?pageSize=200`, {
-    headers: { 'Authorization': `Bearer ${token}` }
-  });
-  const data = await res.json();
-  return (data.documents || []).map(d => ({
-    id: d.name.split('/').pop(),
-    ...parseDoc(d.fields)
-  }));
+  let docs = [];
+  let pageToken = null;
+  do {
+    const url = `${FIRESTORE_BASE}/${col}?pageSize=300${pageToken ? `&pageToken=${pageToken}` : ''}`;
+    const res = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+    const data = await res.json();
+    docs = docs.concat((data.documents || []).map(d => ({
+      id: d.name.split('/').pop(),
+      ...parseDoc(d.fields)
+    })));
+    pageToken = data.nextPageToken || null;
+  } while (pageToken);
+  return docs;
 }
 
 async function updateGoalie(token, id, updates) {
