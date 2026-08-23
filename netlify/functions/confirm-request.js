@@ -112,14 +112,17 @@ function page(title, emoji, heading, msg, color = '#1A7A3E') {
 body{font-family:'Nunito',sans-serif;background:#F0F8FF;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
 .card{background:#fff;border-radius:16px;border:1.5px solid #D0D8E8;padding:2.5rem;max-width:480px;width:100%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.07)}
 .emoji{font-size:56px;margin-bottom:1rem}
-.title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};margin-bottom:12px}
+.title{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:2px;color:${color};margin-bottom:16px}
+.stat{background:#E6F4EC;border:1.5px solid #A8D8BC;border-radius:12px;padding:18px 16px;margin-bottom:20px}
+.stat-num{font-family:'Bebas Neue',sans-serif;font-size:48px;color:#1A7A3E;line-height:1}
+.stat-label{font-size:13px;font-weight:800;color:#1A7A3E;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 .msg{font-size:15px;color:#5A6480;line-height:1.7}
 .home{display:inline-block;margin-top:1.5rem;padding:12px 28px;background:#0A1628;color:#fff;border-radius:10px;font-weight:800;font-size:14px;text-decoration:none}
 </style></head>
 <body><div class="card">
 <div class="emoji">${emoji}</div>
 <div class="title">${heading}</div>
-<div class="msg">${msg}</div>
+${msg}
 <a class="home" href="https://weneedagoalie.com">← Back to homepage</a>
 </div></body></html>`;
 }
@@ -129,7 +132,7 @@ exports.handler = async (event) => {
   const HTML = { 'Content-Type': 'text/html' };
   const { token } = event.queryStringParameters || {};
 
-  if (!token) return { statusCode: 400, headers: HTML, body: page('Error','❌','Invalid Link','This confirmation link is missing a token.','#CC2200') };
+  if (!token) return { statusCode: 400, headers: HTML, body: page('Error','❌','Invalid Link','<div class="msg">This confirmation link is missing a token.</div>','#CC2200') };
 
   try {
     const accessToken = await getAccessToken();
@@ -138,14 +141,18 @@ exports.handler = async (event) => {
     // Find request by confirmToken
     const rows = await queryWhere(accessToken, 'requests', 'confirmToken', token);
     const hit = (rows || []).find(r => r.document);
-    if (!hit) return { statusCode: 404, headers: HTML, body: page('Not Found','🤔','Link Not Found','This confirmation link is invalid or has already been used.','#CC2200') };
+    if (!hit) return { statusCode: 404, headers: HTML, body: page('Not Found','🤔','Link Not Found','<div class="msg">This confirmation link is invalid or has already been used.</div>','#CC2200') };
 
     const docId = hit.document.name.split('/').pop();
     const req = parseDoc(hit.document.fields);
     console.log('✓ Found request:', req.team, req.rink, 'status:', req.status);
 
     if (req.status === 'confirmed') {
-      return { statusCode: 200, headers: HTML, body: page('Already Sent','✅','Already Confirmed!',`Goalies were already notified for <strong>${req.team}</strong>'s game at <strong>${req.rink}</strong>.`) };
+      const already = req.notifiedCount != null
+        ? `<div class="stat"><div class="stat-num">${req.notifiedCount}</div><div class="stat-label">Goalie${req.notifiedCount === 1 ? '' : 's'} Notified</div></div>
+           <div class="msg">Goalies were already notified for <strong>${req.team}</strong>'s game at <strong>${req.rink}</strong>.</div>`
+        : `<div class="msg">Goalies were already notified for <strong>${req.team}</strong>'s game at <strong>${req.rink}</strong>.</div>`;
+      return { statusCode: 200, headers: HTML, body: page('Already Sent','✅','Already Confirmed!', already) };
     }
 
     // Get matching active goalies
@@ -247,10 +254,10 @@ exports.handler = async (event) => {
     await patchDoc(accessToken, `requests/${docId}`, { status: 'confirmed', notifiedCount: matched.length });
 
     const n = matched.length;
-const body = n > 0
-  ? `<div class="stat"><div class="stat-num">${n}</div><div class="stat-label">Goalie${n>1?'s':''} Notified</div></div>
-     at <strong>${req.rink}</strong> for <strong>${req.team}</strong>'s game on ${fmtDate} at ${fmtTime}.<br><br>They'll reply to <strong>${req.cemail}</strong> to confirm.`
-  : `No goalies are currently registered at <strong>${req.rink}</strong> for those skill levels. You may want to post in your league group as a backup.`;
+    const body = n > 0
+      ? `<div class="stat"><div class="stat-num">${n}</div><div class="stat-label">Goalie${n>1?'s':''} Notified</div></div>
+         <div class="msg">at <strong>${req.rink}</strong> for <strong>${req.team}</strong>'s game on ${fmtDate} at ${fmtTime}.<br><br>They'll reply to <strong>${req.cemail}</strong> to confirm.</div>`
+      : `<div class="msg">No goalies are currently registered at <strong>${req.rink}</strong> for those skill levels. You may want to post in your league group as a backup.</div>`;
 
     return {
       statusCode: 200, headers: HTML,
@@ -265,6 +272,6 @@ const body = n > 0
 
   } catch(e) {
     console.error('confirm-request error:', e);
-    return { statusCode: 500, headers: HTML, body: page('Error','❌','Something Went Wrong',`${e.message}`,'#CC2200') };
+    return { statusCode: 500, headers: HTML, body: page('Error','❌','Something Went Wrong',`<div class="msg">${e.message}</div>`,'#CC2200') };
   }
 };
