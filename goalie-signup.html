@@ -546,6 +546,11 @@ window.submitSignup = async () => {
       levels:state.levels, rinks:state.rinks,
       active:true, createdAt:serverTimestamp()
     });
+    fetch('/.netlify/functions/notify-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: state.name, email: state.email, rinks: state.rinks, levels: state.levels }),
+    }).catch(err => console.error('notify-signup failed:', err));
     document.getElementById('step3').style.display='none';
     const successCard=document.getElementById('successCard');
     successCard.style.display='block';
